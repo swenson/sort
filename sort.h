@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #define SORT_NAME sorter
 #define SORT_CONCAT(x, y) x ## _ ## y
@@ -12,10 +13,42 @@ static int cmps = 0;
 #define SWAP(x,y) ({swaps++; typeof((x)) _t = (x); (x) = (y); (y) = _t;})
 #define CMP(x,y) ((cmps++ - cmps + (x) - (y) ))
 
+const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4376, 10941, 27353, 68383, 170958, 427396, 1068491, 2671228, 6678071, 16695178, 41737946, 104344866, 260862166, 652155416, 1630388541, 4075971353, 10189928383, 25474820958, 63687052396, 159217630991, 398044077478, 995110193696, 2487775484241, 6219438710603, 15548596776508, 38871491941271, 97178729853178, 242946824632946, 607367061582366, 1518417653955916, 3796044134889791, 9490110337224478, 23725275843061196, 59313189607652991, 148282974019132478, 370707435047831196, 926768587619577991, 2316921469048944978, 5792303672622362446};
+
+
 static void reset()
 {
   swaps = 0;
   cmps = 0;
+}
+
+void shell_sort(int *dst, int64_t size)
+{
+  // TODO: binary search to find first gap?
+  int inci = 47;
+  int64_t inc = shell_gaps[inci];
+  while (inc > (size >> 1))
+  {
+    inc = shell_gaps[--inci];
+  }
+  int i;
+  while (1)
+  {
+    for (i = inc; i < size; i++)
+    {
+      typeof(dst[0]) temp = dst[i];
+      int j = i;
+      while ((j >= inc) && (CMP(dst[j - inc], temp) > 0))
+      {
+        dst[j] = dst[j - inc];
+        swaps++;
+        j -= inc;
+      }
+      dst[j] = temp;
+    }
+    if (inc == 1) break;
+    inc = shell_gaps[--inci];
+  }
 }
 
 static inline int binary_insertion_find(int *dst, int x, int size)
@@ -141,6 +174,7 @@ void merge_sort(int *dst, int size)
   memcpy(dst, newdst, size * sizeof(int));
 }
 
+/* quick sort: based on wikipedia */
 int quick_sort_partition(int *dst, int left, int right, int pivot)
 {
   typeof(dst[0]) value = dst[pivot];
@@ -158,6 +192,7 @@ int quick_sort_partition(int *dst, int left, int right, int pivot)
   SWAP(dst[right], dst[index]);
   return index;
 }
+
 void quick_sort_recursive(int *dst, int left, int right)
 {
   if (right <= left) return;
@@ -183,15 +218,49 @@ void tim_sort(int *dst, int size)
   
 }
 
-void heap_sort(int *dst, int size)
+/* heap sort: based on wikipedia */
+void heap_sift_down(int *dst, int start, int end)
 {
+  int root = start;
   
+  while ((root << 1) <= end)
+  {
+    int child = root << 1;
+    if ((child < end) && (CMP(dst[child], dst[child + 1]) < 0))
+      child++;
+    if (CMP(dst[root], dst[child]) < 0)
+    {
+      SWAP(dst[root], dst[child]);
+      root = child;
+    }
+    else
+      return;
+  }
 }
 
-void shell_sort(int *dst, int size)
+void heapify(int *dst, int size)
 {
-  
+  int start = size >> 1;
+  while (start >= 0)
+  {
+    heap_sift_down(dst, start, size - 1);
+    start--;
+  }
 }
+
+void heap_sort(int *dst, int size)
+{
+  heapify(dst, size);
+  int end = size - 1;
+  
+  while (end > 0)
+  {
+    SWAP(dst[end], dst[0]);
+    heap_sift_down(dst, 0, end - 1);
+    end--;
+  }
+}
+
 void verify(int *dst, int size)
 {
   int i;
@@ -247,6 +316,20 @@ void run_tests(void)
   binary_insertion_sort(dst, size);
   verify(dst, size);
   printf("binaryinsertionsort; swaps %d, compares %d\n", swaps, cmps);
+
+  reset();
+  printf("\nHeap sort\n");
+  memcpy(dst, arr, sizeof(int) * size);
+  heap_sort(dst, size);
+  verify(dst, size);
+  printf("heapsort; swaps %d, compares %d\n", swaps, cmps);
+  
+  reset();
+  printf("\nShell sort\n");
+  memcpy(dst, arr, sizeof(int) * size);
+  shell_sort(dst, size);
+  verify(dst, size);
+  printf("shellsort; swaps %d, compares %d\n", swaps, cmps);
   
 }
 
