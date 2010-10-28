@@ -561,68 +561,143 @@ void verify(int *dst, int size)
     }
   }
 }
-void run_tests(void)
+
+static inline double utime()
 {
-  printf("Running tests\n");
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  return (1000000.0 * t.tv_sec + t.tv_usec);
+  
+}
+
+static void fill(int *arr, int size)
+{
   int i;
-  srand48(123);
-  int size = 30000;
-  int arr[size];
   for (i = 0; i < size; i++)
   {
     arr[i] = lrand48();
   }
+}
+
+void run_tests(void)
+{
+  
+  printf("Running tests\n");
+  int i;
+  srand48(123);
+  int size = 5000;
+  int runs = 10;
+  int arr[size];
   int dst[size];
+  double start_time;
+  double end_time;
+  double total_time;
   
-  reset();  
-  printf("\nQuick sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  quick_sort(dst, size);
-  verify(dst, size);
-  printf("quicksort; swaps %d, compares %d\n", swaps, cmps);
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();  
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    quick_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("quick sort time: %.2f us per iteration\n", total_time / runs);
+  
 
-  reset();  
-  printf("\nBubble sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  bubble_sort(dst, size);
-  verify(dst, size);
-  printf("bubblesort; swaps %d, compares %d\n", swaps, cmps);
-
-  reset();  
-  printf("\nMerge sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  merge_sort(dst, size);
-  verify(dst, size);
-  printf("mergesort; swaps %d, compares %d\n", swaps, cmps);
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();  
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    bubble_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("bubble sort time: %.2f us per iteration\n", total_time / runs);
   
-  reset();
-  printf("\nBinary insertion sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  binary_insertion_sort(dst, size);
-  verify(dst, size);
-  printf("binaryinsertionsort; swaps %d, compares %d\n", swaps, cmps);
-
-  reset();
-  printf("\nHeap sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  heap_sort(dst, size);
-  verify(dst, size);
-  printf("heapsort; swaps %d, compares %d\n", swaps, cmps);
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();  
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    merge_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("merge sort time: %.2f us per iteration\n", total_time / runs);
   
-  reset();
-  printf("\nShell sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  shell_sort(dst, size);
-  verify(dst, size);
-  printf("shellsort; swaps %d, compares %d\n", swaps, cmps);
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    binary_insertion_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("binary insertion sort time: %.2f us per iteration\n", total_time / runs);
   
-  reset();
-  printf("\nTim sort\n");
-  memcpy(dst, arr, sizeof(int) * size);
-  tim_sort(dst, size);
-  verify(dst, size);
-  printf("timsort; swaps %d, compares %d\n", swaps, cmps);
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    heap_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("heap sort time: %.2f us per iteration\n", total_time / runs);
   
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    shell_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }
+  printf("shell sort time: %.2f us per iteration\n", total_time / runs);
+  
+  srand48(123);  
+  total_time = 0.0;
+  for (i = 0; i < runs; i++)
+  {
+    reset();
+    fill(arr, size);
+    memcpy(dst, arr, sizeof(int) * size);
+    start_time = utime();
+    tim_sort(dst, size);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, size);
+  }  
+  printf("tim sort time: %.2f us per iteration\n", total_time / runs);
 }
 
 int main(void)
