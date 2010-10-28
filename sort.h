@@ -198,10 +198,10 @@ void quick_sort_recursive(int *dst, int left, int right)
   if (right <= left) return;
   if ((right - left + 1) < 16)
   {
-    bubble_sort(&dst[left], right - left + 1);
+    binary_insertion_sort(&dst[left], right - left + 1);
     return;
   }
-  int pivot = left + (right - left) >> 1;
+  int pivot = left + ((right - left) >> 1);
   int new_pivot = quick_sort_partition(dst, left, right, pivot);
   quick_sort_recursive(dst, left, new_pivot - 1);
   quick_sort_recursive(dst, new_pivot + 1, right);
