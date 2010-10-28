@@ -100,22 +100,15 @@ static inline int binary_insertion_find(int *dst, int x, int size)
     cx = dst[c];
   }
 }
-
-void binary_insertion_sort(int *dst, int size)
+static inline void binary_insertion_sort_start(int *dst, int start, int size)
 {
   int i;
-  for (i = 1; i < size; i++)
+  for (i = start; i < size; i++)
   {
     int j;
-    //for (j = 0; j < i; j++)
-    //  printf("%d ", dst[j]);
-    
-    //printf("\nFinding position for %d\n", dst[i]);
     if (CMP(dst[i - 1], dst[i]) <= 0) continue;
     typeof(dst[0]) x = dst[i];
     int location = binary_insertion_find(dst, x, i);
-    //printf("Put at position %d\n", location);
-    //memmove(&dst[location], &dst[location + 1], i - location);
     for (j = i - 1; j >= location; j--)
     {
       dst[j + 1] = dst[j];
@@ -124,6 +117,11 @@ void binary_insertion_sort(int *dst, int size)
     dst[location] = x;
     swaps += i - location;
   }
+}
+
+void binary_insertion_sort(int *dst, int size)
+{
+  binary_insertion_sort_start(dst, 1, size);
 }
 
 
@@ -213,10 +211,297 @@ void quick_sort(int *dst, int size)
   quick_sort_recursive(dst, 0, size - 1);
 }
 
+static inline void reverse_elements(int *dst, int start, int end)
+{
+  while (1)
+  {
+    if (start >= end) return;
+    SWAP(dst[start], dst[end]);
+    start++;
+    end--;
+  }
+}
+
+static inline int count_run(int *dst, int start, int size)
+{
+  if (start >= size - 2)
+  {
+    if (CMP(dst[size - 2], dst[size - 1]) > 0)
+      SWAP(dst[size - 2], dst[size - 1]);
+    return 2;
+  }
+  
+  int curr = start + 2;
+  
+  if (CMP(dst[start], dst[start + 1]) <= 0)
+  {
+    // increasing run
+    while (1)
+    {
+      if (curr == size - 1) break;
+      if (CMP(dst[curr - 1], dst[curr]) > 0) break;
+      curr++;
+    }
+    return curr - start;    
+  }
+  else
+  {
+    // decreasing run
+    while (1)
+    {
+      if (curr == size - 1) break;
+      if (CMP(dst[curr - 1], dst[curr]) <= 0) break;
+      curr++;
+    }
+    // reverse in-place
+    reverse_elements(dst, start, curr - 1);
+    return curr - start;
+  }
+}
+
+#ifndef MAX
+#define MAX(x,y) (((x) > (y) ? (x) : (y)))
+#endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y) ? (x) : (y)))
+#endif
+
+static inline int compute_minrun(uint64_t size)
+{
+  int top_bit = 64 - __builtin_clzll(size);
+  int shift = MAX(top_bit, 6) - 6;
+  int minrun = size >> shift;
+  uint64_t mask = (1ULL << shift) - 1;
+  if (mask & size) minrun++;
+  return minrun;
+}
+
+
+typedef struct {
+  int start;
+  int length;  
+} tim_sort_run_t;
+  
+#define PUSH_NEXT() do {\
+len = count_run(dst, curr, size);\
+run = minrun;\
+if (run < minrun) run = minrun;\
+if (run > size - curr) run = size - curr;\
+if (run > len)\
+{\
+  binary_insertion_sort_start(&dst[curr], len, run);\
+  len = run;\
+}\
+run_stack[stack_curr++] = (tim_sort_run_t) {curr, len};\
+curr += len;\
+if (curr == size)\
+{\
+  /* finish up */ \
+  while (stack_curr > 1) \
+  { \
+    tim_sort_merge(dst, run_stack, stack_curr, store); \
+    stack_curr--; \
+  } \
+  return;\
+}\
+}\
+while (0)
+  
+static inline int check_invariant(tim_sort_run_t *stack, int stack_curr)
+{
+  if (stack_curr < 2) return 1;
+  if (stack_curr == 2)
+  {
+    int A = stack[stack_curr - 2].length;
+    int B = stack[stack_curr - 1].length;
+    if (A <= B) return 0;
+    return 1;
+  }
+  int A = stack[stack_curr - 3].length;
+  int B = stack[stack_curr - 2].length;
+  int C = stack[stack_curr - 1].length;
+  if ((A <= B + C) || (B <= C)) return 0;
+  return 1;
+}
+
+typedef struct {
+  size_t alloc;
+  int *storage;
+} temp_storage_t;
+
+static inline tim_sort_resize(temp_storage_t *store, size_t new_size)
+{
+  if (store->alloc < new_size)
+  {
+    int *tempstore = realloc(store->storage, new_size * sizeof(store->storage[0]));
+    if (tempstore == NULL)
+    {
+      fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", sizeof(store->storage[0]) * new_size);
+      exit(1);
+    }
+    store->storage = tempstore;
+    store->alloc = new_size;
+  }
+}
+
+static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_curr, temp_storage_t *store)
+{
+  int A = stack[stack_curr - 2].length;
+  int B = stack[stack_curr - 1].length;
+  int curr = stack[stack_curr - 2].start;
+
+  tim_sort_resize(store, MIN(A, B));
+  int *storage = store->storage;
+  
+  int i, j, k;
+  
+  if (A < B)
+  {
+    memcpy(storage, &dst[curr], A * sizeof(dst[0]));
+    swaps += A;
+    i = 0;
+    j = curr + A;
+    
+    for (k = curr; k < curr + A + B; k++)
+    {
+      if ((i < A) && (j < curr + A + B))
+      {
+        if (CMP(storage[i], dst[j]) <= 0)
+          dst[k] = storage[i++];
+        else
+          dst[k] = dst[j++];          
+      }
+      else if (i < A)
+      {
+        dst[k] = storage[i++];
+      }
+      else
+        dst[k] = dst[j++];
+      swaps++;
+    }
+  }
+  else
+  {    
+    memcpy(storage, &dst[curr + A], B * sizeof(dst[0]));
+    swaps += B;
+    i = 0;
+    j = curr;
+    
+    for (k = curr; k < curr + A + B; k++)
+    {
+      if ((i < B) && (j < curr + A))
+      {
+          if (CMP(dst[j], storage[i]) <= 0)
+            dst[k] = dst[j++];
+          else
+            dst[k] = storage[i++];          
+      }
+      else if (i < B)
+        dst[k] = storage[i++];
+      else
+        dst[k] = dst[j++];
+      swaps++;
+    }
+  }
+}
+
+static inline int tim_sort_collapse(int *dst, tim_sort_run_t *stack, int stack_curr, temp_storage_t *store, size_t size)
+{
+  while (1)
+  {
+    // if the stack only has one thing on it, we are done with the collapse
+    if (stack_curr <= 1) break;
+    // if this is the last merge, just do it
+    if ((stack_curr == 2) && (stack[0].length + stack[1].length == size))
+    {
+      tim_sort_merge(dst, stack, stack_curr, store);
+      stack[0].length += stack[1].length;
+      stack_curr--;
+      break;
+    }
+    // check if the invariant is off for a stack of 2 elements
+    else if ((stack_curr == 2) && (stack[0].length <= stack[1].length))
+    {
+      tim_sort_merge(dst, stack, stack_curr, store);
+      stack[0].length += stack[1].length;
+      stack_curr--;
+      break;
+    }
+    else if (stack_curr == 2)
+      break;
+      
+    int A = stack[stack_curr - 3].length;
+    int B = stack[stack_curr - 2].length;
+    int C = stack[stack_curr - 1].length;
+    
+    // check first invariant
+    if (A <= B + C)
+    {
+      if (A < C)
+      {
+        tim_sort_merge(dst, stack, stack_curr - 1, store);
+        stack[stack_curr - 3].length += stack[stack_curr - 2].length;
+        stack[stack_curr - 2] = stack[stack_curr - 1];
+        stack_curr--;
+        
+      }
+      else
+      {
+        tim_sort_merge(dst, stack, stack_curr, store);
+        stack[stack_curr - 2].length += stack[stack_curr - 1].length;
+        stack_curr--;
+      }
+    }
+    // check second invariant
+    else if (B <= C)
+    {
+      tim_sort_merge(dst, stack, stack_curr, store);
+      stack[stack_curr - 2].length += stack[stack_curr - 1].length;
+      stack_curr--;      
+    }
+    else
+      break;
+  }
+  return stack_curr;
+}
+
 void tim_sort(int *dst, int size)
 {
+  if (size < 64)
+  {
+    binary_insertion_sort(dst, size);
+    return;
+  }
   
+  // compute the minimum run length
+  size_t minrun = compute_minrun(size);
+  
+  // temporary storage for merges
+  temp_storage_t _store, *store = &_store;
+  store->alloc = 0;
+  store->storage = NULL;
+  
+  tim_sort_run_t run_stack[128];
+  int stack_curr = 0;
+  int len, run;
+  size_t curr = 0;
+  
+  PUSH_NEXT();
+  PUSH_NEXT();
+  PUSH_NEXT();
+  
+  while (1)
+  {
+    if (!check_invariant(run_stack, stack_curr))
+    {
+      stack_curr = tim_sort_collapse(dst, run_stack, stack_curr, store, size);
+      continue;
+    }
+    PUSH_NEXT();
+  }
 }
+
+#undef PUSH_NEXT
 
 /* heap sort: based on wikipedia */
 void heap_sift_down(int *dst, int start, int end)
@@ -269,9 +554,9 @@ void verify(int *dst, int size)
     if (dst[i - 1] > dst[i])
     {
       printf("Verify failed! at %d\n", i);
-      for (i = 0; i < size; i++)
-        printf(" %d", dst[i]);
-      printf("\n");
+      //for (i = 0; i < size; i++)
+      //  printf(" %d", dst[i]);
+      //printf("\n");
       break;
     }
   }
@@ -281,7 +566,7 @@ void run_tests(void)
   printf("Running tests\n");
   int i;
   srand48(123);
-  int size = 32;
+  int size = 30000;
   int arr[size];
   for (i = 0; i < size; i++)
   {
@@ -330,6 +615,13 @@ void run_tests(void)
   shell_sort(dst, size);
   verify(dst, size);
   printf("shellsort; swaps %d, compares %d\n", swaps, cmps);
+  
+  reset();
+  printf("\nTim sort\n");
+  memcpy(dst, arr, sizeof(int) * size);
+  tim_sort(dst, size);
+  verify(dst, size);
+  printf("timsort; swaps %d, compares %d\n", swaps, cmps);
   
 }
 
