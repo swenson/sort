@@ -3,26 +3,65 @@
 #include <string.h>
 #include <stdint.h>
 
-#define SORT_NAME sorter
+#ifndef SORT_NAME
+#error "Must declare SORT_NAME"
+#endif
+
+#ifndef SORT_TYPE
+#error "Must declare SORT_TYPE"
+#endif
+
+
+#define SORT_SWAP(x,y) ({typeof((x)) __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;})
+
 #define SORT_CONCAT(x, y) x ## _ ## y
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
 #define SORT_MAKE_STR(x) SORT_MAKE_STR1(SORT_NAME,x)
 
-static int swaps = 0;
-static int cmps = 0;
-#define SWAP(x,y) ({swaps++; typeof((x)) _t = (x); (x) = (y); (y) = _t;})
-#define CMP(x,y) ((cmps++ - cmps + (x) - (y) ))
+#ifndef SORT_CMP
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+#endif
 
-const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4376, 10941, 27353, 68383, 170958, 427396, 1068491, 2671228, 6678071, 16695178, 41737946, 104344866, 260862166, 652155416, 1630388541, 4075971353, 10189928383, 25474820958, 63687052396, 159217630991, 398044077478, 995110193696, 2487775484241, 6219438710603, 15548596776508, 38871491941271, 97178729853178, 242946824632946, 607367061582366, 1518417653955916, 3796044134889791, 9490110337224478, 23725275843061196, 59313189607652991, 148282974019132478, 370707435047831196, 926768587619577991, 2316921469048944978, 5792303672622362446};
+#define SHELL_SORT             SORT_MAKE_STR(shell_sort)
+#define BINARY_INSERTION_SORT  SORT_MAKE_STR(binary_insertion_sort)
+#define HEAP_SORT              SORT_MAKE_STR(heap_sort)
+#define QUICK_SORT             SORT_MAKE_STR(quick_sort)
+#define MERGE_SORT             SORT_MAKE_STR(merge_sort)
+#define BUBBLE_SORT            SORT_MAKE_STR(bubble_sort)
+#define TIM_SORT               SORT_MAKE_STR(tim_sort)
+
+#define TIM_SORT_RUN_T         SORT_MAKE_STR(tim_sort_run_t)
+#define TEMP_STORAGE_T         SORT_MAKE_STR(temp_storage_t)
+
+#ifndef MAX
+#define MAX(x,y) (((x) > (y) ? (x) : (y)))
+#endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y) ? (x) : (y)))
+#endif
+
+typedef struct {
+  int64_t start;
+  int64_t length;  
+} TIM_SORT_RUN_T;
 
 
-static void reset()
-{
-  swaps = 0;
-  cmps = 0;
-}
+void SHELL_SORT(SORT_TYPE *dst, size_t size);
+void BINARY_INSERTION_SORT(SORT_TYPE *dst, size_t size);
+void HEAP_SORT(SORT_TYPE *dst, size_t size);
+void QUICK_SORT(SORT_TYPE *dst, size_t size);
+void MERGE_SORT(SORT_TYPE *dst, size_t size);
+void BUBBLE_SORT(SORT_TYPE *dst, size_t size);
+void TIM_SORT(SORT_TYPE *dst, size_t size);
 
-void shell_sort(int *dst, int64_t size)
+
+/* From http://oeis.org/classic/A102549 */
+static const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4376, 10941, 27353, 68383, 170958, 427396, 1068491, 2671228, 6678071, 16695178, 41737946, 104344866, 260862166, 652155416, 1630388541, 4075971353, 10189928383, 25474820958, 63687052396, 159217630991, 398044077478, 995110193696, 2487775484241, 6219438710603, 15548596776508, 38871491941271, 97178729853178, 242946824632946, 607367061582366, 1518417653955916, 3796044134889791, 9490110337224478, 23725275843061196, 59313189607652991, 148282974019132478, 370707435047831196, 926768587619577991, 2316921469048944978, 5792303672622362446};
+
+/* Shell sort implementation based on Wikipedia article
+   http://en.wikipedia.org/wiki/Shell_sort
+*/
+void SHELL_SORT(SORT_TYPE *dst, size_t size)
 {
   // TODO: binary search to find first gap?
   int inci = 47;
@@ -31,17 +70,16 @@ void shell_sort(int *dst, int64_t size)
   {
     inc = shell_gaps[--inci];
   }
-  int i;
+  int64_t i;
   while (1)
   {
     for (i = inc; i < size; i++)
     {
       typeof(dst[0]) temp = dst[i];
-      int j = i;
-      while ((j >= inc) && (CMP(dst[j - inc], temp) > 0))
+      int64_t j = i;
+      while ((j >= inc) && (SORT_CMP(dst[j - inc], temp) > 0))
       {
         dst[j] = dst[j - inc];
-        swaps++;
         j -= inc;
       }
       dst[j] = temp;
@@ -51,9 +89,10 @@ void shell_sort(int *dst, int64_t size)
   }
 }
 
-static inline int binary_insertion_find(int *dst, int x, int size)
+/* Function used to do a binary search for binary insertion sort */
+static inline int64_t binary_insertion_find(SORT_TYPE *dst, SORT_TYPE x, size_t size)
 {
-  int l, c, r;
+  int64_t l, c, r;
   l = 0;
   r = size - 1;
   c = r >> 1;
@@ -61,12 +100,12 @@ static inline int binary_insertion_find(int *dst, int x, int size)
   lx = dst[l];
   
   /* check for beginning conditions */
-  if (CMP(x, lx) < 0)
+  if (SORT_CMP(x, lx) < 0)
     return 0;
-  else if (CMP(x, lx) == 0)
+  else if (SORT_CMP(x, lx) == 0)
   {
-    int i = 1;
-    while (CMP(x, dst[i]) == 0) i++;
+    int64_t i = 1;
+    while (SORT_CMP(x, dst[i]) == 0) i++;
     return i;
   }
   
@@ -75,7 +114,7 @@ static inline int binary_insertion_find(int *dst, int x, int size)
   cx = dst[c];
   while (1)
   {
-    int val = CMP(x, cx);
+    int val = SORT_CMP(x, cx);
     if (val < 0)
     {
       if (c - l <= 1) return c;
@@ -100,146 +139,159 @@ static inline int binary_insertion_find(int *dst, int x, int size)
     cx = dst[c];
   }
 }
-static inline void binary_insertion_sort_start(int *dst, int start, int size)
+
+/* Binary insertion sort, but knowing that the first "start" entries are sorted.  Used in timsort. */
+static inline void binary_insertion_sort_start(SORT_TYPE *dst, size_t start, size_t size)
 {
-  int i;
+  int64_t i;
   for (i = start; i < size; i++)
   {
-    int j;
-    if (CMP(dst[i - 1], dst[i]) <= 0) continue;
+    int64_t j;
+    /* If this entry is already correct, just move along */
+    if (SORT_CMP(dst[i - 1], dst[i]) <= 0) continue;
+    
+    /* Else we need to find the right place, shift everything over, and squeeze in */
     typeof(dst[0]) x = dst[i];
-    int location = binary_insertion_find(dst, x, i);
+    int64_t location = binary_insertion_find(dst, x, i);
     for (j = i - 1; j >= location; j--)
     {
       dst[j + 1] = dst[j];
-      swaps++;
     }
     dst[location] = x;
-    swaps += i - location;
   }
 }
 
-void binary_insertion_sort(int *dst, int size)
+/* Binary insertion sort */
+void BINARY_INSERTION_SORT(SORT_TYPE *dst, size_t size)
 {
   binary_insertion_sort_start(dst, 1, size);
 }
 
 
-void bubble_sort(int *dst, int size)
+void BUBBLE_SORT(SORT_TYPE *dst, size_t size)
 {
-  int i;
-  int j;
+  int64_t i;
+  int64_t j;
   for (i = 0; i < size; i++)
   {
     for (j = i + 1; j < size; j++)
     {
-      if (CMP(dst[j], dst[i]) < 0)
-        SWAP(dst[i], dst[j]);
+      if (SORT_CMP(dst[j], dst[i]) < 0)
+        SORT_SWAP(dst[i], dst[j]);
     }
   }
 }
 
-void merge_sort(int *dst, int size)
+void MERGE_SORT(SORT_TYPE *dst, size_t size)
 {
   if (size < 16)
   {
-    bubble_sort(dst, size);
+    BINARY_INSERTION_SORT(dst, size);
     return;
   }
 
-  int middle = size / 2;
+  int64_t middle = size / 2;
   
-  merge_sort(dst, middle);
-  merge_sort(&dst[middle], size - middle);
+  MERGE_SORT(dst, middle);
+  MERGE_SORT(&dst[middle], size - middle);
   
-  int newdst[size];
-  int out = 0;
-  int i = 0;
-  int j = middle;
+  SORT_TYPE newdst[size];
+  int64_t out = 0;
+  int64_t i = 0;
+  int64_t j = middle;
   while (out != size)
   {
-    swaps++;
-    if ((i < middle) && ((j == size) || (CMP(dst[i], dst[j]) <= 0)))
+    if (i < middle)
     {
-      newdst[out] = dst[i++];
+      if (j < size)
+      {
+        if (SORT_CMP(dst[i], dst[j]) <= 0)
+          newdst[out] = dst[i++];
+        else
+          newdst[out] = dst[j++];
+      }
+      else
+        newdst[out] = dst[i++];
     }
     else
-    {
       newdst[out] = dst[j++];
-    }
     out++;
   }
-  memcpy(dst, newdst, size * sizeof(int));
+  memcpy(dst, newdst, size * sizeof(SORT_TYPE));
 }
 
+
 /* quick sort: based on wikipedia */
-int quick_sort_partition(int *dst, int left, int right, int pivot)
+
+static inline int64_t quick_sort_partition(SORT_TYPE *dst, int64_t left, int64_t right, int64_t pivot)
 {
   typeof(dst[0]) value = dst[pivot];
-  SWAP(dst[pivot], dst[right]);
-  int index = left;
-  int i;
+  SORT_SWAP(dst[pivot], dst[right]);
+  int64_t index = left;
+  int64_t i;
   for (i = left; i < right; i++)
   {
     if (dst[i] <= value)
     {
-      SWAP(dst[i], dst[index]);
+      SORT_SWAP(dst[i], dst[index]);
       index++;
     }
   }
-  SWAP(dst[right], dst[index]);
+  SORT_SWAP(dst[right], dst[index]);
   return index;
 }
 
-void quick_sort_recursive(int *dst, int left, int right)
+static void quick_sort_recursive(SORT_TYPE *dst, int64_t left, int64_t right)
 {
   if (right <= left) return;
   if ((right - left + 1) < 16)
   {
-    binary_insertion_sort(&dst[left], right - left + 1);
+    BINARY_INSERTION_SORT(&dst[left], right - left + 1);
     return;
   }
-  int pivot = left + ((right - left) >> 1);
-  int new_pivot = quick_sort_partition(dst, left, right, pivot);
+  int64_t pivot = left + ((right - left) >> 1);
+  int64_t new_pivot = quick_sort_partition(dst, left, right, pivot);
   quick_sort_recursive(dst, left, new_pivot - 1);
   quick_sort_recursive(dst, new_pivot + 1, right);
 }
 
-
-void quick_sort(int *dst, int size)
+void QUICK_SORT(SORT_TYPE *dst, size_t size)
 {
   quick_sort_recursive(dst, 0, size - 1);
 }
 
-static inline void reverse_elements(int *dst, int start, int end)
+
+/* timsort implementation, based on timsort.txt */
+
+static inline void reverse_elements(SORT_TYPE *dst, int64_t start, int64_t end)
 {
   while (1)
   {
     if (start >= end) return;
-    SWAP(dst[start], dst[end]);
+    SORT_SWAP(dst[start], dst[end]);
     start++;
     end--;
   }
 }
 
-static inline int count_run(int *dst, int start, int size)
+static inline int64_t count_run(SORT_TYPE *dst, int64_t start, size_t size)
 {
   if (start >= size - 2)
   {
-    if (CMP(dst[size - 2], dst[size - 1]) > 0)
-      SWAP(dst[size - 2], dst[size - 1]);
+    if (SORT_CMP(dst[size - 2], dst[size - 1]) > 0)
+      SORT_SWAP(dst[size - 2], dst[size - 1]);
     return 2;
   }
   
-  int curr = start + 2;
+  int64_t curr = start + 2;
   
-  if (CMP(dst[start], dst[start + 1]) <= 0)
+  if (SORT_CMP(dst[start], dst[start + 1]) <= 0)
   {
     // increasing run
     while (1)
     {
       if (curr == size - 1) break;
-      if (CMP(dst[curr - 1], dst[curr]) > 0) break;
+      if (SORT_CMP(dst[curr - 1], dst[curr]) > 0) break;
       curr++;
     }
     return curr - start;    
@@ -250,7 +302,7 @@ static inline int count_run(int *dst, int start, int size)
     while (1)
     {
       if (curr == size - 1) break;
-      if (CMP(dst[curr - 1], dst[curr]) <= 0) break;
+      if (SORT_CMP(dst[curr - 1], dst[curr]) <= 0) break;
       curr++;
     }
     // reverse in-place
@@ -258,13 +310,6 @@ static inline int count_run(int *dst, int start, int size)
     return curr - start;
   }
 }
-
-#ifndef MAX
-#define MAX(x,y) (((x) > (y) ? (x) : (y)))
-#endif
-#ifndef MIN
-#define MIN(x,y) (((x) < (y) ? (x) : (y)))
-#endif
 
 static inline int compute_minrun(uint64_t size)
 {
@@ -276,12 +321,6 @@ static inline int compute_minrun(uint64_t size)
   return minrun;
 }
 
-
-typedef struct {
-  int start;
-  int length;  
-} tim_sort_run_t;
-  
 #define PUSH_NEXT() do {\
 len = count_run(dst, curr, size);\
 run = minrun;\
@@ -292,7 +331,7 @@ if (run > len)\
   binary_insertion_sort_start(&dst[curr], len, run);\
   len = run;\
 }\
-run_stack[stack_curr++] = (tim_sort_run_t) {curr, len};\
+run_stack[stack_curr++] = (TIM_SORT_RUN_T) {curr, len};\
 curr += len;\
 if (curr == size)\
 {\
@@ -307,33 +346,34 @@ if (curr == size)\
 }\
 while (0)
   
-static inline int check_invariant(tim_sort_run_t *stack, int stack_curr)
+static inline int check_invariant(TIM_SORT_RUN_T *stack, int stack_curr)
 {
   if (stack_curr < 2) return 1;
   if (stack_curr == 2)
   {
-    int A = stack[stack_curr - 2].length;
-    int B = stack[stack_curr - 1].length;
+    int64_t A = stack[stack_curr - 2].length;
+    int64_t B = stack[stack_curr - 1].length;
     if (A <= B) return 0;
     return 1;
   }
-  int A = stack[stack_curr - 3].length;
-  int B = stack[stack_curr - 2].length;
-  int C = stack[stack_curr - 1].length;
+  int64_t A = stack[stack_curr - 3].length;
+  int64_t B = stack[stack_curr - 2].length;
+  int64_t C = stack[stack_curr - 1].length;
   if ((A <= B + C) || (B <= C)) return 0;
   return 1;
 }
 
 typedef struct {
   size_t alloc;
-  int *storage;
-} temp_storage_t;
+  SORT_TYPE *storage;
+} TEMP_STORAGE_T;
+  
 
-static inline tim_sort_resize(temp_storage_t *store, size_t new_size)
+static inline tim_sort_resize(TEMP_STORAGE_T *store, size_t new_size)
 {
   if (store->alloc < new_size)
   {
-    int *tempstore = realloc(store->storage, new_size * sizeof(store->storage[0]));
+    SORT_TYPE *tempstore = realloc(store->storage, new_size * sizeof(store->storage[0]));
     if (tempstore == NULL)
     {
       fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", sizeof(store->storage[0]) * new_size);
@@ -344,21 +384,20 @@ static inline tim_sort_resize(temp_storage_t *store, size_t new_size)
   }
 }
 
-static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_curr, temp_storage_t *store)
+static inline void tim_sort_merge(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store)
 {
-  int A = stack[stack_curr - 2].length;
-  int B = stack[stack_curr - 1].length;
-  int curr = stack[stack_curr - 2].start;
+  int64_t A = stack[stack_curr - 2].length;
+  int64_t B = stack[stack_curr - 1].length;
+  int64_t curr = stack[stack_curr - 2].start;
 
   tim_sort_resize(store, MIN(A, B));
-  int *storage = store->storage;
+  SORT_TYPE *storage = store->storage;
   
-  int i, j, k;
+  int64_t i, j, k;
   
   if (A < B)
   {
     memcpy(storage, &dst[curr], A * sizeof(dst[0]));
-    swaps += A;
     i = 0;
     j = curr + A;
     
@@ -366,7 +405,7 @@ static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_cur
     {
       if ((i < A) && (j < curr + A + B))
       {
-        if (CMP(storage[i], dst[j]) <= 0)
+        if (SORT_CMP(storage[i], dst[j]) <= 0)
           dst[k] = storage[i++];
         else
           dst[k] = dst[j++];          
@@ -377,13 +416,11 @@ static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_cur
       }
       else
         dst[k] = dst[j++];
-      swaps++;
     }
   }
   else
   {    
     memcpy(storage, &dst[curr + A], B * sizeof(dst[0]));
-    swaps += B;
     i = 0;
     j = curr;
     
@@ -391,7 +428,7 @@ static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_cur
     {
       if ((i < B) && (j < curr + A))
       {
-          if (CMP(dst[j], storage[i]) <= 0)
+          if (SORT_CMP(dst[j], storage[i]) <= 0)
             dst[k] = dst[j++];
           else
             dst[k] = storage[i++];          
@@ -400,12 +437,11 @@ static inline void tim_sort_merge(int *dst, tim_sort_run_t *stack, int stack_cur
         dst[k] = storage[i++];
       else
         dst[k] = dst[j++];
-      swaps++;
     }
   }
 }
 
-static inline int tim_sort_collapse(int *dst, tim_sort_run_t *stack, int stack_curr, temp_storage_t *store, size_t size)
+static inline int tim_sort_collapse(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store, size_t size)
 {
   while (1)
   {
@@ -430,9 +466,9 @@ static inline int tim_sort_collapse(int *dst, tim_sort_run_t *stack, int stack_c
     else if (stack_curr == 2)
       break;
       
-    int A = stack[stack_curr - 3].length;
-    int B = stack[stack_curr - 2].length;
-    int C = stack[stack_curr - 1].length;
+    int64_t A = stack[stack_curr - 3].length;
+    int64_t B = stack[stack_curr - 2].length;
+    int64_t C = stack[stack_curr - 1].length;
     
     // check first invariant
     if (A <= B + C)
@@ -443,7 +479,6 @@ static inline int tim_sort_collapse(int *dst, tim_sort_run_t *stack, int stack_c
         stack[stack_curr - 3].length += stack[stack_curr - 2].length;
         stack[stack_curr - 2] = stack[stack_curr - 1];
         stack_curr--;
-        
       }
       else
       {
@@ -465,26 +500,26 @@ static inline int tim_sort_collapse(int *dst, tim_sort_run_t *stack, int stack_c
   return stack_curr;
 }
 
-void tim_sort(int *dst, int size)
+void TIM_SORT(SORT_TYPE *dst, size_t size)
 {
   if (size < 64)
   {
-    binary_insertion_sort(dst, size);
+    BINARY_INSERTION_SORT(dst, size);
     return;
   }
   
   // compute the minimum run length
-  size_t minrun = compute_minrun(size);
+  int minrun = compute_minrun(size);
   
   // temporary storage for merges
-  temp_storage_t _store, *store = &_store;
+  TEMP_STORAGE_T _store, *store = &_store;
   store->alloc = 0;
   store->storage = NULL;
   
-  tim_sort_run_t run_stack[128];
+  TIM_SORT_RUN_T run_stack[128];
   int stack_curr = 0;
-  int len, run;
-  size_t curr = 0;
+  int64_t len, run;
+  int64_t curr = 0;
   
   PUSH_NEXT();
   PUSH_NEXT();
@@ -501,21 +536,22 @@ void tim_sort(int *dst, int size)
   }
 }
 
-#undef PUSH_NEXT
+
 
 /* heap sort: based on wikipedia */
-void heap_sift_down(int *dst, int start, int end)
+
+static inline void heap_sift_down(SORT_TYPE *dst, int64_t start, int64_t end)
 {
-  int root = start;
+  int64_t root = start;
   
   while ((root << 1) <= end)
   {
-    int child = root << 1;
-    if ((child < end) && (CMP(dst[child], dst[child + 1]) < 0))
+    int64_t child = root << 1;
+    if ((child < end) && (SORT_CMP(dst[child], dst[child + 1]) < 0))
       child++;
-    if (CMP(dst[root], dst[child]) < 0)
+    if (SORT_CMP(dst[root], dst[child]) < 0)
     {
-      SWAP(dst[root], dst[child]);
+      SORT_SWAP(dst[root], dst[child]);
       root = child;
     }
     else
@@ -523,9 +559,9 @@ void heap_sift_down(int *dst, int start, int end)
   }
 }
 
-void heapify(int *dst, int size)
+static inline void heapify(SORT_TYPE *dst, size_t size)
 {
-  int start = size >> 1;
+  int64_t start = size >> 1;
   while (start >= 0)
   {
     heap_sift_down(dst, start, size - 1);
@@ -533,174 +569,24 @@ void heapify(int *dst, int size)
   }
 }
 
-void heap_sort(int *dst, int size)
+void HEAP_SORT(SORT_TYPE *dst, size_t size)
 {
   heapify(dst, size);
-  int end = size - 1;
+  int64_t end = size - 1;
   
   while (end > 0)
   {
-    SWAP(dst[end], dst[0]);
+    SORT_SWAP(dst[end], dst[0]);
     heap_sift_down(dst, 0, end - 1);
     end--;
   }
 }
 
-void verify(int *dst, int size)
-{
-  int i;
-  for (i = 1; i < size; i++)
-  {
-    if (dst[i - 1] > dst[i])
-    {
-      printf("Verify failed! at %d\n", i);
-      //for (i = 0; i < size; i++)
-      //  printf(" %d", dst[i]);
-      //printf("\n");
-      break;
-    }
-  }
-}
+#undef SORT_CONCAT
+#undef SORT_MAKE_STR1
+#undef SORT_MAKE_STR
+#undef SORT_NAME
 
-static inline double utime()
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  return (1000000.0 * t.tv_sec + t.tv_usec);
-  
-}
-
-static void fill(int *arr, int size)
-{
-  int i;
-  for (i = 0; i < size; i++)
-  {
-    arr[i] = lrand48();
-  }
-}
-
-void run_tests(void)
-{
-  
-  printf("Running tests\n");
-  int i;
-  srand48(123);
-  int size = 5000;
-  int runs = 10;
-  int arr[size];
-  int dst[size];
-  double start_time;
-  double end_time;
-  double total_time;
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();  
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    quick_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("quick sort time: %.2f us per iteration\n", total_time / runs);
-  
-
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();  
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    bubble_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("bubble sort time: %.2f us per iteration\n", total_time / runs);
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();  
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    merge_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("merge sort time: %.2f us per iteration\n", total_time / runs);
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    binary_insertion_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("binary insertion sort time: %.2f us per iteration\n", total_time / runs);
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    heap_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("heap sort time: %.2f us per iteration\n", total_time / runs);
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    shell_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }
-  printf("shell sort time: %.2f us per iteration\n", total_time / runs);
-  
-  srand48(123);  
-  total_time = 0.0;
-  for (i = 0; i < runs; i++)
-  {
-    reset();
-    fill(arr, size);
-    memcpy(dst, arr, sizeof(int) * size);
-    start_time = utime();
-    tim_sort(dst, size);
-    end_time = utime();
-    total_time += end_time - start_time;
-    verify(dst, size);
-  }  
-  printf("tim sort time: %.2f us per iteration\n", total_time / runs);
-}
-
-int main(void)
-{
-  run_tests();
-}
+#undef TEMP_STORAGE_T
+#undef TIM_SORT_RUN_T
+#undef PUSH_NEXT
