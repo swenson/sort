@@ -13,13 +13,13 @@ standard library routine.
 
 You get the choice of many extra sorting routines as well, including:
 
-   * Shell sort
-   * Binary insertion sort
-   * Heap sort
-   * Quick sort
-   * Merge sort
-   * Bubble sort (ugh)
-   * Tim sort
+* Shell sort
+* Binary insertion sort
+* Heap sort
+* Quick sort
+* Merge sort
+* Bubble sort (ugh)
+* Tim sort
 
 If you don't know which one to use, you should probably use Tim sort.
 
@@ -29,13 +29,13 @@ Usage
 
 To use this library, you need to do three things:
 
-   * #define SORT_TYPE to be the type of the elements of the array you
-     want to sort.
-   * #define SORT_NAME to be a unique name that will be prepended to all
-     the routines, i.e., #define SORT_NAME mine would give you routines
-     named mine_heap_sort, and so forth.
-   * #include "sort.h".  Make sure that sort.h is in your include path,
-     obviously.
+* #define SORT_TYPE to be the type of the elements of the array you
+  want to sort.
+* #define SORT_NAME to be a unique name that will be prepended to all
+  the routines, i.e., #define SORT_NAME mine would give you routines
+  named mine_heap_sort, and so forth.
+* #include "sort.h".  Make sure that sort.h is in your include path,
+  obviously.
 
 Then, enjoy using the sorting routines.
 
@@ -61,6 +61,8 @@ If so, then quick sort is probably your routine.
 Here is the output of demo.c, which will give you the timings for a run of
 10,000 things on my old Mac Pro (2006-era 2.66 GHz Xeons, 64-bit) on OS X 10.6:
 
+::
+
 		Running tests
 		quick sort time: 740.20 us per iteration
 		bubble sort time: 183914.60 us per iteration
@@ -79,8 +81,8 @@ Christopher Swenson (chris@caswenson.com)
 References
 ----------
 
-   * Wikipedia
-   * timsort.txt (under doc/)
+* Wikipedia
+* timsort.txt (under doc/)
 
 
 License
