@@ -22,7 +22,7 @@
 #define RUNS 10
 
 /* helper functions */
-void verify(double *dst, int size)
+void verify(double *dst, const int size)
 {
   int i;
   for (i = 1; i < size; i++)
@@ -46,13 +46,21 @@ static inline double utime()
   
 }
 
-static void fill(double *arr, int size)
+static void fill(double *arr, const int size)
 {
   int i;
   for (i = 0; i < size; i++)
   {
-    arr[i] = drand48() ;
+    arr[i] = drand48();
   }
+}
+
+/* used for stdlib */
+static inline int simple_cmp(const void *a, const void *b)
+{
+  const double da = *((const double *) a);
+  const double db = *((const double *) b);
+  return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
 
@@ -66,6 +74,55 @@ void run_tests(void)
   double start_time;
   double end_time;
   double total_time;
+  
+  srand48(SEED);  
+  total_time = 0.0;
+  for (i = 0; i < RUNS; i++)
+  {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(double) * SIZE);
+    start_time = utime();
+    
+    qsort(dst, SIZE, sizeof(double), simple_cmp);
+    
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+  printf("stdlib qsort time: %.2f us per iteration\n", total_time / RUNS);
+  
+  srand48(SEED);  
+  total_time = 0.0;
+  for (i = 0; i < RUNS; i++)
+  {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(double) * SIZE);
+    start_time = utime();
+    
+    heapsort(dst, SIZE, sizeof(double), simple_cmp);
+    
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+  printf("stdlib heapsort time: %.2f us per iteration\n", total_time / RUNS);
+
+  srand48(SEED);  
+  total_time = 0.0;
+  for (i = 0; i < RUNS; i++)
+  {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(double) * SIZE);
+    start_time = utime();
+    
+    mergesort(dst, SIZE, sizeof(double), simple_cmp);
+    
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+  printf("stdlib mergesort time: %.2f us per iteration\n", total_time / RUNS);
+  
   
   srand48(SEED);  
   total_time = 0.0;
