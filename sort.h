@@ -46,13 +46,13 @@ typedef struct {
 } TIM_SORT_RUN_T;
 
 
-void SHELL_SORT(SORT_TYPE *dst, size_t size);
-void BINARY_INSERTION_SORT(SORT_TYPE *dst, size_t size);
-void HEAP_SORT(SORT_TYPE *dst, size_t size);
-void QUICK_SORT(SORT_TYPE *dst, size_t size);
-void MERGE_SORT(SORT_TYPE *dst, size_t size);
-void BUBBLE_SORT(SORT_TYPE *dst, size_t size);
-void TIM_SORT(SORT_TYPE *dst, size_t size);
+void SHELL_SORT(SORT_TYPE *dst, const size_t size);
+void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size);
+void HEAP_SORT(SORT_TYPE *dst, const size_t size);
+void QUICK_SORT(SORT_TYPE *dst, const size_t size);
+void MERGE_SORT(SORT_TYPE *dst, const size_t size);
+void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
+void TIM_SORT(SORT_TYPE *dst, const size_t size);
 
 
 /* From http://oeis.org/classic/A102549 */
@@ -61,7 +61,7 @@ static const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4
 /* Shell sort implementation based on Wikipedia article
    http://en.wikipedia.org/wiki/Shell_sort
 */
-void SHELL_SORT(SORT_TYPE *dst, size_t size)
+void SHELL_SORT(SORT_TYPE *dst, const size_t size)
 {
   // TODO: binary search to find first gap?
   int inci = 47;
@@ -90,7 +90,7 @@ void SHELL_SORT(SORT_TYPE *dst, size_t size)
 }
 
 /* Function used to do a binary search for binary insertion sort */
-static inline int64_t binary_insertion_find(SORT_TYPE *dst, SORT_TYPE x, size_t size)
+static inline int64_t binary_insertion_find(SORT_TYPE *dst, const SORT_TYPE x, const size_t size)
 {
   int64_t l, c, r;
   l = 0;
@@ -114,7 +114,7 @@ static inline int64_t binary_insertion_find(SORT_TYPE *dst, SORT_TYPE x, size_t 
   cx = dst[c];
   while (1)
   {
-    int val = SORT_CMP(x, cx);
+    const int val = SORT_CMP(x, cx);
     if (val < 0)
     {
       if (c - l <= 1) return c;
@@ -141,7 +141,7 @@ static inline int64_t binary_insertion_find(SORT_TYPE *dst, SORT_TYPE x, size_t 
 }
 
 /* Binary insertion sort, but knowing that the first "start" entries are sorted.  Used in timsort. */
-static inline void binary_insertion_sort_start(SORT_TYPE *dst, size_t start, size_t size)
+static inline void binary_insertion_sort_start(SORT_TYPE *dst, const size_t start, const size_t size)
 {
   int64_t i;
   for (i = start; i < size; i++)
@@ -162,13 +162,13 @@ static inline void binary_insertion_sort_start(SORT_TYPE *dst, size_t start, siz
 }
 
 /* Binary insertion sort */
-void BINARY_INSERTION_SORT(SORT_TYPE *dst, size_t size)
+void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size)
 {
   binary_insertion_sort_start(dst, 1, size);
 }
 
 
-void BUBBLE_SORT(SORT_TYPE *dst, size_t size)
+void BUBBLE_SORT(SORT_TYPE *dst, const size_t size)
 {
   int64_t i;
   int64_t j;
@@ -182,7 +182,7 @@ void BUBBLE_SORT(SORT_TYPE *dst, size_t size)
   }
 }
 
-void MERGE_SORT(SORT_TYPE *dst, size_t size)
+void MERGE_SORT(SORT_TYPE *dst, const size_t size)
 {
   if (size < 16)
   {
@@ -190,7 +190,7 @@ void MERGE_SORT(SORT_TYPE *dst, size_t size)
     return;
   }
 
-  int64_t middle = size / 2;
+  const int64_t middle = size / 2;
   
   MERGE_SORT(dst, middle);
   MERGE_SORT(&dst[middle], size - middle);
@@ -223,7 +223,7 @@ void MERGE_SORT(SORT_TYPE *dst, size_t size)
 
 /* quick sort: based on wikipedia */
 
-static inline int64_t quick_sort_partition(SORT_TYPE *dst, int64_t left, int64_t right, int64_t pivot)
+static inline int64_t quick_sort_partition(SORT_TYPE *dst, const int64_t left, const int64_t right, const int64_t pivot)
 {
   typeof(dst[0]) value = dst[pivot];
   SORT_SWAP(dst[pivot], dst[right]);
@@ -241,7 +241,7 @@ static inline int64_t quick_sort_partition(SORT_TYPE *dst, int64_t left, int64_t
   return index;
 }
 
-static void quick_sort_recursive(SORT_TYPE *dst, int64_t left, int64_t right)
+static void quick_sort_recursive(SORT_TYPE *dst, const int64_t left, const int64_t right)
 {
   if (right <= left) return;
   if ((right - left + 1) < 16)
@@ -249,13 +249,13 @@ static void quick_sort_recursive(SORT_TYPE *dst, int64_t left, int64_t right)
     BINARY_INSERTION_SORT(&dst[left], right - left + 1);
     return;
   }
-  int64_t pivot = left + ((right - left) >> 1);
-  int64_t new_pivot = quick_sort_partition(dst, left, right, pivot);
+  const int64_t pivot = left + ((right - left) >> 1);
+  const int64_t new_pivot = quick_sort_partition(dst, left, right, pivot);
   quick_sort_recursive(dst, left, new_pivot - 1);
   quick_sort_recursive(dst, new_pivot + 1, right);
 }
 
-void QUICK_SORT(SORT_TYPE *dst, size_t size)
+void QUICK_SORT(SORT_TYPE *dst, const size_t size)
 {
   quick_sort_recursive(dst, 0, size - 1);
 }
@@ -274,7 +274,7 @@ static inline void reverse_elements(SORT_TYPE *dst, int64_t start, int64_t end)
   }
 }
 
-static inline int64_t count_run(SORT_TYPE *dst, int64_t start, size_t size)
+static inline int64_t count_run(SORT_TYPE *dst, const int64_t start, const size_t size)
 {
   if (start >= size - 2)
   {
@@ -311,13 +311,13 @@ static inline int64_t count_run(SORT_TYPE *dst, int64_t start, size_t size)
   }
 }
 
-static inline int compute_minrun(uint64_t size)
+static inline int compute_minrun(const uint64_t size)
 {
-  int top_bit = 64 - __builtin_clzll(size);
-  int shift = MAX(top_bit, 6) - 6;
-  int minrun = size >> shift;
-  uint64_t mask = (1ULL << shift) - 1;
-  if (mask & size) minrun++;
+  const int top_bit = 64 - __builtin_clzll(size);
+  const int shift = MAX(top_bit, 6) - 6;
+  const int minrun = size >> shift;
+  const uint64_t mask = (1ULL << shift) - 1;
+  if (mask & size) return minrun + 1;
   return minrun;
 }
 
@@ -346,19 +346,19 @@ if (curr == size)\
 }\
 while (0)
   
-static inline int check_invariant(TIM_SORT_RUN_T *stack, int stack_curr)
+static inline int check_invariant(TIM_SORT_RUN_T *stack, const int stack_curr)
 {
   if (stack_curr < 2) return 1;
   if (stack_curr == 2)
   {
-    int64_t A = stack[stack_curr - 2].length;
-    int64_t B = stack[stack_curr - 1].length;
+    const int64_t A = stack[stack_curr - 2].length;
+    const int64_t B = stack[stack_curr - 1].length;
     if (A <= B) return 0;
     return 1;
   }
-  int64_t A = stack[stack_curr - 3].length;
-  int64_t B = stack[stack_curr - 2].length;
-  int64_t C = stack[stack_curr - 1].length;
+  const int64_t A = stack[stack_curr - 3].length;
+  const int64_t B = stack[stack_curr - 2].length;
+  const int64_t C = stack[stack_curr - 1].length;
   if ((A <= B + C) || (B <= C)) return 0;
   return 1;
 }
@@ -369,7 +369,7 @@ typedef struct {
 } TEMP_STORAGE_T;
   
 
-static inline tim_sort_resize(TEMP_STORAGE_T *store, size_t new_size)
+static inline tim_sort_resize(TEMP_STORAGE_T *store, const size_t new_size)
 {
   if (store->alloc < new_size)
   {
@@ -384,11 +384,11 @@ static inline tim_sort_resize(TEMP_STORAGE_T *store, size_t new_size)
   }
 }
 
-static inline void tim_sort_merge(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store)
+static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr, TEMP_STORAGE_T *store)
 {
-  int64_t A = stack[stack_curr - 2].length;
-  int64_t B = stack[stack_curr - 1].length;
-  int64_t curr = stack[stack_curr - 2].start;
+  const int64_t A = stack[stack_curr - 2].length;
+  const int64_t B = stack[stack_curr - 1].length;
+  const int64_t curr = stack[stack_curr - 2].start;
 
   tim_sort_resize(store, MIN(A, B));
   SORT_TYPE *storage = store->storage;
@@ -441,7 +441,7 @@ static inline void tim_sort_merge(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int sta
   }
 }
 
-static inline int tim_sort_collapse(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store, size_t size)
+static inline int tim_sort_collapse(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store, const size_t size)
 {
   while (1)
   {
@@ -466,9 +466,9 @@ static inline int tim_sort_collapse(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
     else if (stack_curr == 2)
       break;
       
-    int64_t A = stack[stack_curr - 3].length;
-    int64_t B = stack[stack_curr - 2].length;
-    int64_t C = stack[stack_curr - 1].length;
+    const int64_t A = stack[stack_curr - 3].length;
+    const int64_t B = stack[stack_curr - 2].length;
+    const int64_t C = stack[stack_curr - 1].length;
     
     // check first invariant
     if (A <= B + C)
@@ -500,7 +500,7 @@ static inline int tim_sort_collapse(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
   return stack_curr;
 }
 
-void TIM_SORT(SORT_TYPE *dst, size_t size)
+void TIM_SORT(SORT_TYPE *dst, const size_t size)
 {
   if (size < 64)
   {
@@ -509,7 +509,7 @@ void TIM_SORT(SORT_TYPE *dst, size_t size)
   }
   
   // compute the minimum run length
-  int minrun = compute_minrun(size);
+  const int minrun = compute_minrun(size);
   
   // temporary storage for merges
   TEMP_STORAGE_T _store, *store = &_store;
@@ -540,7 +540,7 @@ void TIM_SORT(SORT_TYPE *dst, size_t size)
 
 /* heap sort: based on wikipedia */
 
-static inline void heap_sift_down(SORT_TYPE *dst, int64_t start, int64_t end)
+static inline void heap_sift_down(SORT_TYPE *dst, const int64_t start, const int64_t end)
 {
   int64_t root = start;
   
@@ -559,7 +559,7 @@ static inline void heap_sift_down(SORT_TYPE *dst, int64_t start, int64_t end)
   }
 }
 
-static inline void heapify(SORT_TYPE *dst, size_t size)
+static inline void heapify(SORT_TYPE *dst, const size_t size)
 {
   int64_t start = size >> 1;
   while (start >= 0)
@@ -569,7 +569,7 @@ static inline void heapify(SORT_TYPE *dst, size_t size)
   }
 }
 
-void HEAP_SORT(SORT_TYPE *dst, size_t size)
+void HEAP_SORT(SORT_TYPE *dst, const size_t size)
 {
   heapify(dst, size);
   int64_t end = size - 1;
