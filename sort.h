@@ -341,6 +341,10 @@ if (curr == size)\
     tim_sort_merge(dst, run_stack, stack_curr, store); \
     stack_curr--; \
   } \
+  if (store->storage != NULL)\
+  {\
+    free(store->storage);\
+  }\
   return;\
 }\
 }\
