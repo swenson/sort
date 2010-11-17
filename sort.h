@@ -300,6 +300,7 @@ static inline void reverse_elements(SORT_TYPE *dst, int64_t start, int64_t end)
 
 static inline int64_t count_run(SORT_TYPE *dst, const int64_t start, const size_t size)
 {
+  if (size - start == 1) return 1;
   if (start >= size - 2)
   {
     if (SORT_CMP(dst[size - 2], dst[size - 1]) > 0)
