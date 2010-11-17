@@ -20,8 +20,8 @@
 
 /* Used to control the demo */
 #define SEED 123
-#define SIZE 10000
-#define RUNS 10
+#define SIZE 100
+#define RUNS 1
 
 /* helper functions */
 void verify(int64_t *dst, const int size)

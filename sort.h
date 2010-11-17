@@ -424,6 +424,7 @@ static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
   
   int64_t i, j, k;
   
+  // left merge
   if (A < B)
   {
     memcpy(storage, &dst[curr], A * sizeof(SORT_TYPE));
@@ -447,25 +448,26 @@ static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
         dst[k] = dst[j++];
     }
   }
+  // right merge
   else
   {    
     memcpy(storage, &dst[curr + A], B * sizeof(SORT_TYPE));
-    i = 0;
-    j = curr;
+    i = B - 1;
+    j = curr + A - 1;
     
-    for (k = curr; k < curr + A + B; k++)
+    for (k = curr + A + B - 1; k >= curr; k--)
     {
-      if ((i < B) && (j < curr + A))
+      if ((i >= 0) && (j >= curr))
       {
-          if (SORT_CMP(dst[j], storage[i]) <= 0)
-            dst[k] = dst[j++];
+          if (SORT_CMP(dst[j], storage[i]) > 0)
+            dst[k] = dst[j--];
           else
-            dst[k] = storage[i++];          
+            dst[k] = storage[i--];          
       }
-      else if (i < B)
-        dst[k] = storage[i++];
+      else if (i >= 0)
+        dst[k] = storage[i--];
       else
-        dst[k] = dst[j++];
+        dst[k] = dst[j--];
     }
   }
 }
