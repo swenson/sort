@@ -53,7 +53,7 @@ static void fill(int64_t *arr, const int size)
   int i;
   for (i = 0; i < size; i++)
   {
-    arr[i] = drand48();
+    arr[i] = lrand48();
   }
 }
 
