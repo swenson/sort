@@ -1,5 +1,7 @@
+#include <sys/time.h>
+
 #define SORT_NAME sorter
-#define SORT_TYPE double
+#define SORT_TYPE int64_t
 #include "sort.h"
 
 /*
@@ -12,7 +14,7 @@
    * sorter_bubble_sort
    * sorter_tim_sort
    
-   Each takes two arguments: double *array, size_t size
+   Each takes two arguments: int64_t *array, size_t size
 */
 
 
@@ -22,7 +24,7 @@
 #define RUNS 10
 
 /* helper functions */
-void verify(double *dst, const int size)
+void verify(int64_t *dst, const int size)
 {
   int i;
   for (i = 1; i < size; i++)
@@ -31,7 +33,7 @@ void verify(double *dst, const int size)
     {
       printf("Verify failed! at %d\n", i);
       for (i = i - 2; i < SIZE; i++)
-        printf(" %f", dst[i]);
+        printf(" %lld", dst[i]);
       printf("\n");
       break;
     }
@@ -46,7 +48,7 @@ static inline double utime()
   
 }
 
-static void fill(double *arr, const int size)
+static void fill(int64_t *arr, const int size)
 {
   int i;
   for (i = 0; i < size; i++)
@@ -58,8 +60,8 @@ static void fill(double *arr, const int size)
 /* used for stdlib */
 static inline int simple_cmp(const void *a, const void *b)
 {
-  const double da = *((const double *) a);
-  const double db = *((const double *) b);
+  const int64_t da = *((const int64_t *) a);
+  const int64_t db = *((const int64_t *) b);
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
@@ -69,8 +71,8 @@ void run_tests(void)
   printf("Running tests\n");
   int i;
   srand48(SEED);
-  double arr[SIZE];
-  double dst[SIZE];
+  int64_t arr[SIZE];
+  int64_t dst[SIZE];
   double start_time;
   double end_time;
   double total_time;
@@ -80,10 +82,10 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
     
-    qsort(dst, SIZE, sizeof(double), simple_cmp);
+    qsort(dst, SIZE, sizeof(int64_t), simple_cmp);
     
     end_time = utime();
     total_time += end_time - start_time;
@@ -96,10 +98,10 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
     
-    heapsort(dst, SIZE, sizeof(double), simple_cmp);
+    heapsort(dst, SIZE, sizeof(int64_t), simple_cmp);
     
     end_time = utime();
     total_time += end_time - start_time;
@@ -112,10 +114,10 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
     
-    mergesort(dst, SIZE, sizeof(double), simple_cmp);
+    mergesort(dst, SIZE, sizeof(int64_t), simple_cmp);
     
     end_time = utime();
     total_time += end_time - start_time;
@@ -129,7 +131,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
     
     sorter_quick_sort(dst, SIZE);
@@ -146,7 +148,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
     
     sorter_bubble_sort(dst, SIZE);
@@ -162,7 +164,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
     sorter_merge_sort(dst, SIZE);
@@ -178,7 +180,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
     sorter_binary_insertion_sort(dst, SIZE);
@@ -194,7 +196,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
     sorter_heap_sort(dst, SIZE);
@@ -210,7 +212,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
     sorter_shell_sort(dst, SIZE);
@@ -226,7 +228,7 @@ void run_tests(void)
   for (i = 0; i < RUNS; i++)
   {
     fill(arr, SIZE);
-    memcpy(dst, arr, sizeof(double) * SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
     sorter_tim_sort(dst, SIZE);
@@ -241,4 +243,5 @@ void run_tests(void)
 int main(void)
 {
   run_tests();
+  return 0;
 }

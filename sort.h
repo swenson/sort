@@ -12,7 +12,7 @@
 #endif
 
 #ifndef CLZ
-#ifdef __GNUCX__
+#ifdef __GNUC__
 #define CLZ __builtin_clzll
 #else
 
@@ -80,7 +80,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size);
 
 
 /* From http://oeis.org/classic/A102549 */
-static const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4376, 10941, 27353, 68383, 170958, 427396, 1068491, 2671228, 6678071, 16695178, 41737946, 104344866, 260862166, 652155416, 1630388541, 4075971353, 10189928383, 25474820958, 63687052396, 159217630991, 398044077478, 995110193696, 2487775484241, 6219438710603, 15548596776508, 38871491941271, 97178729853178, 242946824632946, 607367061582366, 1518417653955916, 3796044134889791, 9490110337224478, 23725275843061196, 59313189607652991, 148282974019132478, 370707435047831196, 926768587619577991, 2316921469048944978, 5792303672622362446};
+static const uint64_t shell_gaps[48] = {1, 4, 10, 23, 57, 132, 301, 701, 1750, 4376, 10941, 27353, 68383, 170958, 427396, 1068491, 2671228, 6678071, 16695178, 41737946, 104344866, 260862166, 652155416, 1630388541, 4075971353LL, 10189928383LL, 25474820958LL, 63687052396LL, 159217630991LL, 398044077478LL, 995110193696LL, 2487775484241LL, 6219438710603LL, 15548596776508LL, 38871491941271LL, 97178729853178LL, 242946824632946LL, 607367061582366LL, 1518417653955916LL, 3796044134889791LL, 9490110337224478LL, 23725275843061196LL, 59313189607652991LL, 148282974019132478LL, 370707435047831196LL, 926768587619577991LL, 2316921469048944978LL, 5792303672622362446LL};
 
 /* Shell sort implementation based on Wikipedia article
    http://en.wikipedia.org/wiki/Shell_sort
@@ -398,14 +398,14 @@ typedef struct {
 } TEMP_STORAGE_T;
   
 
-static inline tim_sort_resize(TEMP_STORAGE_T *store, const size_t new_size)
+static inline void tim_sort_resize(TEMP_STORAGE_T *store, const size_t new_size)
 {
   if (store->alloc < new_size)
   {
-    SORT_TYPE *tempstore = realloc(store->storage, new_size * sizeof(store->storage[0]));
+    SORT_TYPE *tempstore = realloc(store->storage, new_size * sizeof(SORT_TYPE));
     if (tempstore == NULL)
     {
-      fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", sizeof(store->storage[0]) * new_size);
+      fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes", sizeof(SORT_TYPE) * new_size);
       exit(1);
     }
     store->storage = tempstore;
@@ -426,7 +426,7 @@ static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
   
   if (A < B)
   {
-    memcpy(storage, &dst[curr], A * sizeof(dst[0]));
+    memcpy(storage, &dst[curr], A * sizeof(SORT_TYPE));
     i = 0;
     j = curr + A;
     
@@ -449,7 +449,7 @@ static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
   }
   else
   {    
-    memcpy(storage, &dst[curr + A], B * sizeof(dst[0]));
+    memcpy(storage, &dst[curr + A], B * sizeof(SORT_TYPE));
     i = 0;
     j = curr;
     
