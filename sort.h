@@ -11,6 +11,30 @@
 #error "Must declare SORT_TYPE"
 #endif
 
+#ifndef CLZ
+#ifdef __GNUCX__
+#define CLZ __builtin_clzll
+#else
+
+// adapted from Hacker's Delight
+int clzll(uint64_t x) {
+  int n;
+
+  if (x == 0) return(64);
+  n = 0;
+  if (x <= 0x00000000FFFFFFFFL) {n = n + 32; x = x << 32;}
+  if (x <= 0x0000FFFFFFFFFFFFL) {n = n + 16; x = x << 16;}
+  if (x <= 0x00FFFFFFFFFFFFFFL) {n = n + 8; x = x << 8;}
+  if (x <= 0x0FFFFFFFFFFFFFFFL) {n = n + 4; x = x << 4;}
+  if (x <= 0x3FFFFFFFFFFFFFFFL) {n = n + 2; x = x << 2;}
+  if (x <= 0x7FFFFFFFFFFFFFFFL) {n = n + 1;}
+  return n;
+}
+
+#define CLZ clzll
+#endif
+#endif
+
 
 #define SORT_SWAP(x,y) ({SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;})
 
@@ -313,7 +337,7 @@ static inline int64_t count_run(SORT_TYPE *dst, const int64_t start, const size_
 
 static inline int compute_minrun(const uint64_t size)
 {
-  const int top_bit = 64 - __builtin_clzll(size);
+  const int top_bit = 64 - CLZ(size);
   const int shift = MAX(top_bit, 6) - 6;
   const int minrun = size >> shift;
   const uint64_t mask = (1ULL << shift) - 1;
