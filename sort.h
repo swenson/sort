@@ -12,7 +12,7 @@
 #endif
 
 
-#define SORT_SWAP(x,y) ({typeof((x)) __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;})
+#define SORT_SWAP(x,y) ({SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;})
 
 #define SORT_CONCAT(x, y) x ## _ ## y
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
@@ -75,7 +75,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size)
   {
     for (i = inc; i < size; i++)
     {
-      typeof(dst[0]) temp = dst[i];
+      SORT_TYPE temp = dst[i];
       int64_t j = i;
       while ((j >= inc) && (SORT_CMP(dst[j - inc], temp) > 0))
       {
@@ -96,7 +96,7 @@ static inline int64_t binary_insertion_find(SORT_TYPE *dst, const SORT_TYPE x, c
   l = 0;
   r = size - 1;
   c = r >> 1;
-  typeof(dst[0]) lx, cx, rx;
+  SORT_TYPE lx, cx, rx;
   lx = dst[l];
   
   /* check for beginning conditions */
@@ -151,7 +151,7 @@ static inline void binary_insertion_sort_start(SORT_TYPE *dst, const size_t star
     if (SORT_CMP(dst[i - 1], dst[i]) <= 0) continue;
     
     /* Else we need to find the right place, shift everything over, and squeeze in */
-    typeof(dst[0]) x = dst[i];
+    SORT_TYPE x = dst[i];
     int64_t location = binary_insertion_find(dst, x, i);
     for (j = i - 1; j >= location; j--)
     {
@@ -225,7 +225,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size)
 
 static inline int64_t quick_sort_partition(SORT_TYPE *dst, const int64_t left, const int64_t right, const int64_t pivot)
 {
-  typeof(dst[0]) value = dst[pivot];
+  SORT_TYPE value = dst[pivot];
   SORT_SWAP(dst[pivot], dst[right]);
   int64_t index = left;
   int64_t i;
