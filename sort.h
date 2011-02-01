@@ -364,6 +364,7 @@ if (curr == size)\
   while (stack_curr > 1) \
   { \
     tim_sort_merge(dst, run_stack, stack_curr, store); \
+    run_stack[stack_curr - 2].length += run_stack[stack_curr - 1].length; \
     stack_curr--; \
   } \
   if (store->storage != NULL)\
@@ -423,7 +424,7 @@ static inline void tim_sort_merge(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
   SORT_TYPE *storage = store->storage;
   
   int64_t i, j, k;
-  
+
   // left merge
   if (A < B)
   {
