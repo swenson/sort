@@ -370,6 +370,7 @@ if (curr == size)\
   if (store->storage != NULL)\
   {\
     free(store->storage);\
+    store->storage = NULL;\
   }\
   return;\
 }\
