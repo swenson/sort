@@ -41,6 +41,19 @@ Then, enjoy using the sorting routines.
 
 See demo.c for example usage.
 
+If you are going to use your own custom type, you must redefine
+SORT_CMP(x, y) with your comparison function, so that it returns
+a value less than zero if x < y, equal to zero if x == y, and
+greater than 0 if x > y.
+
+The default just uses the builtin <, ==, and > operators:
+
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+
+It is often just fine to just subtract the arguments as well (though
+this can cause some stability problems with floating-point types):
+
+#define SORT_CMP(x, y) ((x) - (y))
 
 Speed of routines
 -----------------
@@ -56,7 +69,9 @@ even for random data.
 
 Tim sort is not as good if memory movement is many orders of magnitude more
 expensive than comparisons (like, many more than for normal int and double).
-If so, then quick sort is probably your routine.
+If so, then quick sort is probably your routine.  On the other hand, Tim
+sort does extremely well if the comparison operator is very expensive,
+since it strives hard to minimize comparisons.
 
 Here is the output of demo.c, which will give you the timings for a run of
 10,000 things on my old Mac Pro (2006-era 2.66 GHz Xeons, 64-bit) on OS X 10.6:
