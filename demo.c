@@ -2,6 +2,12 @@
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
+/* You can redefine the comparison operator.
+   The default is 
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+   but the one below is often faster for integer types.
+*/
+#define SORT_CMP(x, y) (x - y)
 #include "sort.h"
 
 /*
@@ -20,7 +26,7 @@
 
 /* Used to control the demo */
 #define SEED 123
-#define SIZE 100
+#define SIZE 10000
 #define RUNS 1
 
 /* helper functions */

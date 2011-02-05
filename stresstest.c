@@ -2,6 +2,7 @@
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
+#define SORT_CMP(x, y) (x - y)
 #include "sort.h"
 
 /* Used to control the stress test */
