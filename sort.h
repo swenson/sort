@@ -11,6 +11,11 @@
 #error "Must declare SORT_TYPE"
 #endif
 
+#ifndef SORT_CMP
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+#endif
+
+
 #ifndef CLZ
 #ifdef __GNUC__
 #define CLZ __builtin_clzll
@@ -42,9 +47,6 @@ int clzll(uint64_t x) {
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
 #define SORT_MAKE_STR(x) SORT_MAKE_STR1(SORT_NAME,x)
 
-#ifndef SORT_CMP
-#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
-#endif
 
 #define SHELL_SORT             SORT_MAKE_STR(shell_sort)
 #define BINARY_INSERTION_SORT  SORT_MAKE_STR(binary_insertion_sort)
@@ -153,10 +155,10 @@ static inline int64_t binary_insertion_find(SORT_TYPE *dst, const SORT_TYPE x, c
     }
     else
     {
-      while (cx == x)
+      do
       {
         cx = dst[++c];
-      }
+      } while (SORT_CMP(x, cx) == 0);
       return c;
     }
     c = l + ((r - l) >> 1);
@@ -255,7 +257,7 @@ static inline int64_t quick_sort_partition(SORT_TYPE *dst, const int64_t left, c
   int64_t i;
   for (i = left; i < right; i++)
   {
-    if (dst[i] <= value)
+    if (SORT_CMP(dst[i], value) <= 0)
     {
       SORT_SWAP(dst[i], dst[index]);
       index++;
