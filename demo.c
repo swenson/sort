@@ -98,7 +98,8 @@ void run_tests(void)
     verify(dst, SIZE);
   }
   printf("stdlib qsort time: %.2f us per iteration\n", total_time / RUNS);
-  
+
+#ifndef __linux__ 
   srand48(SEED);  
   total_time = 0.0;
   for (i = 0; i < RUNS; i++)
@@ -130,7 +131,7 @@ void run_tests(void)
     verify(dst, SIZE);
   }
   printf("stdlib mergesort time: %.2f us per iteration\n", total_time / RUNS);
-  
+#endif
   
   srand48(SEED);  
   total_time = 0.0;
