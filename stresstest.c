@@ -60,6 +60,7 @@ void run_tests(void)
     qsort(dst, size, sizeof(int64_t), simple_cmp);
     verify(dst, size);
   }
+#ifndef __linux__
   printf("stdlib heapsort\n");
   for (test = 0; test < TESTS; test++)
   {
@@ -78,6 +79,7 @@ void run_tests(void)
     mergesort(dst, size, sizeof(int64_t), simple_cmp);
     verify(dst, size);
   }
+#endif
   printf("quick sort\n");
   for (test = 0; test < TESTS; test++)
   {
