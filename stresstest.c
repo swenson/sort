@@ -152,6 +152,16 @@ void run_tests(void)
     sorter_tim_sort(dst, size);
     verify(dst, size);
   }
+
+  printf("in-place merge sort\n");
+  for (test = 0; test < TESTS; test++)
+  {
+    int64_t size = (lrand48() % (MAXSIZE - 1)) + 1;
+    int64_t dst[size];
+    fill(dst, size);
+    sorter_merge_sort_in_place(dst, size);
+    verify(dst, size);
+  }
 }
 
 int main(void)

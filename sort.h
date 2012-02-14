@@ -37,6 +37,10 @@
 #define HEAP_SORT              SORT_MAKE_STR(heap_sort)
 #define QUICK_SORT             SORT_MAKE_STR(quick_sort)
 #define MERGE_SORT             SORT_MAKE_STR(merge_sort)
+#define MERGE_SORT_IN_PLACE       SORT_MAKE_STR(merge_sort_in_place)
+#define MERGE_SORT_IN_PLACE_RMERGE       SORT_MAKE_STR(merge_sort_in_place_rmerge)
+#define MERGE_SORT_IN_PLACE_BACKMERGE    SORT_MAKE_STR(merge_sort_in_place_backmerge)
+#define MERGE_SORT_IN_PLACE_ASWAP        SORT_MAKE_STR(merge_sort_in_place_aswap)
 #define BUBBLE_SORT            SORT_MAKE_STR(bubble_sort)
 #define SHELL_SORT             SORT_MAKE_STR(shell_sort)
 #define QUICK_SORT_PARTITION   SORT_MAKE_STR(quick_sort_partition)
@@ -65,6 +69,7 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size);
 void HEAP_SORT(SORT_TYPE *dst, const size_t size);
 void QUICK_SORT(SORT_TYPE *dst, const size_t size);
 void MERGE_SORT(SORT_TYPE *dst, const size_t size);
+void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
 void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
 
@@ -193,6 +198,139 @@ void BUBBLE_SORT(SORT_TYPE *dst, const size_t size)
         SORT_SWAP(dst[i], dst[j]);
     }
   }
+}
+
+void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len)
+{
+	do {
+		SORT_SWAP(*dst1, *dst2);
+		dst1++;
+		dst2++;
+	} while (--len);
+}
+
+size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * dst2, size_t l2)
+{
+	size_t res;
+	SORT_TYPE *dst0 = dst2 + l1;
+
+	do {
+		while (SORT_CMP(*dst2, *dst1) < 0) {
+			SORT_SWAP(*dst1, *dst0);
+			dst1--;
+			dst0--;
+			if (--l1 == 0) {
+				return 0;
+			}
+		}
+
+		SORT_SWAP(*dst2, *dst0);
+		dst2--;
+		dst0--;
+	} while(--l2);
+
+	res = l1;
+	do {
+		SORT_SWAP(*dst1, *dst0);
+		dst1--;
+		dst0--;
+	} while (--l1);
+	return res;
+}
+
+// merge dst[p0..p1) by buffer dst[p1..p1+r)
+void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t r)
+{
+	size_t i;
+	int cv;
+
+	for (i = 0; i < len; i += r) {
+		// select smallest dst[p0+n*r]
+		int q = i, j;
+		for (j = i + r; j < len; j += r) {
+			cv = SORT_CMP(dst[j], dst[q]);
+			if (cv == 0) {
+				cv = SORT_CMP(dst[j + r - 1], dst[q + r - 1]);
+			}
+			if (cv < 0) {
+				q = j;
+			}
+		}
+		if (q != i) {
+			MERGE_SORT_IN_PLACE_ASWAP(dst + i, dst + q, r);	// swap it with current position
+		}
+		if (i != 0) {
+			MERGE_SORT_IN_PLACE_ASWAP(dst + len, dst + i, r);	// swap current position with buffer
+			MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len + r - 1), r, dst + (i - 1), r);	// buffer :merge: dst[i-r..i) -> dst[i-r..i+r)
+		}
+	}
+}
+
+/* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
+void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, size_t len)
+{
+	if (len < 16) {
+		BINARY_INSERTION_SORT(dst, len);
+		return;
+	}
+
+	size_t r = rbnd(len);
+	size_t lr = (len / r - 1) * r, p, m, q, q1;
+	SORT_TYPE *dst1 = dst - 1;
+
+	for (p = 2; p <= lr; p += 2) {
+		dst1 += 2;
+
+		if (SORT_CMP(dst1[0], dst1[-1]) < 0) {
+			SORT_SWAP(dst1[0], dst1[-1]);
+		}
+
+		if (p & 2) {
+			continue;
+		}
+
+		SORT_SWAP(dst1[-1], dst1[1]);
+		SORT_SWAP(dst1[0], dst1[2]);
+
+		m = len - p;
+		q = 2;
+
+		for (;;) {
+			q1 = 2 * q;
+
+			if (q1 > m || (p & q1)) {
+				break;
+			}
+
+			MERGE_SORT_IN_PLACE_BACKMERGE(dst1 - q, q, dst1 + q, q);
+			q = q1;
+		}
+
+		MERGE_SORT_IN_PLACE_BACKMERGE(dst1 + q, q, dst1 - q, q);
+
+		q1 = q;
+		q *= 2;
+		while ((q & p) == 0) {
+			q *= 2;
+			MERGE_SORT_IN_PLACE_RMERGE(dst + (p - q), q, q1);
+		}
+	}
+
+	q1 = 0;
+	for (q = r; q < lr; q *= 2) {
+		if ((lr & q) != 0) {
+			q1 += q;
+			if (q1 != q) {
+				MERGE_SORT_IN_PLACE_RMERGE(dst + (lr - q1), q1, r);
+			}
+		}
+	}
+
+	m = len - lr;
+	MERGE_SORT_IN_PLACE(dst + lr, m);
+	MERGE_SORT_IN_PLACE_ASWAP(dst, dst + lr, m);
+	m += MERGE_SORT_IN_PLACE_BACKMERGE(dst + (m - 1), m, dst + (lr - 1), lr - m);
+	MERGE_SORT_IN_PLACE(dst, m);
 }
 
 void MERGE_SORT(SORT_TYPE *dst, const size_t size)
@@ -617,3 +755,8 @@ void HEAP_SORT(SORT_TYPE *dst, const size_t size)
 #undef TIM_SORT_COLLAPSE
 #undef TIM_SORT_RUN_T
 #undef TEMP_STORAGE_T
+#undef MERGE_SORT
+#undef MERGE_SORT_IN_PLACE
+#undef MERGE_SORT_IN_PLACE_RMERGE
+#undef MERGE_SORT_IN_PLACE_BACKMERGE
+#undef MERGE_SORT_IN_PLACE_ASWAP
