@@ -49,4 +49,16 @@ static inline int compute_minrun(const uint64_t size) /* {{{ */
 }
 /* }}} */
 
+static inline size_t rbnd(size_t len) /* {{{ */
+{
+	size_t k = 0, i;
+	len = len / 2;
+	for (i = 1; i < len; i *= 2)
+		k++;
+	len /= k;
+	for (k = 1; k <= len; k *= 2) ;
+	return k;
+}
+/* }}} */
+
 #endif /* SORT_COMMON_H */
