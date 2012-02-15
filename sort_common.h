@@ -56,8 +56,7 @@ static inline size_t rbnd(size_t len) /* {{{ */
 	for (i = 1; i < len; i *= 2)
 		k++;
 	len /= k;
-	for (k = 1; k <= len; k *= 2) ;
-	return k;
+	return 1ULL << (64 - CLZ(len));
 }
 /* }}} */
 
