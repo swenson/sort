@@ -51,7 +51,13 @@ static inline int compute_minrun(const uint64_t size) /* {{{ */
 
 static inline size_t rbnd(size_t len) /* {{{ */
 {
-	return 1ULL << (63 - CLZ(len / (64 - CLZ(len))));
+	int k;
+	if (len < 16) {
+		return 2;
+	}
+
+	k = 62 - CLZ(len);
+	return 1ULL << ((2 * k) / 3);
 }
 /* }}} */
 
