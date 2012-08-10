@@ -1,3 +1,7 @@
+/* Copyright (c) 2010 Christopher Swenson. */
+/* Copyright (c) 2012 Vojtech Fried. */
+/* Copyright (c) 2012 Google Inc. All Rights Reserved. */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -84,7 +88,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size)
   int inci = 47;
   int64_t inc = shell_gaps[inci];
   int64_t i;
-  
+
   while (inc > (size >> 1))
   {
     inc = shell_gaps[--inci];

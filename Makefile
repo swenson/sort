@@ -1,3 +1,6 @@
+# Copyright (c) 2010 Christopher Swenson.
+# Copyright (c) 2012 Google Inc. All Rights Reserved.
+
 CC = gcc
 CFLAGS = -O3 -g -Wall -std=c89
 
