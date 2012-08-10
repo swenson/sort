@@ -91,7 +91,7 @@ void verify2(int64_t *dst, const int size)
   }
 }
 
-static inline double utime()
+static __inline double utime()
 {
   struct timeval t;
   gettimeofday(&t, NULL);
@@ -104,19 +104,19 @@ static void fill(int64_t *arr, const int size)
   int i;
   for (i = 0; i < size; i++)
   {
-    arr[i] = 1;//lrand48();
+    arr[i] = lrand48();
   }
 }
 
 /* used for stdlib */
-static inline int simple_cmp(const void *a, const void *b)
+static __inline int simple_cmp(const void *a, const void *b)
 {
   const int64_t da = *((const int64_t *) a);
   const int64_t db = *((const int64_t *) b);
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
-static inline int simple_cmp2(const void *a, const void *b)
+static __inline int simple_cmp2(const void *a, const void *b)
 {
   const int64_t da = *((const int64_t *) a);
   const int64_t db = *((const int64_t *) b);

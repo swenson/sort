@@ -80,7 +80,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size);
 */
 void SHELL_SORT(SORT_TYPE *dst, const size_t size)
 {
-  // TODO: binary search to find first gap?
+  /* TODO: binary search to find first gap? */
   int inci = 47;
   int64_t inc = shell_gaps[inci];
   while (inc > (size >> 1))
@@ -107,7 +107,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size)
 }
 
 /* Function used to do a binary search for binary insertion sort */
-static inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, const size_t size)
+static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, const size_t size)
 {
   int64_t l, c, r;
   SORT_TYPE lx;
@@ -210,7 +210,6 @@ void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len)
 
 void MERGE_SORT_IN_PLACE_FRONTMERGE(SORT_TYPE *dst1, size_t l1, SORT_TYPE *dst2, size_t l2)
 {
-	int res;
 	SORT_TYPE *dst0 = dst2 - l1;
 	
 	if (SORT_CMP(dst1[l1 - 1], dst2[0]) <= 0) {
@@ -275,7 +274,7 @@ size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * ds
 	return res;
 }
 
-// merge dst[p0..p1) by buffer dst[p1..p1+r)
+/* merge dst[p0..p1) by buffer dst[p1..p1+r) */
 void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 {
 	size_t i, lq;
@@ -288,7 +287,7 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 	lq = lp;
 
 	for (i = 0; i < len; i += r) {
-		// select smallest dst[p0+n*r]
+		/* select smallest dst[p0+n*r] */
 		int q = i, j;
 		for (j = lp; j <= lq; j += r) {
 			cv = SORT_CMP(dst[j], dst[q]);
@@ -300,14 +299,14 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 			}
 		}
 		if (q != i) {
-			MERGE_SORT_IN_PLACE_ASWAP(dst + i, dst + q, r);	// swap it with current position
+			MERGE_SORT_IN_PLACE_ASWAP(dst + i, dst + q, r);	/* swap it with current position */
 			if (q == lq && q < (len - r)) {
 				lq += r;
 			}
 		}
 		if (i != 0 && SORT_CMP(dst[i], dst[i-1]) < 0) {
-			MERGE_SORT_IN_PLACE_ASWAP(dst + len, dst + i, r);	// swap current position with buffer
-			MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len + r - 1), r, dst + (i - 1), r);	// buffer :merge: dst[i-r..i) -> dst[i-r..i+r)
+			MERGE_SORT_IN_PLACE_ASWAP(dst + len, dst + i, r);	/* swap current position with buffer */
+			MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len + r - 1), r, dst + (i - 1), r);	/* buffer :merge: dst[i-r..i) -> dst[i-r..i+r) */
 		}
 		if(lp == i) {
 			lp += r;
@@ -437,7 +436,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size)
 
 /* quick sort: based on wikipedia */
 
-static inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left, const int64_t right, const int64_t pivot)
+static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left, const int64_t right, const int64_t pivot)
 {
   SORT_TYPE value = dst[pivot];
   SORT_SWAP(dst[pivot], dst[right]);
@@ -477,7 +476,7 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size)
 
 /* timsort implementation, based on timsort.txt */
 
-static inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end)
+static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end)
 {
   while (1)
   {
@@ -759,7 +758,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size)
 
 /* heap sort: based on wikipedia */
 
-static inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const int64_t start, const int64_t end)
+static __inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const int64_t start, const int64_t end)
 {
   int64_t root = start;
   
@@ -778,7 +777,7 @@ static inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const int64_t start, const int
   }
 }
 
-static inline void HEAPIFY(SORT_TYPE *dst, const size_t size)
+static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size)
 {
   int64_t start = size >> 1;
   while (start >= 0)

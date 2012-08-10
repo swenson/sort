@@ -35,14 +35,14 @@ char *test_names[FILL_LAST_ELEMENT] = {
 };
 
 /* used for stdlib */
-static inline int simple_cmp(const void *a, const void *b)
+static __inline int simple_cmp(const void *a, const void *b)
 {
   const int64_t da = *((const int64_t *) a);
   const int64_t db = *((const int64_t *) b);
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
-static inline double utime()
+static __inline double utime()
 {
 	struct timeval t;
 	gettimeofday(&t, NULL);
@@ -58,9 +58,11 @@ int verify(int64_t *dst, const int size)
     if (dst[i - 1] > dst[i])
     {
       printf("Verify failed! at %d", i);
-      //for (i = i - 2; i < size; i++)
-      //  printf(" %lld", dst[i]);
-      //printf("\n");
+      /*
+      for (i = i - 2; i < size; i++)
+        printf(" %lld", dst[i]);
+      printf("\n");
+      */
       return 0;
     }
   }
