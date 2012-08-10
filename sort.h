@@ -83,11 +83,12 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size)
   /* TODO: binary search to find first gap? */
   int inci = 47;
   int64_t inc = shell_gaps[inci];
+  int64_t i;
+  
   while (inc > (size >> 1))
   {
     inc = shell_gaps[--inci];
   }
-  int64_t i;
   while (1)
   {
     for (i = inc; i < size; i++)
@@ -397,21 +398,21 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, size_t len)
 
 void MERGE_SORT(SORT_TYPE *dst, const size_t size)
 {
+  const int64_t middle = size / 2;
+  SORT_TYPE newdst[size];
+  int64_t out = 0;
+  int64_t i = 0;
+  int64_t j = middle;
+
   if (size < 16)
   {
     BINARY_INSERTION_SORT(dst, size);
     return;
   }
-
-  const int64_t middle = size / 2;
   
   MERGE_SORT(dst, middle);
   MERGE_SORT(&dst[middle], size - middle);
   
-  SORT_TYPE newdst[size];
-  int64_t out = 0;
-  int64_t i = 0;
-  int64_t j = middle;
   while (out != size)
   {
     if (i < middle)
@@ -439,9 +440,9 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size)
 static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left, const int64_t right, const int64_t pivot)
 {
   SORT_TYPE value = dst[pivot];
-  SORT_SWAP(dst[pivot], dst[right]);
   int64_t index = left;
   int64_t i;
+  SORT_SWAP(dst[pivot], dst[right]);
   for (i = left; i < right; i++)
   {
     if (SORT_CMP(dst[i], value) <= 0)
@@ -456,14 +457,16 @@ static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
 
 static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64_t right)
 {
+  int64_t pivot;
+  int64_t new_pivot;
   if (right <= left) return;
   if ((right - left + 1) < 16)
   {
     BINARY_INSERTION_SORT(&dst[left], right - left + 1);
     return;
   }
-  const int64_t pivot = left + ((right - left) >> 1);
-  const int64_t new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
+  pivot = left + ((right - left) >> 1);
+  new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
   QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1);
   QUICK_SORT_RECURSIVE(dst, new_pivot + 1, right);
 }
@@ -789,8 +792,9 @@ static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size)
 
 void HEAP_SORT(SORT_TYPE *dst, const size_t size)
 {
-  HEAPIFY(dst, size);
   int64_t end = size - 1;
+  HEAPIFY(dst, size);
+
   
   while (end > 0)
   {

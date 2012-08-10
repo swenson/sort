@@ -74,15 +74,14 @@ static __inline int simple_cmp(const void *a, const void *b)
 
 void run_tests(void)
 {
-  printf("Running tests\n");
   int i;
-  srand48(SEED);
   int64_t arr[SIZE];
   int64_t dst[SIZE];
   double start_time;
   double end_time;
   double total_time;
-  
+  printf("Running tests\n");
+
   srand48(SEED);  
   total_time = 0.0;
   for (i = 0; i < RUNS; i++)

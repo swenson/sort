@@ -100,7 +100,7 @@ static void fill_sorted_blocks(int64_t *dst, const int size, const int block_siz
   }
 }
 
-static void fill_swapped(int64_t *dst, const int size, const swapped_cnt)
+static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt)
 {
   int i, tmp;
   size_t ind1, ind2;
