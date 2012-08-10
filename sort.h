@@ -110,12 +110,11 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size)
 static inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, const size_t size)
 {
   int64_t l, c, r;
+  SORT_TYPE lx;
+  SORT_TYPE cx;
   l = 0;
   r = size - 1;
   c = r >> 1;
-  SORT_TYPE lx;
-  SORT_TYPE cx;
-  SORT_TYPE rx;
   lx = dst[l];
   
   /* check for beginning conditions */
@@ -128,8 +127,6 @@ static inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, c
     return i;
   }
   
-  rx = dst[r];
-  // guaranteed not to be >= rx
   cx = dst[c];
   while (1)
   {
@@ -138,7 +135,6 @@ static inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, c
     {
       if (c - l <= 1) return c;
       r = c;
-      rx = cx;
     }
     else if (val > 0)
     {
@@ -160,18 +156,20 @@ static inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, c
 }
 
 /* Binary insertion sort, but knowing that the first "start" entries are sorted.  Used in timsort. */
-static inline void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, const size_t size)
+static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, const size_t size)
 {
   int64_t i;
   for (i = start; i < size; i++)
   {
     int64_t j;
+    SORT_TYPE x;
+    int64_t location;
     /* If this entry is already correct, just move along */
     if (SORT_CMP(dst[i - 1], dst[i]) <= 0) continue;
     
     /* Else we need to find the right place, shift everything over, and squeeze in */
-    SORT_TYPE x = dst[i];
-    int64_t location = BINARY_INSERTION_FIND(dst, x, i);
+    x = dst[i];
+    location = BINARY_INSERTION_FIND(dst, x, i);
     for (j = i - 1; j >= location; j--)
     {
       dst[j + 1] = dst[j];
@@ -490,8 +488,9 @@ static inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end)
   }
 }
 
-static inline int64_t COUNT_RUN(SORT_TYPE *dst, const int64_t start, const size_t size)
+static int64_t COUNT_RUN(SORT_TYPE *dst, const int64_t start, const size_t size)
 {
+  int64_t curr;
   if (size - start == 1) return 1;
   if (start >= size - 2)
   {
@@ -500,11 +499,11 @@ static inline int64_t COUNT_RUN(SORT_TYPE *dst, const int64_t start, const size_
     return 2;
   }
   
-  int64_t curr = start + 2;
+  curr = start + 2;
   
   if (SORT_CMP(dst[start], dst[start + 1]) <= 0)
   {
-    // increasing run
+    /* increasing run */
     while (1)
     {
       if (curr == size - 1) break;
@@ -515,14 +514,14 @@ static inline int64_t COUNT_RUN(SORT_TYPE *dst, const int64_t start, const size_
   }
   else
   {
-    // decreasing run
+    /* decreasing run */
     while (1)
     {
       if (curr == size - 1) break;
       if (SORT_CMP(dst[curr - 1], dst[curr]) <= 0) break;
       curr++;
     }
-    // reverse in-place
+    /* reverse in-place */
     REVERSE_ELEMENTS(dst, start, curr - 1);
     return curr - start;
   }
@@ -559,19 +558,20 @@ if (curr == size)\
 }\
 while (0)
   
-static inline int CHECK_INVARIANT(TIM_SORT_RUN_T *stack, const int stack_curr)
+static int CHECK_INVARIANT(TIM_SORT_RUN_T *stack, const int stack_curr)
 {
+  int64_t A, B, C;
   if (stack_curr < 2) return 1;
   if (stack_curr == 2)
   {
-    const int64_t A = stack[stack_curr - 2].length;
-    const int64_t B = stack[stack_curr - 1].length;
-    if (A <= B) return 0;
+    const int64_t A1 = stack[stack_curr - 2].length;
+    const int64_t B1 = stack[stack_curr - 1].length;
+    if (A1 <= B1) return 0;
     return 1;
   }
-  const int64_t A = stack[stack_curr - 3].length;
-  const int64_t B = stack[stack_curr - 2].length;
-  const int64_t C = stack[stack_curr - 1].length;
+  A = stack[stack_curr - 3].length;
+  B = stack[stack_curr - 2].length;
+  C = stack[stack_curr - 1].length;
   if ((A <= B + C) || (B <= C)) return 0;
   return 1;
 }
@@ -582,7 +582,7 @@ typedef struct {
 } TEMP_STORAGE_T;
   
 
-static inline void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size)
+static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size)
 {
   if (store->alloc < new_size)
   {
@@ -597,18 +597,18 @@ static inline void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size)
   }
 }
 
-static inline void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr, TEMP_STORAGE_T *store)
+static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr, TEMP_STORAGE_T *store)
 {
   const int64_t A = stack[stack_curr - 2].length;
   const int64_t B = stack[stack_curr - 1].length;
   const int64_t curr = stack[stack_curr - 2].start;
-
-  TIM_SORT_RESIZE(store, MIN(A, B));
-  SORT_TYPE *storage = store->storage;
-  
+  SORT_TYPE *storage;
   int64_t i, j, k;
 
-  // left merge
+  TIM_SORT_RESIZE(store, MIN(A, B));
+  storage = store->storage;
+
+  /* left merge */
   if (A < B)
   {
     memcpy(storage, &dst[curr], A * sizeof(SORT_TYPE));
@@ -632,7 +632,7 @@ static inline void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
         dst[k] = dst[j++];
     }
   }
-  // right merge
+  /* right merge */
   else
   {    
     memcpy(storage, &dst[curr + A], B * sizeof(SORT_TYPE));
@@ -656,13 +656,15 @@ static inline void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, c
   }
 }
 
-static inline int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store, const size_t size)
+
+static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr, TEMP_STORAGE_T *store, const size_t size)
 {
   while (1)
   {
-    // if the stack only has one thing on it, we are done with the collapse
+    int64_t A, B, C;
+    /* if the stack only has one thing on it, we are done with the collapse */
     if (stack_curr <= 1) break;
-    // if this is the last merge, just do it
+    /* if this is the last merge, just do it */
     if ((stack_curr == 2) && (stack[0].length + stack[1].length == size))
     {
       TIM_SORT_MERGE(dst, stack, stack_curr, store);
@@ -670,7 +672,7 @@ static inline int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
       stack_curr--;
       break;
     }
-    // check if the invariant is off for a stack of 2 elements
+    /* check if the invariant is off for a stack of 2 elements */
     else if ((stack_curr == 2) && (stack[0].length <= stack[1].length))
     {
       TIM_SORT_MERGE(dst, stack, stack_curr, store);
@@ -681,11 +683,11 @@ static inline int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
     else if (stack_curr == 2)
       break;
       
-    const int64_t A = stack[stack_curr - 3].length;
-    const int64_t B = stack[stack_curr - 2].length;
-    const int64_t C = stack[stack_curr - 1].length;
+    A = stack[stack_curr - 3].length;
+    B = stack[stack_curr - 2].length;
+    C = stack[stack_curr - 1].length;
     
-    // check first invariant
+    /* check first invariant */
     if (A <= B + C)
     {
       if (A < C)
@@ -702,7 +704,7 @@ static inline int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
         stack_curr--;
       }
     }
-    // check second invariant
+    /* check second invariant */
     else if (B <= C)
     {
       TIM_SORT_MERGE(dst, stack, stack_curr, store);
@@ -717,24 +719,26 @@ static inline int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int s
 
 void TIM_SORT(SORT_TYPE *dst, const size_t size)
 {
+  int minrun;
+  TEMP_STORAGE_T _store, *store;
+  TIM_SORT_RUN_T run_stack[128];
+  int stack_curr = 0;
+  int64_t len, run;
+  int64_t curr = 0;
+  
   if (size < 64)
   {
     BINARY_INSERTION_SORT(dst, size);
     return;
   }
   
-  // compute the minimum run length
-  const int minrun = compute_minrun(size);
+  /* compute the minimum run length */
+  minrun = compute_minrun(size);
   
-  // temporary storage for merges
-  TEMP_STORAGE_T _store, *store = &_store;
+  /* temporary storage for merges */
+  store = &_store;
   store->alloc = 0;
   store->storage = NULL;
-  
-  TIM_SORT_RUN_T run_stack[128];
-  int stack_curr = 0;
-  int64_t len, run;
-  int64_t curr = 0;
   
   PUSH_NEXT();
   PUSH_NEXT();
