@@ -320,7 +320,7 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 }
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
-void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, size_t len)
+void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len)
 {
 	size_t r = rbnd(len);
 	size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
