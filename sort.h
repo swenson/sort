@@ -543,7 +543,9 @@ if (run > len)\
   BINARY_INSERTION_SORT_START(&dst[curr], len, run);\
   len = run;\
 }\
-run_stack[stack_curr++] = (TIM_SORT_RUN_T) {curr, len};\
+run_stack[stack_curr].start = curr;\
+run_stack[stack_curr].length = len;\
+stack_curr++;\
 curr += len;\
 if (curr == size)\
 {\
