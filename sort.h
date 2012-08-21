@@ -22,7 +22,7 @@
 #endif
 
 
-#define SORT_SWAP(x,y) ({SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;})
+#define SORT_SWAP(x,y) {SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;}
 
 #define SORT_CONCAT(x, y) x ## _ ## y
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
@@ -320,7 +320,7 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 }
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
-void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, size_t len)
+void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len)
 {
 	size_t r = rbnd(len);
 	size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
@@ -543,7 +543,9 @@ if (run > len)\
   BINARY_INSERTION_SORT_START(&dst[curr], len, run);\
   len = run;\
 }\
-run_stack[stack_curr++] = (TIM_SORT_RUN_T) {curr, len};\
+run_stack[stack_curr].start = curr;\
+run_stack[stack_curr].length = len;\
+stack_curr++;\
 curr += len;\
 if (curr == size)\
 {\
