@@ -107,7 +107,14 @@ All code in this repository, unless otherwise specified, is hereby
 licensed under the MIT Public License:
 
 Copyright (c) 2010 Christopher Swenson.
+
 Copyright (c) 2012 Google Inc. All Rights Reserved.
+
+Copyright (c) 2012 Vojtech Fried.
+
+In-place mergesort is:
+
+Copyright (c) 2012, Andrey Astrelin, astrelin@tochka.ru
 
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation
