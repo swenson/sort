@@ -1,6 +1,7 @@
 /* Copyright (c) 2010 Christopher Swenson. */
 /* Copyright (c) 2012 Google Inc. All Rights Reserved. */
 
+#define _XOPEN_SOURCE
 #include <sys/time.h>
 
 #define SORT_NAME sorter
