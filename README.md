@@ -60,11 +60,8 @@ Speed of routines
 The speed of each routine is highly dependent on your computer and the
 structure of your data.
 
-If your data has a lot of, like partially sorted sequences, then Tim sort
+If your data has a lot of partially sorted sequences, then Tim sort
 will beat the pants off of anything else.
-
-In general, Tim sort is probably the best sorting algorithm in this library,
-even for random data.
 
 Tim sort is not as good if memory movement is many orders of magnitude more
 expensive than comparisons (like, many more than for normal int and double).
@@ -72,18 +69,23 @@ If so, then quick sort is probably your routine.  On the other hand, Tim
 sort does extremely well if the comparison operator is very expensive,
 since it strives hard to minimize comparisons.
 
-Here is the output of demo.c, which will give you the timings for a run of
-10,000 things on my old Mac Pro (2006-era 2.66 GHz Xeons, 64-bit) on OS X 10.6:
+Here is the output of `demo.c`, which will give you the timings for a run of
+10,000 `int64_t`s on 2010-era MacBook Pro:
 	
 	Running tests
-	quick sort time: 740.20 us per iteration
-	bubble sort time: 183914.60 us per iteration
-	merge sort time: 954.20 us per iteration
-	binary insertion sort time: 20472.70 us per iteration
-	heap sort time: 994.50 us per iteration
-	shell sort time: 1170.30 us per iteration
-	tim sort time: 708.50 us per iteration
+	stdlib qsort time: 1711.00 us per iteration
+	stdlib heapsort time: 2751.00 us per iteration
+	stdlib mergesort time: 1913.00 us per iteration
+	quick sort time: 802.00 us per iteration
+	bubble sort time: 221410.00 us per iteration
+	merge sort time: 1231.00 us per iteration
+	binary insertion sort time: 22810.00 us per iteration
+	heap sort time: 820.00 us per iteration
+	shell sort time: 1222.00 us per iteration
+	tim sort time: 1076.00 us per iteration
+	in-place merge sort time: 1027.00 us per iteration
 
+Quicksort is the winner here.
 
 Author
 ------
