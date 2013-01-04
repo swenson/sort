@@ -139,7 +139,6 @@ static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
     else if (val > 0) {
       if (r - c <= 1) return c + 1;
       l = c;
-      lx = cx;
     }
     else {
       do {
