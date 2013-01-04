@@ -10,17 +10,22 @@ user-defined type, that is defined at include time.
 This means you don't have to pay the function call overhead of using
 standard library routine.
 
-You get the choice of many extra sorting routines as well, including:
+You get the choice of many sorting routines, including:
 
 * Shell sort
 * Binary insertion sort
 * Heap sort
 * Quick sort
-* Merge sort
-* Bubble sort (ugh)
-* Tim sort
+* Merge sort (stable)
+* In-place merge sort (*not* stable)
+* Bubble sort (ugh -- this is really only here for comparison)
+* Tim sort (stable)
 
 If you don't know which one to use, you should probably use Tim sort.
+
+If you have a lot data that is semi-structured, then you should definitely use Tim sort.
+
+If you have data that is really and truly random, quick sort is probably fastest.
 
 
 Usage
@@ -29,7 +34,7 @@ Usage
 To use this library, you need to do three things:
 
 * `#define SORT_TYPE` to be the type of the elements of the array you
-  want to sort.
+  want to sort. (For pointers, you should declare this like: `#define SORT_TYPE int*`)
 * `#define SORT_NAME` to be a unique name that will be prepended to all
   the routines, i.e., `#define SORT_NAME mine` would give you routines
   named `mine_heap_sort`, and so forth.
@@ -38,7 +43,17 @@ To use this library, you need to do three things:
 
 Then, enjoy using the sorting routines.
 
-See `demo.c` for example usage.
+Quick example:
+<pre>
+#define SORT_NAME int64
+#define SORT_TYPE int64_t
+#define SORT_CMP(x, y) ((x) - (y))
+#include "sort.h"
+</pre>
+
+You would now have access to `int64_quick_sort`, `int64_tim_sort`, etc.
+
+See `demo.c` for a more detailed example usage.
 
 If you are going to use your own custom type, you must redefine
 `SORT_CMP(x, y)` with your comparison function, so that it returns
@@ -71,7 +86,7 @@ since it strives hard to minimize comparisons.
 
 Here is the output of `demo.c`, which will give you the timings for a run of
 10,000 `int64_t`s on 2010-era MacBook Pro:
-	
+
 	Running tests
 	stdlib qsort time: 1711.00 us per iteration
 	stdlib heapsort time: 2751.00 us per iteration
@@ -123,10 +138,10 @@ Copyright (c) 2012, Andrey Astrelin, astrelin@tochka.ru
 	copies of the Software, and to permit persons to whom the
 	Software is furnished to do so, subject to the following
 	conditions:
-	
+
 	The above copyright notice and this permission notice shall be
 	included in all copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
