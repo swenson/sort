@@ -5,7 +5,12 @@
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
-#define SORT_CMP(x, y) (x - y)
+#define SORT_CMP(x, y) ((x) - (y))
+#include "sort.h"
+
+#define SORT_NAME stable
+#define SORT_TYPE int*
+#define SORT_CMP(x, y) (*(x) - *(y))
 #include "sort.h"
 
 /* Used to control the stress test */
@@ -341,11 +346,122 @@ void run_tests(int64_t *sizes, int sizes_cnt, int type) {
   printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
 }
 
+/* stability testing functions */
+/* cheap hack to keep a copy to compare against */
+static int **original;
+static int first_original = 0;
+
+/* make a int* array */
+void make_intp_array(int **array, int64_t size, int num_values) {
+  int64_t i;
+  if (first_original == 0) {
+    first_original = 1;
+    original = malloc(sizeof(int *) * size);
+  }
+
+  for (i = 0; i < size; i++) {
+    array[i] = original[i] = malloc(sizeof(int));
+    *(array[i]) = lrand48() % num_values;
+  }
+}
+
+/* free all the pointers */
+void clean_intp_array(int **array, int64_t size) {
+  int64_t i;
+  for (i = 0; i < size; i++) {
+    free(array[i]);
+  }
+}
+
+/* find the first instance of an element in an array of pointers */
+int64_t find_next(int **array, int64_t start, int64_t last, int value) {
+  int64_t i;
+  for (i = start; i < last; i++) {
+    if (*(array[i]) == value) {
+      break;
+    }
+  }
+  return i;
+}
+
+/* verify that the given list is stable */
+int verify_stable(int **array, int64_t size, int num_values) {
+  int value;
+  int64_t i = 0;
+  int64_t j = 0;
+
+  for (value = 0; value < num_values; value++) {
+    while (1) {
+      i = find_next(original, i, size, value);
+      /* unlikely, but possible */
+      if (i == size) {
+        break;
+      }
+      j = find_next(array, j, size, value);
+      if (j == size) {
+        return 0;
+      }
+      if (original[i] != array[j]) {
+        return 0;
+      }
+      i++;
+      j++;
+    }
+  }
+  return 1;
+}
+
+
+/* Check which sorts are stable. */
+void stable_tests() {
+  int size = 100000;
+  int num_values = 1000;
+  int **array = malloc(sizeof(int *) * size);
+  make_intp_array(array, size, num_values);
+  stable_quick_sort(array, size);
+  printf("quick sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  stable_merge_sort(array, size);
+  printf("merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  stable_heap_sort(array, size);
+  printf("heap sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  stable_shell_sort(array, size);
+  printf("shell sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  sorter_merge_sort_in_place(array, size);
+  printf("merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  stable_tim_sort(array, size);
+  printf("tim sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  make_intp_array(array, size, num_values);
+  stable_merge_sort_in_place(array, size);
+  printf("in-place merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+
+  free(array);
+}
+
 int main(void) {
   int i = 0;
   int64_t sizes[TESTS];
 
   srand48(SEED);
+
+  stable_tests();
 
   fill_random(sizes, TESTS);
   for (i = 0; i < TESTS; i++) {

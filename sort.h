@@ -110,23 +110,16 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
 static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x, const size_t size)
 {
   int64_t l, c, r;
-  SORT_TYPE lx;
   SORT_TYPE cx;
   l = 0;
   r = size - 1;
   c = r >> 1;
-  lx = dst[l];
 
-  /* check for beginning conditions */
-  if (SORT_CMP(x, lx) < 0) {
+  /* check for out of bounds at the beginning. */
+  if (SORT_CMP(x, dst[0]) < 0) {
     return 0;
-  }
-  else if (SORT_CMP(x, lx) == 0) {
-    int64_t i = 1;
-    while (SORT_CMP(x, dst[i]) == 0) {
-      i++;
-    }
-    return i;
+  } else if (SORT_CMP(x, dst[r]) > 0) {
+    return r;
   }
 
   cx = dst[c];
@@ -135,16 +128,9 @@ static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
     if (val < 0) {
       if (c - l <= 1) return c;
       r = c;
-    }
-    else if (val > 0) {
+    } else { /* allow = for stability. The binary search favors the right. */
       if (r - c <= 1) return c + 1;
       l = c;
-    }
-    else {
-      do {
-        cx = dst[++c];
-      } while (SORT_CMP(x, cx) == 0);
-      return c;
     }
     c = l + ((r - l) >> 1);
     cx = dst[c];
