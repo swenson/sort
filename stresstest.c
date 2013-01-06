@@ -137,213 +137,67 @@ static void fill(int64_t *dst, const int size, int type) {
   }
 }
 
+#define TEST_STDLIB(name) do { \
+  res = 0; \
+  diff = 0; \
+  printf("%-26s", "stdlib " #name ); \
+  for (test = 0; test < sizes_cnt; test++) { \
+    int64_t size = sizes[test]; \
+    int64_t dst[size]; \
+    fill(dst, size, type); \
+    usec1 = utime(); \
+    name (dst, size, sizeof(int64_t), simple_cmp); \
+    usec2 = utime(); \
+    res = verify(dst, size); \
+    if (!res) { \
+      break; \
+    } \
+    diff += usec2 - usec1; \
+  } \
+  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff); \
+} while (0)
+
+
+#define TEST_SORT_H(name) do { \
+  res = 0; \
+  diff = 0; \
+  printf("%-26s", "sort.h " #name); \
+  for (test = 0; test < sizes_cnt; test++) { \
+    int64_t size = sizes[test]; \
+    int64_t dst[size]; \
+    fill(dst, size, type); \
+    usec1 = utime(); \
+    sorter_ ## name (dst, size); \
+    usec2 = utime(); \
+    res = verify(dst, size); \
+    if (!res) { \
+      break; \
+    } \
+    diff += usec2 - usec1; \
+  } \
+  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff); \
+} while (0)
+
 void run_tests(int64_t *sizes, int sizes_cnt, int type) {
   int test, res;
   double usec1, usec2, diff;
 
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "stdlib qsort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    qsort(dst, size, sizeof(int64_t), simple_cmp);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
+  TEST_STDLIB(qsort);
 #ifndef __linux__
-  res = 0;
-  diff = 0;
-  printf("%-20s", "stdlib heapsort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    heapsort(dst, size, sizeof(int64_t), simple_cmp);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "stdlib mergesort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    mergesort(dst, size, sizeof(int64_t), simple_cmp);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
+  TEST_STDLIB(heapsort);
+  TEST_STDLIB(mergesort);
 #endif
-  res = 0;
-  diff = 0;
-  printf("%-20s", "quick sort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_quick_sort(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
   if (MAXSIZE < 10000) {
-    res = 0;
-    diff = 0;
-    printf("%-20s", "bubble sort");
-    for (test = 0; test < sizes_cnt; test++) {
-      int64_t size = sizes[test];
-      int64_t dst[size];
-      fill(dst, size, type);
-      usec1 = utime();
-      sorter_bubble_sort(dst, size);
-      usec2 = utime();
-      verify(dst, size);
-      if (!res) {
-        break;
-      }
-      diff += usec2 - usec1;
-    }
-    printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-    res = 0;
-    diff = 0;
-    printf("%-20s", "binary insertion sort\n");
-    for (test = 0; test < sizes_cnt; test++) {
-      int64_t size = sizes[test];
-      int64_t dst[size];
-      fill(dst, size, type);
-      usec1 = utime();
-      sorter_binary_insertion_sort(dst, size);
-      usec2 = utime();
-      verify(dst, size);
-      if (!res) {
-        break;
-      }
-      diff += usec2 - usec1;
-    }
-    printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
+    TEST_SORT_H(bubble_sort);
+    TEST_SORT_H(binary_insertion_sort);
   }
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "merge sort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_merge_sort(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "heap sort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_heap_sort(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "shell sort time");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_shell_sort(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "tim sort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_tim_sort(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
-
-  res = 0;
-  diff = 0;
-  printf("%-20s", "in-place merge sort");
-  for (test = 0; test < sizes_cnt; test++) {
-    int64_t size = sizes[test];
-    int64_t dst[size];
-    fill(dst, size, type);
-    usec1 = utime();
-    sorter_merge_sort_in_place(dst, size);
-    usec2 = utime();
-    res = verify(dst, size);
-    if (!res) {
-      break;
-    }
-    diff += usec2 - usec1;
-  }
-  printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff);
+  TEST_SORT_H(quick_sort);
+  TEST_SORT_H(merge_sort);
+  TEST_SORT_H(heap_sort);
+  TEST_SORT_H(shell_sort);
+  TEST_SORT_H(tim_sort);
+  TEST_SORT_H(merge_sort_in_place);
 }
 
 /* stability testing functions */
@@ -411,48 +265,26 @@ int verify_stable(int **array, int64_t size, int num_values) {
   return 1;
 }
 
+/* Checks that given sort function is stable. */
+void check_stable(char *name, void (*sort_fun)(int **arr, size_t size), int size, int num_values) {
+  int **array = malloc(sizeof(int *) * size);
+  make_intp_array(array, size, num_values);
+  sort_fun(array, size);
+  printf("%21s -- %s\n", name, verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
+  clean_intp_array(array, size);
+  free(array);
+}
 
 /* Check which sorts are stable. */
 void stable_tests() {
   int size = 100000;
   int num_values = 1000;
-  int **array = malloc(sizeof(int *) * size);
-  make_intp_array(array, size, num_values);
-  stable_quick_sort(array, size);
-  printf("quick sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  stable_merge_sort(array, size);
-  printf("merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  stable_heap_sort(array, size);
-  printf("heap sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  stable_shell_sort(array, size);
-  printf("shell sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  sorter_merge_sort_in_place(array, size);
-  printf("merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  stable_tim_sort(array, size);
-  printf("tim sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  make_intp_array(array, size, num_values);
-  stable_merge_sort_in_place(array, size);
-  printf("in-place merge sort -- %s\n", verify_stable(array, size, num_values) ? "stable" : "UNSTABLE");
-  clean_intp_array(array, size);
-
-  free(array);
+  check_stable("quick sort", stable_quick_sort, size, num_values);
+  check_stable("merge sort", stable_merge_sort, size, num_values);
+  check_stable("heap sort", stable_heap_sort, size, num_values);
+  check_stable("shell sort", stable_shell_sort, size, num_values);
+  check_stable("tim sort", stable_tim_sort, size, num_values);
+  check_stable("merge (in-place) sort", stable_merge_sort_in_place, size, num_values);
 }
 
 int main(void) {
