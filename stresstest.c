@@ -189,7 +189,7 @@ void run_tests(int64_t *sizes, int sizes_cnt, int type) {
   TEST_STDLIB(mergesort);
 #endif
   if (MAXSIZE < 10000) {
-    TEST_SORT_H(bubble_sort);
+    TEST_SORT_H(selection_sort);
     TEST_SORT_H(binary_insertion_sort);
   }
   TEST_SORT_H(quick_sort);

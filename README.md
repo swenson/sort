@@ -18,7 +18,7 @@ You get the choice of many sorting routines, including:
 * Quick sort
 * Merge sort (stable)
 * In-place merge sort (*not* stable)
-* Bubble sort (ugh -- this is really only here for comparison)
+* Selection sort (ugh -- this is really only here for comparison)
 * Tim sort (stable)
 
 If you don't know which one to use, you should probably use Tim sort.
@@ -92,7 +92,7 @@ Here is the output of `demo.c`, which will give you the timings for a run of
 	stdlib heapsort time: 2751.00 us per iteration
 	stdlib mergesort time: 1913.00 us per iteration
 	quick sort time: 802.00 us per iteration
-	bubble sort time: 221410.00 us per iteration
+	selection sort time: 221410.00 us per iteration
 	merge sort time: 1231.00 us per iteration
 	binary insertion sort time: 22810.00 us per iteration
 	heap sort time: 820.00 us per iteration

@@ -20,7 +20,7 @@
    * sorter_heap_sort
    * sorter_quick_sort
    * sorter_merge_sort
-   * sorter_bubble_sort
+   * sorter_selection_sort
    * sorter_tim_sort
 
    Each takes two arguments: int64_t *array, size_t size
@@ -147,13 +147,13 @@ void run_tests(void) {
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
 
-    sorter_bubble_sort(dst, SIZE);
+    sorter_selection_sort(dst, SIZE);
 
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("bubble sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("selection sort time: %.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;

@@ -46,7 +46,7 @@
 #define MERGE_SORT_IN_PLACE_BACKMERGE    SORT_MAKE_STR(merge_sort_in_place_backmerge)
 #define MERGE_SORT_IN_PLACE_FRONTMERGE    SORT_MAKE_STR(merge_sort_in_place_frontmerge)
 #define MERGE_SORT_IN_PLACE_ASWAP        SORT_MAKE_STR(merge_sort_in_place_aswap)
-#define BUBBLE_SORT            SORT_MAKE_STR(bubble_sort)
+#define SELECTION_SORT            SORT_MAKE_STR(selection_sort)
 #define SHELL_SORT             SORT_MAKE_STR(shell_sort)
 #define QUICK_SORT_PARTITION   SORT_MAKE_STR(quick_sort_partition)
 #define QUICK_SORT_RECURSIVE   SORT_MAKE_STR(quick_sort_recursive)
@@ -75,7 +75,7 @@ void HEAP_SORT(SORT_TYPE *dst, const size_t size);
 void QUICK_SORT(SORT_TYPE *dst, const size_t size);
 void MERGE_SORT(SORT_TYPE *dst, const size_t size);
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
-void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
+void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
 
 
@@ -164,8 +164,8 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
   BINARY_INSERTION_SORT_START(dst, 1, size);
 }
 
-/* Bubble sort */
-void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
+/* Selection sort */
+void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
   int64_t i;
   int64_t j;
   for (i = 0; i < size; i++) {
