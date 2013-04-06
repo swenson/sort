@@ -1,6 +1,7 @@
 /* Copyright (c) 2010 Christopher Swenson. */
 /* Copyright (c) 2012 Google Inc. All Rights Reserved. */
 
+#define _XOPEN_SOURCE
 #include <sys/time.h>
 
 #define SORT_NAME sorter
@@ -39,7 +40,7 @@ void verify(int64_t *dst, const int size) {
     if (dst[i - 1] > dst[i]) {
       printf("Verify failed! at %d\n", i);
       for (i = i - 2; i < SIZE; i++) {
-        printf(" %lld", dst[i]);
+        printf(" %lld", (long long int)dst[i]);
       }
       printf("\n");
       break;
