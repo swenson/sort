@@ -21,8 +21,9 @@
 #define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
 #endif
 
-
+#ifndef SORT_SWAP
 #define SORT_SWAP(x,y) {SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;}
+#endif
 
 #define SORT_CONCAT(x, y) x ## _ ## y
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
