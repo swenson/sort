@@ -1,6 +1,8 @@
 sort.h
 ======
 
+<img src="https://api.travis-ci.org/swenson/sort.png" />
+
 Overview
 --------
 

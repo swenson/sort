@@ -156,6 +156,7 @@ static void fill(int64_t *dst, const int size, int type) {
     diff += usec2 - usec1; \
   } \
   printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff); \
+  if (!res) return 0; \
 } while (0)
 
 
@@ -177,9 +178,10 @@ static void fill(int64_t *dst, const int size, int type) {
     diff += usec2 - usec1; \
   } \
   printf(" - %s, %10.1f usec\n", res ? "ok" : "FAILED", diff); \
+  if (!res) return 0; \
 } while (0)
 
-void run_tests(int64_t *sizes, int sizes_cnt, int type) {
+int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   int test, res;
   double usec1, usec2, diff;
 
@@ -199,6 +201,7 @@ void run_tests(int64_t *sizes, int sizes_cnt, int type) {
   TEST_SORT_H(shell_sort);
   TEST_SORT_H(tim_sort);
   TEST_SORT_H(merge_sort_in_place);
+  return 0;
 }
 
 /* stability testing functions */
@@ -302,7 +305,10 @@ int main(void) {
   }
 
   for (i = 0; i < FILL_LAST_ELEMENT; i++) {
-    run_tests(sizes, TESTS, i);
+    int result = run_tests(sizes, TESTS, i);
+    if (result) {
+      return 1;
+    }
   }
   return 0;
 }
