@@ -83,6 +83,11 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size);
    http://en.wikipedia.org/wiki/Shell_sort
 */
 void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   /* TODO: binary search to find first gap? */
   int inci = 47;
   uint64_t inc = shell_gaps[inci];
@@ -161,11 +166,21 @@ static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, cons
 
 /* Binary insertion sort */
 void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   BINARY_INSERTION_SORT_START(dst, 1, size);
 }
 
 /* Selection sort */
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   uint64_t i;
   uint64_t j;
   for (i = 0; i < size; i++) {
@@ -290,6 +305,11 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
+  /* don't bother sorting an array of size 0 */
+  if (len == 0) {
+    return;
+  }
+
 	size_t r = rbnd(len);
 	size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
 	SORT_TYPE *dst1 = dst - 1;
@@ -370,6 +390,11 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 
 /* Standard merge sort */
 void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   const uint64_t middle = size / 2;
   SORT_TYPE newdst[size];
   uint64_t out = 0;
@@ -438,6 +463,11 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64
 }
 
 void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   QUICK_SORT_RECURSIVE(dst, 0, size - 1);
 }
 
@@ -667,6 +697,11 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
 }
 
 void TIM_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   uint64_t minrun;
   TEMP_STORAGE_T _store, *store;
   TIM_SORT_RUN_T run_stack[128];
@@ -728,6 +763,11 @@ static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size) {
 }
 
 void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
+  /* don't bother sorting an array of size 0 */
+  if (size == 0) {
+    return;
+  }
+
   int64_t end = size - 1;
   HEAPIFY(dst, size);
 
