@@ -64,8 +64,8 @@
 #endif
 
 typedef struct {
-  int64_t start;
-  int64_t length;
+  uint64_t start;
+  uint64_t length;
 } TIM_SORT_RUN_T;
 
 
@@ -85,8 +85,8 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size);
 void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
   /* TODO: binary search to find first gap? */
   int inci = 47;
-  int64_t inc = shell_gaps[inci];
-  int64_t i;
+  uint64_t inc = shell_gaps[inci];
+  uint64_t i;
 
   while (inc > (size >> 1)) {
     inc = shell_gaps[--inci];
@@ -94,7 +94,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
   while (1) {
     for (i = inc; i < size; i++) {
       SORT_TYPE temp = dst[i];
-      int64_t j = i;
+      uint64_t j = i;
       while ((j >= inc) && (SORT_CMP(dst[j - inc], temp) > 0)) {
         dst[j] = dst[j - inc];
         j -= inc;
@@ -139,7 +139,7 @@ static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
 
 /* Binary insertion sort, but knowing that the first "start" entries are sorted.  Used in timsort. */
 static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, const size_t size) {
-  int64_t i;
+  uint64_t i;
   for (i = start; i < size; i++) {
     int64_t j;
     SORT_TYPE x;
@@ -166,8 +166,8 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* Selection sort */
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
-  int64_t i;
-  int64_t j;
+  uint64_t i;
+  uint64_t j;
   for (i = 0; i < size; i++) {
     for (j = i + 1; j < size; j++) {
       if (SORT_CMP(dst[j], dst[i]) < 0) {
@@ -262,7 +262,7 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 
 	for (i = 0; i < len; i += r) {
 		/* select smallest dst[p0+n*r] */
-		int q = i, j;
+		size_t q = i, j;
 		for (j = lp; j <= lq; j += r) {
 			cv = SORT_CMP(dst[j], dst[q]);
 			if (cv == 0) {
@@ -370,11 +370,11 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 
 /* Standard merge sort */
 void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
-  const int64_t middle = size / 2;
+  const uint64_t middle = size / 2;
   SORT_TYPE newdst[size];
-  int64_t out = 0;
-  int64_t i = 0;
-  int64_t j = middle;
+  uint64_t out = 0;
+  uint64_t i = 0;
+  uint64_t j = middle;
 
   if (size < 16) {
     BINARY_INSERTION_SORT(dst, size);
@@ -453,8 +453,8 @@ static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end
   }
 }
 
-static int64_t COUNT_RUN(SORT_TYPE *dst, const int64_t start, const size_t size) {
-  int64_t curr;
+static int64_t COUNT_RUN(SORT_TYPE *dst, const uint64_t start, const size_t size) {
+  uint64_t curr;
   if (size - start == 1) return 1;
   if (start >= size - 2) {
     if (SORT_CMP(dst[size - 2], dst[size - 1]) > 0) {
@@ -667,12 +667,12 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
 }
 
 void TIM_SORT(SORT_TYPE *dst, const size_t size) {
-  int minrun;
+  uint64_t minrun;
   TEMP_STORAGE_T _store, *store;
   TIM_SORT_RUN_T run_stack[128];
-  int stack_curr = 0;
-  int64_t len, run;
-  int64_t curr = 0;
+  uint64_t stack_curr = 0;
+  uint64_t len, run;
+  uint64_t curr = 0;
 
   if (size < 64) {
     BINARY_INSERTION_SORT(dst, size);
