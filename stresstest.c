@@ -16,7 +16,7 @@
 
 /* Used to control the stress test */
 #define SEED 123
-#define MAXSIZE 25600
+#define MAXSIZE 1600
 #define TESTS 1000
 
 #define RAND_RANGE(__n, __min, __max) \
@@ -24,6 +24,7 @@
 
 enum {
   FILL_RANDOM,
+  FILL_SAME,
   FILL_SORTED,
   FILL_SORTED_10,
   FILL_SORTED_100,
@@ -35,6 +36,7 @@ enum {
 
 char *test_names[FILL_LAST_ELEMENT] = {
   "random numbers",
+  "same number",
   "sorted numbers",
   "sorted blocks of length 10",
   "sorted blocks of length 100",
@@ -72,6 +74,13 @@ static void fill_random(int64_t *dst, const int size) {
   int i;
   for (i = 0; i < size; i++) {
     dst[i] = lrand48();
+  }
+}
+
+static void fill_same(int64_t *dst, const int size) {
+  int i;
+  for (i = 0; i < size; i++) {
+    dst[i] = 0;
   }
 }
 
@@ -131,6 +140,10 @@ static void fill(int64_t *dst, const int size, int type) {
       break;
     case FILL_SWAPPED_N8:
       fill_swapped(dst, size, size/8);
+      break;
+    case FILL_SAME:
+      fill_same(dst, size);
+      break;
     case FILL_RANDOM:
     default:
       fill_random(dst, size);
