@@ -435,14 +435,29 @@ static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
   SORT_TYPE value = dst[pivot];
   int64_t index = left;
   int64_t i;
+  int all_same = 1;
+
+  /* move the pivot to the right */
   SORT_SWAP(dst[pivot], dst[right]);
   for (i = left; i < right; i++) {
-    if (SORT_CMP(dst[i], value) <= 0) {
+    int cmp = SORT_CMP(dst[i], value);
+    /* check if everything is all the same */
+    if (cmp != 0) {
+      all_same &= 0;
+    }
+
+    if (cmp < 0) {
       SORT_SWAP(dst[i], dst[index]);
       index++;
     }
   }
   SORT_SWAP(dst[right], dst[index]);
+
+  /* avoid degenerate case */
+  if (all_same) {
+    return -1;
+  }
+
   return index;
 }
 
@@ -458,6 +473,11 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64
   }
   pivot = left + ((right - left) >> 1);
   new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
+
+  /* check for partition all equal */
+  if (new_pivot < 0) {
+    return;
+  }
   QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1);
   QUICK_SORT_RECURSIVE(dst, new_pivot + 1, right);
 }
