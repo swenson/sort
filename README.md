@@ -71,12 +71,16 @@ greater than 0 if `x > y`.
 
 The default just uses the builtin `<`, `==`, and `>` operators:
 
-`#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))`
+```c
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+```
 
 It is often just fine to just subtract the arguments as well (though
 this can cause some stability problems with floating-point types):
 
-`#define SORT_CMP(x, y) ((x) - (y))`
+```c
+#define SORT_CMP(x, y) ((x) - (y))
+```
 
 Speed of routines
 -----------------
@@ -94,7 +98,7 @@ sort does extremely well if the comparison operator is very expensive,
 since it strives hard to minimize comparisons.
 
 Here is the output of `demo.c`, which will give you the timings for a run of
-100,00 `int64_t`s on 2014-era MacBook Pro:
+10,000 `int64_t`s on 2014-era MacBook Pro:
 
 ```
 Running tests
