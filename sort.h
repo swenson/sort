@@ -54,6 +54,7 @@
 #define HEAPIFY                        SORT_MAKE_STR(heapify)
 #define TIM_SORT_RUN_T                 SORT_MAKE_STR(tim_sort_run_t)
 #define TEMP_STORAGE_T                 SORT_MAKE_STR(temp_storage_t)
+#define PUSH_NEXT                      SORT_MAKE_STR(push_next)
 
 #ifndef MAX
 #define MAX(x,y) (((x) > (y) ? (x) : (y)))
@@ -539,38 +540,6 @@ static int64_t COUNT_RUN(SORT_TYPE *dst, const uint64_t start, const size_t size
   }
 }
 
-#define PUSH_NEXT() do {\
-len = COUNT_RUN(dst, curr, size);\
-run = minrun;\
-if (run < minrun) {\
-  run = minrun;\
-}\
-if (run > size - curr) {\
-  run = size - curr;\
-}\
-if (run > len) {\
-  BINARY_INSERTION_SORT_START(&dst[curr], len, run);\
-  len = run;\
-}\
-run_stack[stack_curr].start = curr;\
-run_stack[stack_curr].length = len;\
-stack_curr++;\
-curr += len;\
-if (curr == size) {\
-  /* finish up */ \
-  while (stack_curr > 1) { \
-    TIM_SORT_MERGE(dst, run_stack, stack_curr, store); \
-    run_stack[stack_curr - 2].length += run_stack[stack_curr - 1].length; \
-    stack_curr--; \
-  } \
-  if (store->storage != NULL) {\
-    free(store->storage);\
-    store->storage = NULL;\
-  }\
-  return;\
-}\
-} while (0)
-
 static int CHECK_INVARIANT(TIM_SORT_RUN_T *stack, const int stack_curr) {
   int64_t A, B, C;
   if (stack_curr < 2) {
@@ -597,7 +566,6 @@ typedef struct {
   size_t alloc;
   SORT_TYPE *storage;
 } TEMP_STORAGE_T;
-
 
 static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
   if (store->alloc < new_size) {
@@ -715,6 +683,46 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
   return stack_curr;
 }
 
+static __inline int PUSH_NEXT(SORT_TYPE *dst,
+                              const size_t size,
+                              TEMP_STORAGE_T *store,
+                              const uint64_t minrun,
+                              TIM_SORT_RUN_T *run_stack,
+                              uint64_t *stack_curr,
+                              uint64_t *curr) {
+  uint64_t len = COUNT_RUN(dst, *curr, size);
+  uint64_t run = minrun;
+
+  if (run < minrun) {
+    run = minrun;
+  }
+  if (run > size - *curr) {
+    run = size - *curr;
+  }
+  if (run > len) {
+    BINARY_INSERTION_SORT_START(&dst[*curr], len, run);
+    len = run;
+  }
+  run_stack[*stack_curr].start = *curr;
+  run_stack[*stack_curr].length = len;
+  (*stack_curr)++;
+  *curr += len;
+  if (*curr == size) {
+    /* finish up */
+    while (*stack_curr > 1) {
+      TIM_SORT_MERGE(dst, run_stack, *stack_curr, store);
+      run_stack[*stack_curr - 2].length += run_stack[*stack_curr - 1].length;
+      (*stack_curr)--;
+    }
+    if (store->storage != NULL) {
+      free(store->storage);
+      store->storage = NULL;
+    }
+    return 0;
+  }
+  return 1;
+}
+
 void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   /* don't bother sorting an array of size 0 */
   if (size == 0) {
@@ -725,7 +733,6 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   TEMP_STORAGE_T _store, *store;
   TIM_SORT_RUN_T run_stack[128];
   uint64_t stack_curr = 0;
-  uint64_t len, run;
   uint64_t curr = 0;
 
   if (size < 64) {
@@ -741,16 +748,16 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   store->alloc = 0;
   store->storage = NULL;
 
-  PUSH_NEXT();
-  PUSH_NEXT();
-  PUSH_NEXT();
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) return;
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) return;
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) return;
 
   while (1) {
     if (!CHECK_INVARIANT(run_stack, stack_curr)) {
       stack_curr = TIM_SORT_COLLAPSE(dst, run_stack, stack_curr, store, size);
       continue;
     }
-    PUSH_NEXT();
+    if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) return;
   }
 }
 
