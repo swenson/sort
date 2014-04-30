@@ -28,33 +28,32 @@
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
 #define SORT_MAKE_STR(x) SORT_MAKE_STR1(SORT_NAME,x)
 
-#define BINARY_INSERTION_FIND  SORT_MAKE_STR(binary_insertion_find)
-#define BINARY_INSERTION_SORT_START SORT_MAKE_STR(binary_insertion_sort_start)
-#define BINARY_INSERTION_SORT  SORT_MAKE_STR(binary_insertion_sort)
-#define REVERSE_ELEMENTS       SORT_MAKE_STR(reverse_elements)
-#define COUNT_RUN              SORT_MAKE_STR(count_run)
-#define CHECK_INVARIANT        SORT_MAKE_STR(check_invariant)
-#define TIM_SORT               SORT_MAKE_STR(tim_sort)
-#define TIM_SORT_RESIZE        SORT_MAKE_STR(tim_sort_resize)
-#define TIM_SORT_MERGE         SORT_MAKE_STR(tim_sort_merge)
-#define TIM_SORT_COLLAPSE      SORT_MAKE_STR(tim_sort_collapse)
-#define HEAP_SORT              SORT_MAKE_STR(heap_sort)
-#define QUICK_SORT             SORT_MAKE_STR(quick_sort)
-#define MERGE_SORT             SORT_MAKE_STR(merge_sort)
-#define MERGE_SORT_IN_PLACE       SORT_MAKE_STR(merge_sort_in_place)
-#define MERGE_SORT_IN_PLACE_RMERGE       SORT_MAKE_STR(merge_sort_in_place_rmerge)
-#define MERGE_SORT_IN_PLACE_BACKMERGE    SORT_MAKE_STR(merge_sort_in_place_backmerge)
-#define MERGE_SORT_IN_PLACE_FRONTMERGE    SORT_MAKE_STR(merge_sort_in_place_frontmerge)
-#define MERGE_SORT_IN_PLACE_ASWAP        SORT_MAKE_STR(merge_sort_in_place_aswap)
-#define SELECTION_SORT            SORT_MAKE_STR(selection_sort)
-#define SHELL_SORT             SORT_MAKE_STR(shell_sort)
-#define QUICK_SORT_PARTITION   SORT_MAKE_STR(quick_sort_partition)
-#define QUICK_SORT_RECURSIVE   SORT_MAKE_STR(quick_sort_recursive)
-#define HEAP_SIFT_DOWN         SORT_MAKE_STR(heap_sift_down)
-#define HEAPIFY                SORT_MAKE_STR(heapify)
-
-#define TIM_SORT_RUN_T         SORT_MAKE_STR(tim_sort_run_t)
-#define TEMP_STORAGE_T         SORT_MAKE_STR(temp_storage_t)
+#define BINARY_INSERTION_FIND          SORT_MAKE_STR(binary_insertion_find)
+#define BINARY_INSERTION_SORT_START    SORT_MAKE_STR(binary_insertion_sort_start)
+#define BINARY_INSERTION_SORT          SORT_MAKE_STR(binary_insertion_sort)
+#define REVERSE_ELEMENTS               SORT_MAKE_STR(reverse_elements)
+#define COUNT_RUN                      SORT_MAKE_STR(count_run)
+#define CHECK_INVARIANT                SORT_MAKE_STR(check_invariant)
+#define TIM_SORT                       SORT_MAKE_STR(tim_sort)
+#define TIM_SORT_RESIZE                SORT_MAKE_STR(tim_sort_resize)
+#define TIM_SORT_MERGE                 SORT_MAKE_STR(tim_sort_merge)
+#define TIM_SORT_COLLAPSE              SORT_MAKE_STR(tim_sort_collapse)
+#define HEAP_SORT                      SORT_MAKE_STR(heap_sort)
+#define QUICK_SORT                     SORT_MAKE_STR(quick_sort)
+#define MERGE_SORT                     SORT_MAKE_STR(merge_sort)
+#define MERGE_SORT_IN_PLACE            SORT_MAKE_STR(merge_sort_in_place)
+#define MERGE_SORT_IN_PLACE_RMERGE     SORT_MAKE_STR(merge_sort_in_place_rmerge)
+#define MERGE_SORT_IN_PLACE_BACKMERGE  SORT_MAKE_STR(merge_sort_in_place_backmerge)
+#define MERGE_SORT_IN_PLACE_FRONTMERGE SORT_MAKE_STR(merge_sort_in_place_frontmerge)
+#define MERGE_SORT_IN_PLACE_ASWAP      SORT_MAKE_STR(merge_sort_in_place_aswap)
+#define SELECTION_SORT                 SORT_MAKE_STR(selection_sort)
+#define SHELL_SORT                     SORT_MAKE_STR(shell_sort)
+#define QUICK_SORT_PARTITION           SORT_MAKE_STR(quick_sort_partition)
+#define QUICK_SORT_RECURSIVE           SORT_MAKE_STR(quick_sort_recursive)
+#define HEAP_SIFT_DOWN                 SORT_MAKE_STR(heap_sift_down)
+#define HEAPIFY                        SORT_MAKE_STR(heapify)
+#define TIM_SORT_RUN_T                 SORT_MAKE_STR(tim_sort_run_t)
+#define TEMP_STORAGE_T                 SORT_MAKE_STR(temp_storage_t)
 
 #ifndef MAX
 #define MAX(x,y) (((x) > (y) ? (x) : (y)))
@@ -194,113 +193,113 @@ void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* In-place mergesort */
 void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len) {
-	do {
-		SORT_SWAP(*dst1, *dst2);
-		dst1++;
-		dst2++;
-	} while (--len);
+  do {
+    SORT_SWAP(*dst1, *dst2);
+    dst1++;
+    dst2++;
+  } while (--len);
 }
 
 void MERGE_SORT_IN_PLACE_FRONTMERGE(SORT_TYPE *dst1, size_t l1, SORT_TYPE *dst2, size_t l2) {
-	SORT_TYPE *dst0 = dst2 - l1;
+  SORT_TYPE *dst0 = dst2 - l1;
 
-	if (SORT_CMP(dst1[l1 - 1], dst2[0]) <= 0) {
-		MERGE_SORT_IN_PLACE_ASWAP(dst1, dst0, l1);
-		return;
-	}
+  if (SORT_CMP(dst1[l1 - 1], dst2[0]) <= 0) {
+    MERGE_SORT_IN_PLACE_ASWAP(dst1, dst0, l1);
+    return;
+  }
 
-	do {
-		while (SORT_CMP(*dst2,*dst1) > 0) {
-			SORT_SWAP(*dst1, *dst0);
-			dst1++;
-			dst0++;
+  do {
+    while (SORT_CMP(*dst2,*dst1) > 0) {
+      SORT_SWAP(*dst1, *dst0);
+      dst1++;
+      dst0++;
 
-			if(--l1 == 0) {
-				return;
-			}
-		}
-		SORT_SWAP(*dst2, *dst0);
-		dst2++;
-		dst0++;
-	} while(--l2);
+      if(--l1 == 0) {
+        return;
+      }
+    }
+    SORT_SWAP(*dst2, *dst0);
+    dst2++;
+    dst0++;
+  } while(--l2);
 
-	do {
-		SORT_SWAP(*dst1, *dst0);
-		dst1++;
-		dst0++;
-	} while(--l1);
+  do {
+    SORT_SWAP(*dst1, *dst0);
+    dst1++;
+    dst0++;
+  } while(--l1);
 }
 
 size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * dst2, size_t l2) {
-	size_t res;
-	SORT_TYPE *dst0 = dst2 + l1;
+  size_t res;
+  SORT_TYPE *dst0 = dst2 + l1;
 
-	if (SORT_CMP(dst1[1 - l1], dst2[0]) >= 0){
-		MERGE_SORT_IN_PLACE_ASWAP(dst1 - l1 + 1, dst0 - l1 + 1, l1);
-		return l1;
-	}
+  if (SORT_CMP(dst1[1 - l1], dst2[0]) >= 0){
+    MERGE_SORT_IN_PLACE_ASWAP(dst1 - l1 + 1, dst0 - l1 + 1, l1);
+    return l1;
+  }
 
-	do {
-		while (SORT_CMP(*dst2, *dst1) < 0) {
-			SORT_SWAP(*dst1, *dst0);
-			dst1--;
-			dst0--;
-			if (--l1 == 0) {
-				return 0;
-			}
-		}
+  do {
+    while (SORT_CMP(*dst2, *dst1) < 0) {
+      SORT_SWAP(*dst1, *dst0);
+      dst1--;
+      dst0--;
+      if (--l1 == 0) {
+        return 0;
+      }
+    }
 
-		SORT_SWAP(*dst2, *dst0);
-		dst2--;
-		dst0--;
-	} while(--l2);
+    SORT_SWAP(*dst2, *dst0);
+    dst2--;
+    dst0--;
+  } while(--l2);
 
-	res = l1;
-	do {
-		SORT_SWAP(*dst1, *dst0);
-		dst1--;
-		dst0--;
-	} while (--l1);
-	return res;
+  res = l1;
+  do {
+    SORT_SWAP(*dst1, *dst0);
+    dst1--;
+    dst0--;
+  } while (--l1);
+  return res;
 }
 
 /* merge dst[p0..p1) by buffer dst[p1..p1+r) */
 void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r) {
-	size_t i, lq;
-	int cv;
+  size_t i, lq;
+  int cv;
 
-	if (SORT_CMP(dst[lp], dst[lp-1]) >= 0) {
-		return;
-	}
+  if (SORT_CMP(dst[lp], dst[lp-1]) >= 0) {
+    return;
+  }
 
-	lq = lp;
+  lq = lp;
 
-	for (i = 0; i < len; i += r) {
-		/* select smallest dst[p0+n*r] */
-		size_t q = i, j;
-		for (j = lp; j <= lq; j += r) {
-			cv = SORT_CMP(dst[j], dst[q]);
-			if (cv == 0) {
-				cv = SORT_CMP(dst[j + r - 1], dst[q + r - 1]);
-			}
-			if (cv < 0) {
-				q = j;
-			}
-		}
-		if (q != i) {
-			MERGE_SORT_IN_PLACE_ASWAP(dst + i, dst + q, r);	/* swap it with current position */
-			if (q == lq && q < (len - r)) {
-				lq += r;
-			}
-		}
-		if (i != 0 && SORT_CMP(dst[i], dst[i-1]) < 0) {
-			MERGE_SORT_IN_PLACE_ASWAP(dst + len, dst + i, r);	/* swap current position with buffer */
-			MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len + r - 1), r, dst + (i - 1), r);	/* buffer :merge: dst[i-r..i) -> dst[i-r..i+r) */
-		}
-		if(lp == i) {
-			lp += r;
-		}
-	}
+  for (i = 0; i < len; i += r) {
+    /* select smallest dst[p0+n*r] */
+    size_t q = i, j;
+    for (j = lp; j <= lq; j += r) {
+      cv = SORT_CMP(dst[j], dst[q]);
+      if (cv == 0) {
+        cv = SORT_CMP(dst[j + r - 1], dst[q + r - 1]);
+      }
+      if (cv < 0) {
+        q = j;
+      }
+    }
+    if (q != i) {
+      MERGE_SORT_IN_PLACE_ASWAP(dst + i, dst + q, r); /* swap it with current position */
+      if (q == lq && q < (len - r)) {
+        lq += r;
+      }
+    }
+    if (i != 0 && SORT_CMP(dst[i], dst[i-1]) < 0) {
+      MERGE_SORT_IN_PLACE_ASWAP(dst + len, dst + i, r); /* swap current position with buffer */
+      MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len + r - 1), r, dst + (i - 1), r);  /* buffer :merge: dst[i-r..i) -> dst[i-r..i+r) */
+    }
+    if(lp == i) {
+      lp += r;
+    }
+  }
 }
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
@@ -310,82 +309,82 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
     return;
   }
 
-	size_t r = rbnd(len);
-	size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
-	SORT_TYPE *dst1 = dst - 1;
+  size_t r = rbnd(len);
+  size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
+  SORT_TYPE *dst1 = dst - 1;
 
-	if (len < 16) {
-		BINARY_INSERTION_SORT(dst, len);
-		return;
-	}
+  if (len < 16) {
+    BINARY_INSERTION_SORT(dst, len);
+    return;
+  }
 
-	for (p = 2; p <= lr; p += 2) {
-		dst1 += 2;
+  for (p = 2; p <= lr; p += 2) {
+    dst1 += 2;
 
-		if (SORT_CMP(dst1[0], dst1[-1]) < 0) {
-			SORT_SWAP(dst1[0], dst1[-1]);
-		}
+    if (SORT_CMP(dst1[0], dst1[-1]) < 0) {
+      SORT_SWAP(dst1[0], dst1[-1]);
+    }
 
-		if (p & 2) {
-			continue;
-		}
+    if (p & 2) {
+      continue;
+    }
 
-		m = len - p;
-		q = 2;
+    m = len - p;
+    q = 2;
 
-		while ((p & q) == 0) {
-			if (SORT_CMP(dst1[1 - q], dst1[-q]) < 0) {
-				break;
-			}
-			q *= 2;
-		}
+    while ((p & q) == 0) {
+      if (SORT_CMP(dst1[1 - q], dst1[-q]) < 0) {
+        break;
+      }
+      q *= 2;
+    }
 
-		if (p & q) {
-			continue;
-		}
+    if (p & q) {
+      continue;
+    }
 
-		if (q < m) {
-			p0 = len - q;
-			MERGE_SORT_IN_PLACE_ASWAP(dst + p - q, dst + p0, q);
-			for (;;) {
-				q1 = 2 * q;
-				if ((q1 > m) || (p & q1)) {
-					break;
-				}
-				p0 = len - q1;
-				MERGE_SORT_IN_PLACE_FRONTMERGE(dst + (p - q1), q, dst + p0 + q, q);
-				q = q1;
-			}
-			MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len - 1), q, dst1 - q, q);
-			q *= 2;
-		}
-		q1 = q;
+    if (q < m) {
+      p0 = len - q;
+      MERGE_SORT_IN_PLACE_ASWAP(dst + p - q, dst + p0, q);
+      for (;;) {
+        q1 = 2 * q;
+        if ((q1 > m) || (p & q1)) {
+          break;
+        }
+        p0 = len - q1;
+        MERGE_SORT_IN_PLACE_FRONTMERGE(dst + (p - q1), q, dst + p0 + q, q);
+        q = q1;
+      }
+      MERGE_SORT_IN_PLACE_BACKMERGE(dst + (len - 1), q, dst1 - q, q);
+      q *= 2;
+    }
+    q1 = q;
 
-		while (q1 > m) {
-			q1 /= 2;
-		}
+    while (q1 > m) {
+      q1 /= 2;
+    }
 
-		while ((q & p) == 0) {
-			q *= 2;
-			MERGE_SORT_IN_PLACE_RMERGE(dst + (p - q), q, q/2, q1);
-		}
-	}
+    while ((q & p) == 0) {
+      q *= 2;
+      MERGE_SORT_IN_PLACE_RMERGE(dst + (p - q), q, q/2, q1);
+    }
+  }
 
-	q1 = 0;
-	for (q = r; q < lr; q *= 2) {
-		if ((lr & q) != 0) {
-			q1 += q;
-			if (q1 != q) {
-				MERGE_SORT_IN_PLACE_RMERGE(dst + (lr - q1), q1, q, r);
-			}
-		}
-	}
+  q1 = 0;
+  for (q = r; q < lr; q *= 2) {
+    if ((lr & q) != 0) {
+      q1 += q;
+      if (q1 != q) {
+        MERGE_SORT_IN_PLACE_RMERGE(dst + (lr - q1), q1, q, r);
+      }
+    }
+  }
 
-	m = len - lr;
-	MERGE_SORT_IN_PLACE(dst + lr, m);
-	MERGE_SORT_IN_PLACE_ASWAP(dst, dst + lr, m);
-	m += MERGE_SORT_IN_PLACE_BACKMERGE(dst + (m - 1), m, dst + (lr - 1), lr - m);
-	MERGE_SORT_IN_PLACE(dst, m);
+  m = len - lr;
+  MERGE_SORT_IN_PLACE(dst + lr, m);
+  MERGE_SORT_IN_PLACE_ASWAP(dst, dst + lr, m);
+  m += MERGE_SORT_IN_PLACE_BACKMERGE(dst + (m - 1), m, dst + (lr - 1), lr - m);
+  MERGE_SORT_IN_PLACE(dst, m);
 }
 
 /* Standard merge sort */
