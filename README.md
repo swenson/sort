@@ -46,14 +46,21 @@ To use this library, you need to do three things:
 Then, enjoy using the sorting routines.
 
 Quick example:
-<pre>
+
+```c
 #define SORT_NAME int64
 #define SORT_TYPE int64_t
 #define SORT_CMP(x, y) ((x) - (y))
 #include "sort.h"
-</pre>
+```
 
-You would now have access to `int64_quick_sort`, `int64_tim_sort`, etc.
+You would now have access to `int64_quick_sort`, `int64_tim_sort`, etc.,
+which you can use like
+
+```c
+/* Assumes you have some int *arr or int arr[128]; */
+int64_quick_sort(arr, 128);
+```
 
 See `demo.c` for a more detailed example usage.
 
@@ -87,22 +94,25 @@ sort does extremely well if the comparison operator is very expensive,
 since it strives hard to minimize comparisons.
 
 Here is the output of `demo.c`, which will give you the timings for a run of
-10,000 `int64_t`s on 2010-era MacBook Pro:
+100,00 `int64_t`s on 2014-era MacBook Pro:
 
-	Running tests
-	stdlib qsort time: 1711.00 us per iteration
-	stdlib heapsort time: 2751.00 us per iteration
-	stdlib mergesort time: 1913.00 us per iteration
-	quick sort time: 802.00 us per iteration
-	selection sort time: 221410.00 us per iteration
-	merge sort time: 1231.00 us per iteration
-	binary insertion sort time: 22810.00 us per iteration
-	heap sort time: 820.00 us per iteration
-	shell sort time: 1222.00 us per iteration
-	tim sort time: 1076.00 us per iteration
-	in-place merge sort time: 1027.00 us per iteration
+```
+Running tests
+stdlib qsort time:             1157.00 us per iteration
+stdlib heapsort time:          2323.00 us per iteration
+stdlib mergesort time:         1381.00 us per iteration
+quick sort time:                628.00 us per iteration
+selection sort time:         115757.00 us per iteration
+merge sort time:                733.00 us per iteration
+binary insertion sort time:   10409.00 us per iteration
+heap sort time:                 481.00 us per iteration
+shell sort time:                774.00 us per iteration
+tim sort time:                  729.00 us per iteration
+in-place merge sort time:       658.00 us per iteration
+```
 
-Quicksort is the winner here.
+Heap sort is the winner here.
+Quick sort, in-place merge sort, and tim sort also often tend to be quite fast.
 
 Author
 ------
