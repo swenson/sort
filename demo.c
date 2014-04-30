@@ -91,7 +91,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("stdlib qsort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("stdlib qsort time:          %10.2f us per iteration\n", total_time / RUNS);
 
 #ifndef __linux__
   srand48(SEED);
@@ -107,7 +107,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("stdlib heapsort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("stdlib heapsort time:       %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -122,7 +122,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("stdlib mergesort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("stdlib mergesort time:      %10.2f us per iteration\n", total_time / RUNS);
 #endif
 
   srand48(SEED);
@@ -138,7 +138,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("quick sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("quick sort time:            %10.2f us per iteration\n", total_time / RUNS);
 
 
   srand48(SEED);
@@ -154,7 +154,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("selection sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("selection sort time:        %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -169,7 +169,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("merge sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("merge sort time:            %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -184,7 +184,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("binary insertion sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("binary insertion sort time: %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -199,7 +199,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("heap sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("heap sort time:             %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -214,7 +214,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("shell sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("shell sort time:            %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -229,7 +229,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("tim sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("tim sort time:              %10.2f us per iteration\n", total_time / RUNS);
 
   srand48(SEED);
   total_time = 0.0;
@@ -244,7 +244,7 @@ void run_tests(void) {
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("in-place merge sort time: %.2f us per iteration\n", total_time / RUNS);
+  printf("in-place merge sort time:   %10.2f us per iteration\n", total_time / RUNS);
 }
 
 int main(void)
