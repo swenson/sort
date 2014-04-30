@@ -154,7 +154,7 @@ static void fill(int64_t *dst, const int size, int type) {
 #define TEST_STDLIB(name) do { \
   res = 0; \
   diff = 0; \
-  printf("%-26s", "stdlib " #name ); \
+  printf("%-29s", "stdlib " #name ); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
     int64_t dst[size]; \
@@ -176,7 +176,7 @@ static void fill(int64_t *dst, const int size, int type) {
 #define TEST_SORT_H(name) do { \
   res = 0; \
   diff = 0; \
-  printf("%-26s", "sort.h " #name); \
+  printf("%-29s", "sort.h " #name); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
     int64_t dst[size]; \
