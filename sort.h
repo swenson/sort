@@ -817,15 +817,14 @@ void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
 /*                                                       */
 /*********************************************************/
 
-#include<memory.h>
-#include<malloc.h>
 
-inline void sqrtsort_swap1(SORT_TYPE *a,SORT_TYPE *b){
+static __inline void sqrtsort_swap1(SORT_TYPE *a,SORT_TYPE *b){
   SORT_TYPE c=*a;
   *a++=*b;
   *b++=c;
 }
-inline void sqrtsort_swapN(SORT_TYPE *a,SORT_TYPE *b,int n){
+
+static __inline void sqrtsort_swapN(SORT_TYPE *a,SORT_TYPE *b,int n){
   while(n--) sqrtsort_swap1(a++,b++);
 }
 
@@ -843,7 +842,7 @@ static void sqrtsort_MergeRight(SORT_TYPE *arr,int L1,int L2,int M){
   if(p2!=p0) while(p2>=L1) arr[p0--]=arr[p2--];
 }
 
-// arr[M..-1] - free, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1]
+/* arr[M..-1] - free, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1] */
 static void sqrtsort_MergeLeftWithXBuf(SORT_TYPE *arr,int L1,int L2,int M){
   int p0=0,p1=L1;
   L2+=L1;
@@ -854,7 +853,7 @@ static void sqrtsort_MergeLeftWithXBuf(SORT_TYPE *arr,int L1,int L2,int M){
   if(M!=p0) while(p0<L1) arr[M++]=arr[p0++];
 }
 
-// arr[0,L1-1] ++ arr2[0,L2-1] -> arr[-L1,L2-1],  arr2 is "before" arr1
+/* arr[0,L1-1] ++ arr2[0,L2-1] -> arr[-L1,L2-1],  arr2 is "before" arr1 */
 static void sqrtsort_MergeDown(SORT_TYPE *arr,SORT_TYPE *arr2,int L1,int L2){
   int p0=0,p1=0,M=-L2;
 
@@ -867,7 +866,7 @@ static void sqrtsort_MergeDown(SORT_TYPE *arr,SORT_TYPE *arr2,int L1,int L2){
 
 static void sqrtsort_SmartMergeWithXBuf(SORT_TYPE *arr,int *alen1,int *atype,int len2,int lkeys){
   int p0=-lkeys,p1=0,p2=*alen1,q1=p2,q2=p2+len2;
-  int ftype=1-*atype;  // 1 if inverted
+  int ftype=1-*atype;  /* 1 if inverted */
   while(p1<q1 && p2<q2){
     if(SORT_CMP(arr+p1,arr+p2)-ftype<0) arr[p0++]=arr[p1++];
     else arr[p0++]=arr[p2++];
@@ -881,11 +880,14 @@ static void sqrtsort_SmartMergeWithXBuf(SORT_TYPE *arr,int *alen1,int *atype,int
   }
 }
 
-// arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
-// lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
-// keys - arrays of keys, in same order as blocks. key<midkey means stream A
-// nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
-// llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
+
+/*
+  arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
+  lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
+  keys - arrays of keys, in same order as blocks. key<midkey means stream A
+  nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
+  llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
+*/
 static void sqrtsort_MergeBuffersLeftWithXBuf(int *keys,int midkey,SORT_TYPE *arr,int nblock,int lblock,int nblock2,int llast){
   int l,prest,lrest,frest,pidx,cidx,fnext,plast;
 
@@ -926,9 +928,11 @@ static void sqrtsort_MergeBuffersLeftWithXBuf(int *keys,int midkey,SORT_TYPE *ar
   }
 }
 
-// build blocks of length K
-// input: [-K,-1] elements are buffer
-// output: first K elements are buffer, blocks 2*K and last subblock sorted
+/*
+  build blocks of length K
+  input: [-K,-1] elements are buffer
+  output: first K elements are buffer, blocks 2*K and last subblock sorted
+*/
 static void sqrtsort_BuildBlocks(SORT_TYPE *arr,int L,int K){
   int m,u,h,p0,p1,rest,restk,p;
     for(m=1;m<L;m+=2){
@@ -972,8 +976,10 @@ static void sqrtsort_SortIns(SORT_TYPE *arr,int len){
   }
 }
 
-// keys are on the left of arr. Blocks of length LL combined. We'll combine them in pairs
-// LL and nkeys are powers of 2. (2*LL/lblock) keys are guarantied
+/*
+  keys are on the left of arr. Blocks of length LL combined. We'll combine them in pairs
+  LL and nkeys are powers of 2. (2*LL/lblock) keys are guarantied
+*/
 static void sqrtsort_CombineBlocks(SORT_TYPE *arr,int len,int LL,int lblock,int *tags){
   int M,nkeys,b,NBlk,midkey,lrest,u,i,p,v,kc,nbl2,llast;
   SORT_TYPE *arr1;
@@ -1045,7 +1051,7 @@ void SqrtSort(SORT_TYPE *arr,int Len){
   while(L*L<Len) L*=2;
   int NK=(Len-1)/L+2;
   ExtBuf=(SORT_TYPE*)malloc(L*sizeof(SORT_TYPE));
-  if(ExtBuf==NULL) return; // fail
+  if(ExtBuf==NULL) return; /* fail */
   Tags=(int*)malloc(NK*sizeof(int));
   if(Tags==NULL) return;
 
@@ -1076,18 +1082,18 @@ void SqrtSort(SORT_TYPE *arr,int Len){
 /*                                                       */
 /*********************************************************/
 
-#include<memory.h>
-#include<malloc.h>
 #define GRAIL_EXT_BUFFER_LENGTH 512
 
-inline void grail_swap1(SORT_TYPE *a,SORT_TYPE *b){
+static __inline void grail_swap1(SORT_TYPE *a,SORT_TYPE *b){
   SORT_TYPE c=*a;
   *a=*b;
   *b=c;
 }
-inline void grail_swapN(SORT_TYPE *a,SORT_TYPE *b,int n){
+
+static __inline void grail_swapN(SORT_TYPE *a,SORT_TYPE *b,int n){
   while(n--) grail_swap1(a++,b++);
 }
+
 static void grail_rotate(SORT_TYPE *a,int l1,int l2){
   while(l1 && l2){
     if(l1<=l2){
@@ -1119,9 +1125,9 @@ static int grail_BinSearchRight(SORT_TYPE *arr,int len,SORT_TYPE *key){
   return b;
 }
 
-// cost: 2*len+nk^2/2
+/* cost: 2*len+nk^2/2 */
 static int grail_FindKeys(SORT_TYPE *arr,int len,int nkeys){
-  int h=1,h0=0;  // first key is always here
+  int h=1,h0=0;  /* first key is always here */
   int u=1,r;
   while(u<len && h<nkeys){
     r=grail_BinSearchLeft(arr+h0,h,arr+u);
@@ -1137,7 +1143,7 @@ static int grail_FindKeys(SORT_TYPE *arr,int len,int nkeys){
   return h;
 }
 
-// cost: min(L1,L2)^2+max(L1,L2)
+/* cost: min(L1,L2)^2+max(L1,L2) */
 static void grail_MergeWithoutBuffer(SORT_TYPE *arr,int len1,int len2){
   int h;
   if(len1<len2){
@@ -1168,7 +1174,7 @@ static void grail_MergeWithoutBuffer(SORT_TYPE *arr,int len1,int len2){
   }
 }
 
-// arr[M..-1] - buffer, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1]
+/* arr[M..-1] - buffer, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1] */
 static void grail_MergeLeft(SORT_TYPE *arr,int L1,int L2,int M){
   int p0=0,p1=L1; L2+=L1;
   while(p1<L2){
@@ -1195,7 +1201,7 @@ static void grail_MergeRight(SORT_TYPE *arr,int L1,int L2,int M){
 
 static void grail_SmartMergeWithBuffer(SORT_TYPE *arr,int *alen1,int *atype,int len2,int lkeys){
   int p0=-lkeys,p1=0,p2=*alen1,q1=p2,q2=p2+len2;
-  int ftype=1-*atype;  // 1 if inverted
+  int ftype=1-*atype;  /* 1 if inverted */
   while(p1<q1 && p2<q2){
     if(SORT_CMP(arr+p1,arr+p2)-ftype<0) grail_swap1(arr+(p0++),arr+(p1++));
     else grail_swap1(arr+(p0++),arr+(p2++));
@@ -1237,7 +1243,7 @@ static void grail_SmartMergeWithoutBuffer(SORT_TYPE *arr,int *alen1,int *atype,i
 
 /***** Sort With Extra Buffer *****/
 
-// arr[M..-1] - free, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1]
+/* arr[M..-1] - free, arr[0,L1-1]++arr[L1,L1+L2-1] -> arr[M,M+L1+L2-1] */
 static void grail_MergeLeftWithXBuf(SORT_TYPE *arr,int L1,int L2,int M){
   int p0=0,p1=L1; L2+=L1;
   while(p1<L2){
@@ -1249,7 +1255,7 @@ static void grail_MergeLeftWithXBuf(SORT_TYPE *arr,int L1,int L2,int M){
 
 static void grail_SmartMergeWithXBuf(SORT_TYPE *arr,int *alen1,int *atype,int len2,int lkeys){
   int p0=-lkeys,p1=0,p2=*alen1,q1=p2,q2=p2+len2;
-  int ftype=1-*atype;  // 1 if inverted
+  int ftype=1-*atype;  /* 1 if inverted */
   while(p1<q1 && p2<q2){
     if(SORT_CMP(arr+p1,arr+p2)-ftype<0) arr[p0++]=arr[p1++];
     else arr[p0++]=arr[p2++];
@@ -1263,11 +1269,13 @@ static void grail_SmartMergeWithXBuf(SORT_TYPE *arr,int *alen1,int *atype,int le
   }
 }
 
-// arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
-// lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
-// keys - arrays of keys, in same order as blocks. key<midkey means stream A
-// nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
-// llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
+/*
+  arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
+  lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
+  keys - arrays of keys, in same order as blocks. key<midkey means stream A
+  nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
+  llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
+*/
 static void grail_MergeBuffersLeftWithXBuf(SORT_TYPE *keys,SORT_TYPE *midkey,SORT_TYPE *arr,int nblock,int lblock,int nblock2,int llast){
   int l,prest,lrest,frest,pidx,cidx,fnext,plast;
 
@@ -1310,13 +1318,15 @@ static void grail_MergeBuffersLeftWithXBuf(SORT_TYPE *keys,SORT_TYPE *midkey,SOR
 
 /***** End Sort With Extra Buffer *****/
 
-// build blocks of length K
-// input: [-K,-1] elements are buffer
-// output: first K elements are buffer, blocks 2*K and last subblock sorted
+/*
+  build blocks of length K
+  input: [-K,-1] elements are buffer
+  output: first K elements are buffer, blocks 2*K and last subblock sorted
+*/
 static void grail_BuildBlocks(SORT_TYPE *arr,int L,int K,SORT_TYPE *extbuf,int LExtBuf){
   int m,u,h,p0,p1,rest,restk,p,kbuf;
   kbuf=K<LExtBuf ? K : LExtBuf;
-  while(kbuf&(kbuf-1)) kbuf&=kbuf-1;  // max power or 2 - just in case
+  while(kbuf&(kbuf-1)) kbuf&=kbuf-1;  /* max power or 2 - just in case */
 
   if(kbuf){
     memcpy(extbuf,arr-kbuf,kbuf*sizeof(SORT_TYPE));
@@ -1378,12 +1388,14 @@ static void grail_BuildBlocks(SORT_TYPE *arr,int L,int K,SORT_TYPE *extbuf,int L
   }
 }
 
-// arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
-// lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
-// keys - arrays of keys, in same order as blocks. key<midkey means stream A
-// nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
-// llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
-static void grail_MergeBuffersLeft(SORT_TYPE *keys,SORT_TYPE *midkey,SORT_TYPE *arr,int nblock,int lblock,bool havebuf,int nblock2,int llast){
+/*
+  arr - starting array. arr[-lblock..-1] - buffer (if havebuf).
+  lblock - length of regular blocks. First nblocks are stable sorted by 1st elements and key-coded
+  keys - arrays of keys, in same order as blocks. key<midkey means stream A
+  nblock2 are regular blocks from stream A. llast is length of last (irregular) block from stream B, that should go before nblock2 blocks.
+  llast=0 requires nblock2=0 (no irregular blocks). llast>0, nblock2=0 is possible.
+*/
+static void grail_MergeBuffersLeft(SORT_TYPE *keys,SORT_TYPE *midkey,SORT_TYPE *arr,int nblock,int lblock,int havebuf,int nblock2,int llast){
   int l,prest,lrest,frest,pidx,cidx,fnext,plast;
 
   if(nblock==0){
@@ -1455,9 +1467,11 @@ static void grail_LazyStableSort(SORT_TYPE *arr,int L){
   }
 }
 
-// keys are on the left of arr. Blocks of length LL combined. We'll combine them in pairs
-// LL and nkeys are powers of 2. (2*LL/lblock) keys are guarantied
-static void grail_CombineBlocks(SORT_TYPE *keys,SORT_TYPE *arr,int len,int LL,int lblock,bool havebuf,SORT_TYPE *xbuf){
+/*
+  keys are on the left of arr. Blocks of length LL combined. We'll combine them in pairs
+  LL and nkeys are powers of 2. (2*LL/lblock) keys are guarantied
+*/
+static void grail_CombineBlocks(SORT_TYPE *keys,SORT_TYPE *arr,int len,int LL,int lblock,int havebuf,SORT_TYPE *xbuf){
   int M,nkeys,b,NBlk,midkey,lrest,u,p,v,kc,nbl2,llast;
   SORT_TYPE *arr1;
 
@@ -1504,7 +1518,7 @@ static void grail_CombineBlocks(SORT_TYPE *keys,SORT_TYPE *arr,int len,int LL,in
 
 void grail_commonSort(SORT_TYPE *arr,int Len,SORT_TYPE *extbuf,int LExtBuf){
   int lblock,nkeys,findkeys,ptr,cbuf,lb,nk;
-  bool havebuf,chavebuf;
+  int havebuf,chavebuf;
   long long s;
 
   if(Len<16){
@@ -1516,7 +1530,7 @@ void grail_commonSort(SORT_TYPE *arr,int Len,SORT_TYPE *extbuf,int LExtBuf){
   while(lblock*lblock<Len) lblock*=2;
   nkeys=(Len-1)/lblock+1;
   findkeys=grail_FindKeys(arr,Len,nkeys+lblock);
-  havebuf=true;
+  havebuf=1;
   if(findkeys<nkeys+lblock){
     if(findkeys<4){
       grail_LazyStableSort(arr,Len);
@@ -1524,7 +1538,7 @@ void grail_commonSort(SORT_TYPE *arr,int Len,SORT_TYPE *extbuf,int LExtBuf){
     }
     nkeys=lblock;
     while(nkeys>findkeys) nkeys/=2;
-    havebuf=false;
+    havebuf=0;
     lblock=0;
   }
   ptr=lblock+nkeys;
@@ -1532,14 +1546,14 @@ void grail_commonSort(SORT_TYPE *arr,int Len,SORT_TYPE *extbuf,int LExtBuf){
   if(havebuf) grail_BuildBlocks(arr+ptr,Len-ptr,cbuf,extbuf,LExtBuf);
   else grail_BuildBlocks(arr+ptr,Len-ptr,cbuf,NULL,0);
 
-  // 2*cbuf are built
+  /* 2*cbuf are built */
   while(Len-ptr>(cbuf*=2)){
     lb=lblock;
     chavebuf=havebuf;
     if(!havebuf){
       if(nkeys>4 && nkeys/8*nkeys>=cbuf){
         lb=nkeys/2;
-        chavebuf=true;
+        chavebuf=1;
       } else{
         nk=1;
         s=(long long)cbuf*findkeys/2;
@@ -1551,7 +1565,7 @@ void grail_commonSort(SORT_TYPE *arr,int Len,SORT_TYPE *extbuf,int LExtBuf){
     } else{
 #if 0
       if(LExtBuf!=0){
-        while(lb>LExtBuf && lb*lb>2*cbuf) lb/=2;  // set size of block close to sqrt(new_block_length)
+        while(lb>LExtBuf && lb*lb>2*cbuf) lb/=2;  /* set size of block close to sqrt(new_block_length) */
       }
 #endif
     }
