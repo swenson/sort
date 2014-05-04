@@ -245,6 +245,36 @@ void run_tests(void) {
     verify(dst, SIZE);
   }
   printf("in-place merge sort time:   %10.2f us per iteration\n", total_time / RUNS);
+
+  srand48(SEED);
+  total_time = 0.0;
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+
+    sorter_grail_sort(dst, SIZE);
+
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+  printf("grail sort time:            %10.2f us per iteration\n", total_time / RUNS);
+
+  srand48(SEED);
+  total_time = 0.0;
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+
+    sorter_sqrt_sort(dst, SIZE);
+
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+  printf("sqrt sort time:             %10.2f us per iteration\n", total_time / RUNS);
 }
 
 int main(void)

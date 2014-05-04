@@ -26,6 +26,11 @@ You get the choice of many sorting routines, including:
 * In-place merge sort (*not* stable)
 * Selection sort (ugh -- this is really only here for comparison)
 * Tim sort (stable)
+* Grail sort (stable)
+  * Based on B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
+  Constant Extra Space* (1989-1992) (http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
+  Thanks to Andrey Astrelin for the implementation.
+* Sqrt Sort (stable, based on Grail sort, also by Andrey Astrelin).
 
 If you don't know which one to use, you should probably use Tim sort.
 
@@ -105,17 +110,19 @@ Here is the output of `demo.c`, which will give you the timings for a run of
 
 ```
 Running tests
-stdlib qsort time:             1157.00 us per iteration
-stdlib heapsort time:          2323.00 us per iteration
-stdlib mergesort time:         1381.00 us per iteration
-quick sort time:                628.00 us per iteration
-selection sort time:         115757.00 us per iteration
-merge sort time:                733.00 us per iteration
-binary insertion sort time:   10409.00 us per iteration
-heap sort time:                 481.00 us per iteration
-shell sort time:                774.00 us per iteration
-tim sort time:                  729.00 us per iteration
-in-place merge sort time:       658.00 us per iteration
+stdlib qsort time:             1285.00 us per iteration
+stdlib heapsort time:          2109.00 us per iteration
+stdlib mergesort time:         1299.00 us per iteration
+quick sort time:                579.00 us per iteration
+selection sort time:         127176.00 us per iteration
+merge sort time:                999.00 us per iteration
+binary insertion sort time:   13443.00 us per iteration
+heap sort time:                 592.00 us per iteration
+shell sort time:               1054.00 us per iteration
+tim sort time:                 1005.00 us per iteration
+in-place merge sort time:       903.00 us per iteration
+grail sort time:               1220.00 us per iteration
+sqrt sort time:                1095.00 us per iteration
 ```
 
 Heap sort is the winner here.
