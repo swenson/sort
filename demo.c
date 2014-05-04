@@ -36,12 +36,15 @@
 /* helper functions */
 void verify(int64_t *dst, const int size) {
   int i;
+
   for (i = 1; i < size; i++) {
     if (dst[i - 1] > dst[i]) {
       printf("Verify failed! at %d\n", i);
+
       for (i = i - 2; i < SIZE; i++) {
         printf(" %lld", (long long int)dst[i]);
       }
+
       printf("\n");
       break;
     }
@@ -56,6 +59,7 @@ static __inline double utime() {
 
 static void fill(int64_t *arr, const int size) {
   int i;
+
   for (i = 0; i < size; i++) {
     arr[i] = lrand48();
   }
@@ -77,208 +81,193 @@ void run_tests(void) {
   double end_time;
   double total_time;
   printf("Running tests\n");
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     qsort(dst, SIZE, sizeof(int64_t), simple_cmp);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("stdlib qsort time:          %10.2f us per iteration\n", total_time / RUNS);
 
+  printf("stdlib qsort time:          %10.2f us per iteration\n", total_time / RUNS);
 #ifndef __linux__
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     heapsort(dst, SIZE, sizeof(int64_t), simple_cmp);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("stdlib heapsort time:       %10.2f us per iteration\n", total_time / RUNS);
 
+  printf("stdlib heapsort time:       %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     mergesort(dst, SIZE, sizeof(int64_t), simple_cmp);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("stdlib mergesort time:      %10.2f us per iteration\n", total_time / RUNS);
 #endif
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_quick_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("quick sort time:            %10.2f us per iteration\n", total_time / RUNS);
-
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_selection_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("selection sort time:        %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_merge_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("merge sort time:            %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_binary_insertion_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("binary insertion sort time: %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_heap_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("heap sort time:             %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_shell_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("shell sort time:            %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_tim_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("tim sort time:              %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_merge_sort_in_place(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("in-place merge sort time:   %10.2f us per iteration\n", total_time / RUNS);
-
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_grail_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
-  printf("grail sort time:            %10.2f us per iteration\n", total_time / RUNS);
 
+  printf("grail sort time:            %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
-
     sorter_sqrt_sort(dst, SIZE);
-
     end_time = utime();
     total_time += end_time - start_time;
     verify(dst, SIZE);
   }
+
   printf("sqrt sort time:             %10.2f us per iteration\n", total_time / RUNS);
 }
 
-int main(void)
-{
+int main(void) {
   run_tests();
   return 0;
 }

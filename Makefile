@@ -6,7 +6,7 @@ CFLAGS = -O3 -g -Wall -std=c89
 
 default: demo stresstest multidemo test
 
-.PHONY: default clean test
+.PHONY: default clean test format
 
 test: stresstest
 	./stresstest
@@ -22,3 +22,7 @@ multidemo: multidemo.c sort.h sort_common.h
 
 stresstest: stresstest.c sort.h sort_common.h
 	$(CC) $(CFLAGS) stresstest.c -o stresstest
+
+format:
+	astyle --options=astyle.options sort.h sort_common.h demo.c multidemo.c stresstest.c
+

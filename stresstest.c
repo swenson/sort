@@ -61,17 +61,20 @@ static __inline double utime() {
 /* helper functions */
 int verify(int64_t *dst, const int size) {
   int i;
+
   for (i = 1; i < size; i++) {
     if (dst[i - 1] > dst[i]) {
       printf("Verify failed! at %d", i);
       return 0;
     }
   }
+
   return 1;
 }
 
 static void fill_random(int64_t *dst, const int size) {
   int i;
+
   for (i = 0; i < size; i++) {
     dst[i] = lrand48();
   }
@@ -79,6 +82,7 @@ static void fill_random(int64_t *dst, const int size) {
 
 static void fill_same(int64_t *dst, const int size) {
   int i;
+
   for (i = 0; i < size; i++) {
     dst[i] = 0;
   }
@@ -86,6 +90,7 @@ static void fill_same(int64_t *dst, const int size) {
 
 static void fill_sorted(int64_t *dst, const int size) {
   int i;
+
   for (i = 0; i < size; i++) {
     dst[i] = i;
   }
@@ -94,6 +99,7 @@ static void fill_sorted(int64_t *dst, const int size) {
 static void fill_sorted_blocks(int64_t *dst, const int size, const int block_size) {
   int i, filled, this_block_size;
   filled = 0;
+
   for (i = 0; i < size; i += block_size) {
     this_block_size = (filled + block_size) < size ? block_size : (size - filled);
     fill_random(dst + filled, this_block_size);
@@ -106,7 +112,6 @@ static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt) {
   int i, tmp;
   size_t ind1 = 0;
   size_t ind2 = 0;
-
   fill_sorted(dst, size);
 
   for (i = 0; i < swapped_cnt; i++) {
@@ -123,31 +128,38 @@ static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt) {
 
 static void fill(int64_t *dst, const int size, int type) {
   switch (type) {
-    case FILL_SORTED:
-      fill_sorted(dst, size);
-      break;
-    case FILL_SORTED_10:
-      fill_sorted_blocks(dst, size, 10);
-      break;
-    case FILL_SORTED_100:
-      fill_sorted_blocks(dst, size, 100);
-      break;
-    case FILL_SORTED_10000:
-      fill_sorted_blocks(dst, size, 10000);
-      break;
-    case FILL_SWAPPED_N2:
-      fill_swapped(dst, size, size/2);
-      break;
-    case FILL_SWAPPED_N8:
-      fill_swapped(dst, size, size/8);
-      break;
-    case FILL_SAME:
-      fill_same(dst, size);
-      break;
-    case FILL_RANDOM:
-    default:
-      fill_random(dst, size);
-      break;
+  case FILL_SORTED:
+    fill_sorted(dst, size);
+    break;
+
+  case FILL_SORTED_10:
+    fill_sorted_blocks(dst, size, 10);
+    break;
+
+  case FILL_SORTED_100:
+    fill_sorted_blocks(dst, size, 100);
+    break;
+
+  case FILL_SORTED_10000:
+    fill_sorted_blocks(dst, size, 10000);
+    break;
+
+  case FILL_SWAPPED_N2:
+    fill_swapped(dst, size, size / 2);
+    break;
+
+  case FILL_SWAPPED_N8:
+    fill_swapped(dst, size, size / 8);
+    break;
+
+  case FILL_SAME:
+    fill_same(dst, size);
+    break;
+
+  case FILL_RANDOM:
+  default:
+    fill_random(dst, size);
+    break;
   }
 }
 
@@ -197,17 +209,18 @@ static void fill(int64_t *dst, const int size, int type) {
 int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   int test, res;
   double usec1, usec2, diff;
-
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
   TEST_STDLIB(qsort);
 #ifndef __linux__
   TEST_STDLIB(heapsort);
   TEST_STDLIB(mergesort);
 #endif
+
   if (MAXSIZE < 10000) {
     TEST_SORT_H(selection_sort);
     TEST_SORT_H(binary_insertion_sort);
   }
+
   TEST_SORT_H(quick_sort);
   TEST_SORT_H(merge_sort);
   TEST_SORT_H(heap_sort);
@@ -227,6 +240,7 @@ static int first_original = 0;
 /* make a int* array */
 void make_intp_array(int **array, int64_t size, int num_values) {
   int64_t i;
+
   if (first_original == 0) {
     first_original = 1;
     original = malloc(sizeof(int *) * size);
@@ -241,6 +255,7 @@ void make_intp_array(int **array, int64_t size, int num_values) {
 /* free all the pointers */
 void clean_intp_array(int **array, int64_t size) {
   int64_t i;
+
   for (i = 0; i < size; i++) {
     free(array[i]);
   }
@@ -249,11 +264,13 @@ void clean_intp_array(int **array, int64_t size) {
 /* find the first instance of an element in an array of pointers */
 int64_t find_next(int **array, int64_t start, int64_t last, int value) {
   int64_t i;
+
   for (i = start; i < last; i++) {
     if (*(array[i]) == value) {
       break;
     }
   }
+
   return i;
 }
 
@@ -266,21 +283,27 @@ int verify_stable(int **array, int64_t size, int num_values) {
   for (value = 0; value < num_values; value++) {
     while (1) {
       i = find_next(original, i, size, value);
+
       /* unlikely, but possible */
       if (i == size) {
         break;
       }
+
       j = find_next(array, j, size, value);
+
       if (j == size) {
         return 0;
       }
+
       if (original[i] != array[j]) {
         return 0;
       }
+
       i++;
       j++;
     }
   }
+
   return 1;
 }
 
@@ -311,21 +334,21 @@ void stable_tests() {
 int main(void) {
   int i = 0;
   int64_t sizes[TESTS];
-
   srand48(SEED);
-
   stable_tests();
-
   fill_random(sizes, TESTS);
+
   for (i = 0; i < TESTS; i++) {
     RAND_RANGE(sizes[i], 0, MAXSIZE);
   }
 
   for (i = 0; i < FILL_LAST_ELEMENT; i++) {
     int result = run_tests(sizes, TESTS, i);
+
     if (result) {
       return 1;
     }
   }
+
   return 0;
 }
