@@ -128,10 +128,13 @@ sqrt sort time:                1095.00 us per iteration
 Heap sort is the winner here.
 Quick sort, in-place merge sort, and tim sort also often tend to be quite fast.
 
-Author
-------
-Christopher Swenson (chris@caswenson.com)
+Contributers
+------------
+* Christopher Swenson (chris@caswenson.com)
+* Andrey Astrelin (astrelin@tochka.ru)
+* Vojtech Fried
 
+If you would like to contribute, please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 References
 ----------
