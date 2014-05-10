@@ -1,7 +1,5 @@
-sort.h
+sort.h ![build status](https://api.travis-ci.org/swenson/sort.png)
 ======
-
-![build status](https://api.travis-ci.org/swenson/sort.png)
 
 Overview
 --------
@@ -27,7 +25,7 @@ You get the choice of many sorting routines, including:
 * Selection sort (ugh -- this is really only here for comparison)
 * Timsort (stable)
 * Grail sort (stable)
-  * [Based on `B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
+  * Based on [`B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
   Constant Extra Space* (1989-1992)`](http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
   
     Thanks to Andrey Astrelin for the implementation.
@@ -100,10 +98,10 @@ structure of your data.
 If your data has a lot of partially sorted sequences, then Tim sort
 will beat the pants off of anything else.
 
-Tim sort is not as good if memory movement is many orders of magnitude more
+Timsort is not as good if memory movement is many orders of magnitude more
 expensive than comparisons (like, many more than for normal int and double).
-If so, then quick sort is probably your routine.  On the other hand, Tim
-sort does extremely well if the comparison operator is very expensive,
+If so, then quick sort is probably your routine.  On the other hand, Timsort
+does extremely well if the comparison operator is very expensive,
 since it strives hard to minimize comparisons.
 
 Here is the output of `demo.c`, which will give you the timings for a run of
@@ -126,8 +124,8 @@ grail sort time:               1220.00 us per iteration
 sqrt sort time:                1095.00 us per iteration
 ```
 
-Heap sort is the winner here.
-Quick sort, in-place merge sort, and tim sort also often tend to be quite fast.
+Heapsort is the winner here. Quicksort, in-place merge sort,
+and timsort also often tend to be quite fast.
 
 Contributing
 ------------
