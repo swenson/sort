@@ -136,7 +136,7 @@ References
 ----------
 
 * [Wikipedia: Timsort](https://en.wikipedia.org/wiki/Timsort)
-* [`timsort.md`](doc/timsort.md)
+* [`timsort.md`](doc/timsort.txt)
 
 License
 -------
