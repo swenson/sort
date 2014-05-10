@@ -1,7 +1,5 @@
-sort.h
+sort.h ![build status](https://api.travis-ci.org/swenson/sort.png)
 ======
-
-<img src="https://api.travis-ci.org/swenson/sort.png" />
 
 Overview
 --------
@@ -10,33 +8,34 @@ Overview
 user-defined type that is defined at include time.
 
 This means you don't have to pay the function call overhead of using
-standard library routine.
-This gives us the power of higher-level language generics.
+standard library routine. This gives us the power of higher-level
+language generics.
 
 In addition, you don't have to link in a library:
 the entirety of this sorting library is contained in the header files.
 
 You get the choice of many sorting routines, including:
 
-* Shell sort
+* Shellsort
 * Binary insertion sort
-* Heap sort
-* Quick sort
+* Heapsort
+* Quicksort
 * Merge sort (stable)
 * In-place merge sort (*not* stable)
 * Selection sort (ugh -- this is really only here for comparison)
-* Tim sort (stable)
+* Timsort (stable)
 * Grail sort (stable)
-  * Based on B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
-  Constant Extra Space* (1989-1992) (http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
-  Thanks to Andrey Astrelin for the implementation.
+  * Based on [`B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
+  Constant Extra Space* (1989-1992)`](http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
+  
+    Thanks to Andrey Astrelin for the implementation.
 * Sqrt Sort (stable, based on Grail sort, also by Andrey Astrelin).
 
-If you don't know which one to use, you should probably use Tim sort.
+If you don't know which one to use, you should probably use Timsort.
 
-If you have a lot data that is semi-structured, then you should definitely use Tim sort.
+If you have a lot data that is semi-structured, then you should definitely use Timsort.
 
-If you have data that is really and truly random, quick sort is probably fastest.
+If you have data that is really and truly random, quicksort is probably fastest.
 
 
 Usage
@@ -99,10 +98,10 @@ structure of your data.
 If your data has a lot of partially sorted sequences, then Tim sort
 will beat the pants off of anything else.
 
-Tim sort is not as good if memory movement is many orders of magnitude more
+Timsort is not as good if memory movement is many orders of magnitude more
 expensive than comparisons (like, many more than for normal int and double).
-If so, then quick sort is probably your routine.  On the other hand, Tim
-sort does extremely well if the comparison operator is very expensive,
+If so, then quick sort is probably your routine.  On the other hand, Timsort
+does extremely well if the comparison operator is very expensive,
 since it strives hard to minimize comparisons.
 
 Here is the output of `demo.c`, which will give you the timings for a run of
@@ -125,22 +124,19 @@ grail sort time:               1220.00 us per iteration
 sqrt sort time:                1095.00 us per iteration
 ```
 
-Heap sort is the winner here.
-Quick sort, in-place merge sort, and tim sort also often tend to be quite fast.
+Heapsort is the winner here. Quicksort, in-place merge sort,
+and timsort also often tend to be quite fast.
 
-Contributers
+Contributing
 ------------
-* Christopher Swenson (chris@caswenson.com)
-* Andrey Astrelin (astrelin@tochka.ru)
-* Vojtech Fried
 
-If you would like to contribute, please see [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 References
 ----------
 
-* Wikipedia
-* `timsort.txt` (under doc/)
+* [Wikipedia: Timsort](https://en.wikipedia.org/wiki/Timsort)
+* [`timsort.md`](doc/timsort.txt)
 
 License
 -------
