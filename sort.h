@@ -468,16 +468,17 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 
 /* Standard merge sort */
 void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
+  SORT_TYPE *newdst;
+
+  const uint64_t middle = size / 2;
+  uint64_t out = 0;
+  uint64_t i = 0;
+  uint64_t j = middle;
+
   /* don't bother sorting an array of size 0 */
   if (size == 0) {
     return;
   }
-
-  const uint64_t middle = size / 2;
-  SORT_TYPE newdst[size];
-  uint64_t out = 0;
-  uint64_t i = 0;
-  uint64_t j = middle;
 
   if (size < 16) {
     BINARY_INSERTION_SORT(dst, size);
@@ -486,6 +487,8 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
 
   MERGE_SORT(dst, middle);
   MERGE_SORT(&dst[middle], size - middle);
+
+  newdst = malloc(size * sizeof(SORT_TYPE));
 
   while (out != size) {
     if (i < middle) {
@@ -506,6 +509,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   memcpy(dst, newdst, size * sizeof(SORT_TYPE));
+  free(newdst);
 }
 
 
