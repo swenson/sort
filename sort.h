@@ -488,7 +488,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   MERGE_SORT(dst, middle);
   MERGE_SORT(&dst[middle], size - middle);
 
-  newdst = malloc(size * sizeof(SORT_TYPE));
+  newdst = (SORT_TYPE *) malloc(size * sizeof(SORT_TYPE));
 
   while (out != size) {
     if (i < middle) {
