@@ -1,5 +1,7 @@
-sort.h ![build status](https://api.travis-ci.org/swenson/sort.png)
+sort.h 
 ======
+
+<a href="https://travis-ci.org/swenson/sort"><img alt="build status" src="https://api.travis-ci.org/swenson/sort.png" /></a>
 
 Overview
 --------
