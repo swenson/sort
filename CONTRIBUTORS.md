@@ -2,7 +2,7 @@ List of contributors, in alphabetical order:
 
 
  - Andrey Astrelin
- - Anotony Dovgal
+ - Antony Dovgal
  - Christopher Swenson
  - [@drfie](https://github.com/drfie)
  - Google Inc.
