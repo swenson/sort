@@ -67,7 +67,6 @@
 #define GRAIL_MERGE_WITHOUT_BUFFER     SORT_MAKE_STR(grail_merge_without_buffer)
 #define GRAIL_ROTATE                   SORT_MAKE_STR(grail_rotate)
 #define GRAIL_BIN_SEARCH_LEFT          SORT_MAKE_STR(grail_bin_search_left)
-#define GRAIL_SORT_INS                 SORT_MAKE_STR(grail_sort_ins)
 #define GRAIL_BUILD_BLOCKS             SORT_MAKE_STR(grail_build_blocks)
 #define GRAIL_FIND_KEYS                SORT_MAKE_STR(grail_find_keys)
 #define GRAIL_MERGE_BUFFERS_LEFT_WITH_X_BUF SORT_MAKE_STR(grail_merge_buffers_left_with_x_buf)
@@ -1835,16 +1834,6 @@ static void GRAIL_MERGE_BUFFERS_LEFT(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TY
   }
 }
 
-static void GRAIL_SORT_INS(SORT_TYPE *arr, int len) {
-  int i, j;
-
-  for (i = 1; i < len; i++) {
-    for (j = i - 1; j >= 0 && SORT_CMP_A(arr + (j + 1), arr + j) < 0; j--) {
-      GRAIL_SWAP1(arr + j, arr + (j + 1));
-    }
-  }
-}
-
 static void GRAIL_LAZY_STABLE_SORT(SORT_TYPE *arr, int L) {
   int m, u, h, p0, p1, rest;
 
@@ -1901,7 +1890,7 @@ static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int L
 
     arr1 = arr + b * 2 * LL;
     NBlk = (b == M ? lrest : 2 * LL) / lblock;
-    GRAIL_SORT_INS(keys, NBlk + (b == M ? 1 : 0));
+    BINARY_INSERTION_SORT(keys, NBlk + (b == M ? 1 : 0));
     midkey = LL / lblock;
 
     for (u = 1; u < NBlk; u++) {
@@ -1962,7 +1951,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   long long s;
 
   if (Len < 16) {
-    GRAIL_SORT_INS(arr, Len);
+    BINARY_INSERTION_SORT(arr, Len);
     return;
   }
 
@@ -2037,7 +2026,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
                          && lb <= LExtBuf ? extbuf : NULL);
   }
 
-  GRAIL_SORT_INS(arr, ptr);
+  BINARY_INSERTION_SORT(arr, ptr);
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
@@ -2180,7 +2169,6 @@ static void REC_STABLE_SORT(SORT_TYPE *arr, int L) {
 #undef GRAIL_MERGE_WITHOUT_BUFFER
 #undef GRAIL_ROTATE
 #undef GRAIL_BIN_SEARCH_LEFT
-#undef GRAIL_SORT_INS
 #undef GRAIL_BUILD_BLOCKS
 #undef GRAIL_FIND_KEYS
 #undef GRAIL_MERGE_BUFFERS_LEFT_WITH_X_BUF
