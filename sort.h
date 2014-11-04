@@ -2010,16 +2010,6 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
 
         lb = (2 * cbuf) / nk;
       }
-    } else {
-#if 0
-
-      if (LExtBuf != 0) {
-        while (lb > LExtBuf && lb * lb > 2 * cbuf) {
-          lb /= 2;  /* set size of block close to sqrt(new_block_length) */
-        }
-      }
-
-#endif
     }
 
     GRAIL_COMBINE_BLOCKS(arr, arr + ptr, Len - ptr, cbuf, lb, chavebuf, chavebuf
