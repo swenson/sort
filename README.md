@@ -126,7 +126,7 @@ grail sort time:               1220.00 us per iteration
 sqrt sort time:                1095.00 us per iteration
 ```
 
-Heapsort is the winner here. Quicksort, in-place merge sort,
+Quicksort is the winner here. Heapsort, in-place merge sort,
 and timsort also often tend to be quite fast.
 
 Contributing
