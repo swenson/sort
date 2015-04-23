@@ -39,6 +39,7 @@
 #define TIM_SORT_MERGE                 SORT_MAKE_STR(tim_sort_merge)
 #define TIM_SORT_COLLAPSE              SORT_MAKE_STR(tim_sort_collapse)
 #define HEAP_SORT                      SORT_MAKE_STR(heap_sort)
+#define MEDIAN                         SORT_MAKE_STR(median)
 #define QUICK_SORT                     SORT_MAKE_STR(quick_sort)
 #define MERGE_SORT                     SORT_MAKE_STR(merge_sort)
 #define MERGE_SORT_IN_PLACE            SORT_MAKE_STR(merge_sort_in_place)
@@ -545,6 +546,46 @@ static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
   return index;
 }
 
+/* Return the median index of the objects at the three indices. */
+static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t b, const int64_t c) {
+  const int AB = SORT_CMP(dst[a], dst[b]) < 0;
+  if (AB) {
+    /* a < b */
+    const int BC = SORT_CMP(dst[b], dst[c]) < 0;
+    if (BC) {
+      /* a < b < c */
+      return b;
+    } else {
+      /* a < b, c < b */
+      const int AC = SORT_CMP(dst[a], dst[c]) < 0;
+      if (AC) {
+        /* a < c < b */
+        return c;
+      } else {
+        /* c < a < b */
+        return a;
+      }
+    }
+  } else {
+    /* b < a */
+    const int AC = SORT_CMP(dst[a], dst[b]) < 0;
+    if (AC) {
+      /* b < a < c */
+      return a;
+    } else {
+      /* b < a, c < a */
+      const int BC = SORT_CMP(dst[b], dst[c]) < 0;
+      if (BC) {
+        /* b < c < a */
+        return c;
+      } else {
+        /* c < b < a */
+        return b;
+      }
+    }
+  }
+}
+
 static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64_t right) {
   int64_t pivot;
   int64_t new_pivot;
@@ -559,6 +600,8 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64
   }
 
   pivot = left + ((right - left) >> 1);
+  /* this seems to perform worse by a small amount... ? */
+  /* pivot = MEDIAN(dst, left, pivot, right); */
   new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
 
   /* check for partition all equal */
@@ -2124,6 +2167,8 @@ static void REC_STABLE_SORT(SORT_TYPE *arr, int L) {
   }
 }
 
+#undef QUICK_SORT
+#undef MEDIAN
 #undef SORT_CONCAT
 #undef SORT_MAKE_STR1
 #undef SORT_MAKE_STR
