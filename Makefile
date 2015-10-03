@@ -25,4 +25,3 @@ stresstest: stresstest.c sort.h sort_common.h
 
 format:
 	astyle --options=astyle.options sort.h sort_common.h demo.c multidemo.c stresstest.c
-
