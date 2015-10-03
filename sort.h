@@ -547,17 +547,21 @@ static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
 }
 
 /* Return the median index of the objects at the three indices. */
-static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t b, const int64_t c) {
+static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t b,
+                           const int64_t c) {
   const int AB = SORT_CMP(dst[a], dst[b]) < 0;
+
   if (AB) {
     /* a < b */
     const int BC = SORT_CMP(dst[b], dst[c]) < 0;
+
     if (BC) {
       /* a < b < c */
       return b;
     } else {
       /* a < b, c < b */
       const int AC = SORT_CMP(dst[a], dst[c]) < 0;
+
       if (AC) {
         /* a < c < b */
         return c;
@@ -569,12 +573,14 @@ static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t 
   } else {
     /* b < a */
     const int AC = SORT_CMP(dst[a], dst[b]) < 0;
+
     if (AC) {
       /* b < a < c */
       return a;
     } else {
       /* b < a, c < a */
       const int BC = SORT_CMP(dst[b], dst[c]) < 0;
+
       if (BC) {
         /* b < c < a */
         return c;
@@ -1327,7 +1333,7 @@ static void SQRT_SORT_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, in
   SQRT_SORT_MERGE_DOWN(arr + lblock, extbuf, Len - lblock, lblock);
 }
 
-static void SQRT_SORT(SORT_TYPE *arr, int Len) {
+static void SQRT_SORT(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
   int *Tags;
@@ -2068,16 +2074,16 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
-static void GRAIL_SORT(SORT_TYPE *arr, int Len) {
+static void GRAIL_SORT(SORT_TYPE *arr, size_t Len) {
   GRAIL_COMMON_SORT(arr, Len, NULL, 0);
 }
 
-static void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, int Len) {
+static void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, size_t Len) {
   SORT_TYPE ExtBuf[GRAIL_EXT_BUFFER_LENGTH];
   GRAIL_COMMON_SORT(arr, Len, ExtBuf, GRAIL_EXT_BUFFER_LENGTH);
 }
 
-static void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, int Len) {
+static void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
 
@@ -2138,7 +2144,7 @@ static void GRAIL_REC_MERGE(SORT_TYPE *A, int L1, int L2) {
   GRAIL_REC_MERGE(A, k1, m1);
 }
 
-static void REC_STABLE_SORT(SORT_TYPE *arr, int L) {
+static void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
   int u, m, h, p0, p1, rest;
 
   for (m = 1; m < L; m += 2) {

@@ -265,6 +265,34 @@ void run_tests(void) {
   }
 
   printf("sqrt sort time:             %10.2f us per iteration\n", total_time / RUNS);
+  srand48(SEED);
+  total_time = 0.0;
+
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+    sorter_rec_stable_sort(dst, SIZE);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+
+  printf("rec stable sort sort time:             %10.2f us per iteration\n", total_time / RUNS);
+  srand48(SEED);
+  total_time = 0.0;
+
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+    sorter_grail_sort_dyn_buffer(dst, SIZE);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+
+  printf("grail sort dyn buffer sort time:             %10.2f us per iteration\n", total_time / RUNS);
 }
 
 int main(void) {

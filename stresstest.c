@@ -229,6 +229,8 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   TEST_SORT_H(merge_sort_in_place);
   TEST_SORT_H(grail_sort);
   TEST_SORT_H(sqrt_sort);
+  TEST_SORT_H(rec_stable_sort);
+  TEST_SORT_H(grail_sort_dyn_buffer);
   return 0;
 }
 
@@ -329,6 +331,8 @@ void stable_tests() {
   check_stable("merge (in-place) sort", stable_merge_sort_in_place, size, num_values);
   check_stable("grail sort", stable_grail_sort, size, num_values);
   check_stable("sqrt sort ", stable_sqrt_sort, size, num_values);
+  check_stable("rec stable sort ", stable_rec_stable_sort, size, num_values);
+  check_stable("grail sort dyn byffer ", stable_grail_sort_dyn_buffer, size, num_values);
 }
 
 int main(void) {
