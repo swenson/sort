@@ -1,4 +1,4 @@
-sort.h 
+sort.h
 ======
 
 <a href="https://travis-ci.org/swenson/sort"><img alt="build status" src="https://api.travis-ci.org/swenson/sort.png" /></a>
@@ -29,7 +29,7 @@ You get the choice of many sorting routines, including:
 * Grail sort (stable)
   * Based on [`B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
   Constant Extra Space* (1989-1992)`](http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
-  
+
     Thanks to Andrey Astrelin for the implementation.
 * Sqrt Sort (stable, based on Grail sort, also by Andrey Astrelin).
 
@@ -90,6 +90,10 @@ this can cause some stability problems with floating-point types):
 ```c
 #define SORT_CMP(x, y) ((x) - (y))
 ```
+
+You can also redefine `TIM_SORT_STACK_SIZE` (default 128) to control
+the size of the tim sort stack (which can be used to reduce memory).
+Reducing it too far can cause tim sort to overflow the stack though.
 
 Speed of routines
 -----------------
