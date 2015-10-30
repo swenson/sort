@@ -21,6 +21,10 @@
 #define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
 #endif
 
+#ifndef TIM_SORT_STACK_SIZE
+#define TIM_SORT_STACK_SIZE 128
+#endif
+
 
 #define SORT_SWAP(x,y) {SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;}
 
@@ -914,7 +918,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
 
   uint64_t minrun;
   TEMP_STORAGE_T _store, *store;
-  TIM_SORT_RUN_T run_stack[128];
+  TIM_SORT_RUN_T run_stack[TIM_SORT_STACK_SIZE];
   uint64_t stack_curr = 0;
   uint64_t curr = 0;
 
