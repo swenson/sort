@@ -873,10 +873,6 @@ static __inline int PUSH_NEXT(SORT_TYPE *dst,
   uint64_t len = COUNT_RUN(dst, *curr, size);
   uint64_t run = minrun;
 
-  if (run < minrun) {
-    run = minrun;
-  }
-
   if (run > size - *curr) {
     run = size - *curr;
   }
