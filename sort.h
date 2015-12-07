@@ -124,8 +124,8 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size);
    http://en.wikipedia.org/wiki/Shell_sort
 */
 void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size 0 or 1 */
+  if (size <= 1) {
     return;
   }
 
