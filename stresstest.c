@@ -169,7 +169,7 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "stdlib " #name ); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[size]; \
+    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     name (dst, size, sizeof(int64_t), simple_cmp); \
@@ -191,7 +191,7 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "sort.h " #name); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[size]; \
+    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     sorter_ ## name (dst, size); \
