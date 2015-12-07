@@ -146,7 +146,7 @@ void run_tests(void) {
   }
 
   printf("stdlib qsort time: %.2f us per iteration\n", total_time / RUNS);
-#ifndef __linux__
+#if !defined(__linux__) && !defined(__CYGWIN__)
   srand48(SEED);
   total_time = 0.0;
 
@@ -298,7 +298,7 @@ void run_tests2(void) {
   }
 
   printf("stdlib qsort time: %.2f us per iteration\n", total_time / RUNS);
-#ifndef __linux__
+#if !defined(__linux__) && !defined(__CYGWIN__)
   srand48(SEED);
   total_time = 0.0;
 

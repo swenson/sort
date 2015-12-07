@@ -169,7 +169,7 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "stdlib " #name ); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[size]; \
+    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     name (dst, size, sizeof(int64_t), simple_cmp); \
@@ -191,7 +191,7 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "sort.h " #name); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[size]; \
+    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     sorter_ ## name (dst, size); \
@@ -211,7 +211,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   double usec1, usec2, diff;
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
   TEST_STDLIB(qsort);
-#ifndef __linux__
+#if !defined(__linux__) && !defined(__CYGWIN__)
   TEST_STDLIB(heapsort);
   TEST_STDLIB(mergesort);
 #endif
