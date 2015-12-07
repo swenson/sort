@@ -211,7 +211,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   double usec1, usec2, diff;
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
   TEST_STDLIB(qsort);
-#ifndef __linux__
+#if !defined(__linux__) && !defined(__CYGWIN__)
   TEST_STDLIB(heapsort);
   TEST_STDLIB(mergesort);
 #endif
