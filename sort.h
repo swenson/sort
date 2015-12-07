@@ -1114,7 +1114,7 @@ static void SQRT_SORT_SMART_MERGE_WITH_X_BUF(SORT_TYPE *arr, int *alen1, int *at
 */
 static void SQRT_SORT_MERGE_BUFFERS_LEFT_WITH_X_BUF(int *keys, int midkey, SORT_TYPE *arr,
     int nblock, int lblock, int nblock2, int llast) {
-  int l, prest, lrest, frest, pidx, cidx, fnext, plast;
+  int l, prest, lrest, frest, pidx, cidx, fnext;
 
   if (nblock == 0) {
     l = nblock2 * lblock;
@@ -1142,7 +1142,6 @@ static void SQRT_SORT_MERGE_BUFFERS_LEFT_WITH_X_BUF(int *keys, int midkey, SORT_
   prest = pidx - lrest;
 
   if (llast) {
-    plast = pidx + lblock * nblock2;
 
     if (frest) {
       memcpy(arr + prest - lblock, arr + prest, lrest * sizeof(SORT_TYPE));
@@ -1237,15 +1236,10 @@ static void SQRT_SORT_SORT_INS(SORT_TYPE *arr, int len) {
   LL and nkeys are powers of 2. (2*LL/lblock) keys are guarantied
 */
 static void SQRT_SORT_COMBINE_BLOCKS(SORT_TYPE *arr, int len, int LL, int lblock, int *tags) {
-  int M, nkeys, b, NBlk, midkey, lrest, u, i, p, v, kc, nbl2, llast;
+  int M, b, NBlk, midkey, lrest, u, i, p, v, kc, nbl2, llast;
   SORT_TYPE *arr1;
   M = len / (2 * LL);
   lrest = len % (2 * LL);
-  nkeys = (2 * LL) / lblock;
-
-  if (M == 0) {
-    nkeys = (M - 1) / lblock + 1;
-  }
 
   if (lrest <= LL) {
     len -= lrest;
@@ -1654,7 +1648,7 @@ static void GRAIL_SMART_MERGE_WITH_X_BUF(SORT_TYPE *arr, int *alen1, int *atype,
 */
 static void GRAIL_MERGE_BUFFERS_LEFT_WITH_X_BUF(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TYPE *arr,
     int nblock, int lblock, int nblock2, int llast) {
-  int l, prest, lrest, frest, pidx, cidx, fnext, plast;
+  int l, prest, lrest, frest, pidx, cidx, fnext;
 
   if (nblock == 0) {
     l = nblock2 * lblock;
@@ -1682,7 +1676,6 @@ static void GRAIL_MERGE_BUFFERS_LEFT_WITH_X_BUF(SORT_TYPE *keys, SORT_TYPE *midk
   prest = pidx - lrest;
 
   if (llast) {
-    plast = pidx + lblock * nblock2;
 
     if (frest) {
       memcpy(arr + prest - lblock, arr + prest, lrest * sizeof(SORT_TYPE));
@@ -1821,7 +1814,7 @@ static void GRAIL_BUILD_BLOCKS(SORT_TYPE *arr, int L, int K, SORT_TYPE *extbuf, 
 */
 static void GRAIL_MERGE_BUFFERS_LEFT(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TYPE *arr, int nblock,
                                      int lblock, int havebuf, int nblock2, int llast) {
-  int l, prest, lrest, frest, pidx, cidx, fnext, plast;
+  int l, prest, lrest, frest, pidx, cidx, fnext;
 
   if (nblock == 0) {
     l = nblock2 * lblock;
@@ -1862,7 +1855,6 @@ static void GRAIL_MERGE_BUFFERS_LEFT(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TY
   prest = pidx - lrest;
 
   if (llast) {
-    plast = pidx + lblock * nblock2;
 
     if (frest) {
       if (havebuf) {
@@ -1889,11 +1881,9 @@ static void GRAIL_MERGE_BUFFERS_LEFT(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TY
 }
 
 static void GRAIL_LAZY_STABLE_SORT(SORT_TYPE *arr, int L) {
-  int m, u, h, p0, p1, rest;
+  int m, h, p0, p1, rest;
 
   for (m = 1; m < L; m += 2) {
-    u = 0;
-
     if (SORT_CMP_A(arr + m - 1, arr + m) > 0) {
       GRAIL_SWAP1(arr + (m - 1), arr + m);
     }
@@ -1922,11 +1912,10 @@ static void GRAIL_LAZY_STABLE_SORT(SORT_TYPE *arr, int L) {
 */
 static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int LL, int lblock,
                                  int havebuf, SORT_TYPE *xbuf) {
-  int M, nkeys, b, NBlk, midkey, lrest, u, p, v, kc, nbl2, llast;
+  int M, b, NBlk, midkey, lrest, u, p, v, kc, nbl2, llast;
   SORT_TYPE *arr1;
   M = len / (2 * LL);
   lrest = len % (2 * LL);
-  nkeys = (2 * LL) / lblock;
 
   if (lrest <= LL) {
     len -= lrest;
@@ -2145,11 +2134,9 @@ static void GRAIL_REC_MERGE(SORT_TYPE *A, int L1, int L2) {
 }
 
 static void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
-  int u, m, h, p0, p1, rest;
+  int m, h, p0, p1, rest;
 
   for (m = 1; m < L; m += 2) {
-    u = 0;
-
     if (SORT_CMP_A(arr + m - 1, arr + m) > 0) {
       GRAIL_SWAP1(arr + (m - 1), arr + m);
     }
