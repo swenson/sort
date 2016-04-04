@@ -227,8 +227,8 @@ static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, cons
 
 /* Binary insertion sort */
 void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size <= 1 */
+  if (size <= 1) {
     return;
   }
 
@@ -237,8 +237,8 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* Selection sort */
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size <= 1 */
+  if (size <= 1) {
     return;
   }
 
@@ -379,8 +379,8 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
-  /* don't bother sorting an array of size 0 */
-  if (len == 0) {
+  /* don't bother sorting an array of size <= 1 */
+  if (len <= 1) {
     return;
   }
 
@@ -478,8 +478,8 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   uint64_t i = 0;
   uint64_t j = middle;
 
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size <= 1 */
+  if (size <= 1) {
     return;
   }
 
@@ -624,8 +624,8 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64
 }
 
 void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size 1 */
+  if (size <= 1) {
     return;
   }
 
@@ -907,8 +907,8 @@ static __inline int PUSH_NEXT(SORT_TYPE *dst,
 }
 
 void TIM_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size 1 */
+  if (size <= 1) {
     return;
   }
 
@@ -985,8 +985,8 @@ static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size) {
 }
 
 void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
-  /* don't bother sorting an array of size 0 */
-  if (size == 0) {
+  /* don't bother sorting an array of size <= 1 */
+  if (size <= 1) {
     return;
   }
 
