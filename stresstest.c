@@ -218,6 +218,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
 
   if (MAXSIZE < 10000) {
     TEST_SORT_H(selection_sort);
+    TEST_SORT_H(bubble_sort);
     TEST_SORT_H(binary_insertion_sort);
   }
 
@@ -323,6 +324,9 @@ void check_stable(char *name, void (*sort_fun)(int **arr, size_t size), int size
 void stable_tests() {
   int size = 100000;
   int num_values = 1000;
+  check_stable("selection sort", stable_selection_sort, size, num_values);
+  check_stable("binary insertion sort", stable_binary_insertion_sort, size, num_values);
+  check_stable("bubble sort", stable_bubble_sort, size, num_values);
   check_stable("quick sort", stable_quick_sort, size, num_values);
   check_stable("merge sort", stable_merge_sort, size, num_values);
   check_stable("heap sort", stable_heap_sort, size, num_values);
@@ -330,9 +334,9 @@ void stable_tests() {
   check_stable("tim sort", stable_tim_sort, size, num_values);
   check_stable("merge (in-place) sort", stable_merge_sort_in_place, size, num_values);
   check_stable("grail sort", stable_grail_sort, size, num_values);
-  check_stable("sqrt sort ", stable_sqrt_sort, size, num_values);
-  check_stable("rec stable sort ", stable_rec_stable_sort, size, num_values);
-  check_stable("grail sort dyn byffer ", stable_grail_sort_dyn_buffer, size, num_values);
+  check_stable("sqrt sort", stable_sqrt_sort, size, num_values);
+  check_stable("rec stable sort", stable_rec_stable_sort, size, num_values);
+  check_stable("grail sort dyn byffer", stable_grail_sort_dyn_buffer, size, num_values);
 }
 
 int main(void) {
