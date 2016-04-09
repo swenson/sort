@@ -8,3 +8,4 @@ List of contributors, in alphabetical order:
  - Google Inc.
  - Haneef Mubarak
  - Vojtech Fried
+ - Matthieu Darbois
