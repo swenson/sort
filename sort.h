@@ -96,6 +96,7 @@
 #define SQRT_SORT_SORT_INS             SORT_MAKE_STR(sqrt_sort_sort_ins)
 #define SQRT_SORT_COMBINE_BLOCKS       SORT_MAKE_STR(sqrt_sort_combine_blocks)
 #define SQRT_SORT_COMMON_SORT          SORT_MAKE_STR(sqrt_sort_common_sort)
+#define BUBBLE_SORT                    SORT_MAKE_STR(bubble_sort)
 
 #ifndef MAX
 #define MAX(x,y) (((x) > (y) ? (x) : (y)))
@@ -118,6 +119,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size);
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
+void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
 
 
 /* Shell sort implementation based on Wikipedia article
@@ -2153,6 +2155,26 @@ static void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
   }
 }
 
+/* Bubble sort implementation based on Wikipedia article
+   https://en.wikipedia.org/wiki/Bubble_sort
+*/
+void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
+  size_t n = size;
+
+  while (n) {
+    size_t i, newn = 0U;
+
+    for (i = 1U; i < n; ++i) {
+      if (SORT_CMP(dst[i - 1U], dst[i]) > 0) {
+        SORT_SWAP(dst[i - 1U], dst[i]);
+        newn = i;
+      }
+    }
+
+    n = newn;
+  }
+}
+
 #undef QUICK_SORT
 #undef MEDIAN
 #undef SORT_CONCAT
@@ -2221,3 +2243,5 @@ static void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
 #undef SQRT_SORT_COMBINE_BLOCKS
 #undef SQRT_SORT_COMMON_SORT
 #undef SORT_CMP_A
+#undef BUBBLE_SORT
+
