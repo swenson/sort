@@ -517,22 +517,19 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* Quick sort: based on wikipedia */
 
-static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
-    const int64_t right, const int64_t pivot) {
+static __inline size_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const size_t left,
+    const size_t right, const size_t pivot) {
   SORT_TYPE value = dst[pivot];
-  int64_t index = left;
-  int64_t i;
-  int all_same = 1;
+  size_t index = left;
+  size_t i;
+  int not_all_same = 0;
   /* move the pivot to the right */
   SORT_SWAP(dst[pivot], dst[right]);
 
   for (i = left; i < right; i++) {
     int cmp = SORT_CMP(dst[i], value);
-
     /* check if everything is all the same */
-    if (cmp != 0) {
-      all_same &= 0;
-    }
+    not_all_same |= cmp;
 
     if (cmp < 0) {
       SORT_SWAP(dst[i], dst[index]);
@@ -543,16 +540,16 @@ static __inline int64_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const int64_t left,
   SORT_SWAP(dst[right], dst[index]);
 
   /* avoid degenerate case */
-  if (all_same) {
-    return -1;
+  if (not_all_same == 0) {
+    return SIZE_MAX;
   }
 
   return index;
 }
 
 /* Return the median index of the objects at the three indices. */
-static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t b,
-                           const int64_t c) {
+static __inline size_t MEDIAN(const SORT_TYPE *dst, const size_t a, const size_t b,
+                              const size_t c) {
   const int AB = SORT_CMP(dst[a], dst[b]) < 0;
 
   if (AB) {
@@ -596,16 +593,16 @@ static __inline int MEDIAN(const SORT_TYPE *dst, const int64_t a, const int64_t 
   }
 }
 
-static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64_t right) {
-  int64_t pivot;
-  int64_t new_pivot;
+static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t left, const size_t right) {
+  size_t pivot;
+  size_t new_pivot;
 
   if (right <= left) {
     return;
   }
 
-  if ((right - left + 1) < 16) {
-    BINARY_INSERTION_SORT(&dst[left], right - left + 1);
+  if ((right - left + 1U) < 16U) {
+    BINARY_INSERTION_SORT(&dst[left], right - left + 1U);
     return;
   }
 
@@ -615,12 +612,12 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const int64_t left, const int64
   new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
 
   /* check for partition all equal */
-  if (new_pivot < 0) {
+  if (new_pivot == SIZE_MAX) {
     return;
   }
 
-  QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1);
-  QUICK_SORT_RECURSIVE(dst, new_pivot + 1, right);
+  QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1U);
+  QUICK_SORT_RECURSIVE(dst, new_pivot + 1U, right);
 }
 
 void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
@@ -629,7 +626,7 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  QUICK_SORT_RECURSIVE(dst, 0, size - 1);
+  QUICK_SORT_RECURSIVE(dst, 0U, size - 1U);
 }
 
 
@@ -1142,7 +1139,6 @@ static void SQRT_SORT_MERGE_BUFFERS_LEFT_WITH_X_BUF(int *keys, int midkey, SORT_
   prest = pidx - lrest;
 
   if (llast) {
-
     if (frest) {
       memcpy(arr + prest - lblock, arr + prest, lrest * sizeof(SORT_TYPE));
       prest = pidx;
@@ -1676,7 +1672,6 @@ static void GRAIL_MERGE_BUFFERS_LEFT_WITH_X_BUF(SORT_TYPE *keys, SORT_TYPE *midk
   prest = pidx - lrest;
 
   if (llast) {
-
     if (frest) {
       memcpy(arr + prest - lblock, arr + prest, lrest * sizeof(SORT_TYPE));
       prest = pidx;
@@ -1855,7 +1850,6 @@ static void GRAIL_MERGE_BUFFERS_LEFT(SORT_TYPE *keys, SORT_TYPE *midkey, SORT_TY
   prest = pidx - lrest;
 
   if (llast) {
-
     if (frest) {
       if (havebuf) {
         GRAIL_SWAP_N(arr + prest - lblock, arr + prest, lrest);
