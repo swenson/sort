@@ -9,8 +9,8 @@ Overview
 `sort.h` is an implementation a ton of sorting algorithms in C with a
 user-defined type that is defined at include time.
 
-This means you don't have to pay the function call overhead of using
-standard library routine. This gives us the power of higher-level
+This means you don't have to pay the function call overhead of using 
+a standard library routine. This also gives us the power of higher-level
 language generics.
 
 In addition, you don't have to link in a library:
@@ -67,7 +67,7 @@ You would now have access to `int64_quick_sort`, `int64_tim_sort`, etc.,
 which you can use like
 
 ```c
-/* Assumes you have some int *arr or int arr[128]; */
+/* Assumes you have some int64_t *arr or int64_t arr[128]; */
 int64_quick_sort(arr, 128);
 ```
 
