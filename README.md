@@ -9,7 +9,7 @@ Overview
 `sort.h` is an implementation a ton of sorting algorithms in C with a
 user-defined type that is defined at include time.
 
-This means you don't have to pay the function call overhead of using 
+This means you don't have to pay the function call overhead of using
 a standard library routine. This also gives us the power of higher-level
 language generics.
 
@@ -50,7 +50,7 @@ To use this library, you need to do three things:
 * `#define SORT_NAME` to be a unique name that will be prepended to all
   the routines, i.e., `#define SORT_NAME mine` would give you routines
   named `mine_heap_sort`, and so forth.
-* `#include "sort.h"`.  Make sure that `sort.h` and `sort_common.h` are in your include path.
+* `#include "sort.h"`.  Make sure that `sort.h` is in your include path.
 
 Then, enjoy using the sorting routines.
 

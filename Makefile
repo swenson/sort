@@ -14,14 +14,14 @@ test: stresstest
 clean:
 	rm -f demo multidemo stresstest
 
-demo: demo.c sort.h sort_common.h
+demo: demo.c sort.h
 	$(CC) $(CFLAGS) demo.c -o demo
 
-multidemo: multidemo.c sort.h sort_common.h
+multidemo: multidemo.c sort.h
 	$(CC) $(CFLAGS) multidemo.c -o multidemo
 
-stresstest: stresstest.c sort.h sort_common.h
+stresstest: stresstest.c sort.h
 	$(CC) $(CFLAGS) stresstest.c -o stresstest
 
 format:
-	astyle --options=astyle.options sort.h sort_common.h demo.c multidemo.c stresstest.c
+	astyle --options=astyle.options sort.h demo.c multidemo.c stresstest.c
