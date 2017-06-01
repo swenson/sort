@@ -106,8 +106,8 @@
 #endif
 
 typedef struct {
-  uint64_t start;
-  uint64_t length;
+  size_t start;
+  size_t length;
 } TIM_SORT_RUN_T;
 
 
@@ -133,8 +133,8 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
 
   /* TODO: binary search to find first gap? */
   int inci = 47;
-  uint64_t inc = shell_gaps[inci];
-  uint64_t i;
+  size_t inc = shell_gaps[inci];
+  size_t i;
 
   while (inc > (size >> 1)) {
     inc = shell_gaps[--inci];
@@ -143,7 +143,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
   while (1) {
     for (i = inc; i < size; i++) {
       SORT_TYPE temp = dst[i];
-      uint64_t j = i;
+      size_t j = i;
 
       while ((j >= inc) && (SORT_CMP(dst[j - inc], temp) > 0)) {
         dst[j] = dst[j - inc];
@@ -162,9 +162,9 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
 }
 
 /* Function used to do a binary search for binary insertion sort */
-static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
+static __inline size_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
     const size_t size) {
-  int64_t l, c, r;
+  size_t l, c, r;
   SORT_TYPE cx;
   l = 0;
   r = size - 1;
@@ -203,12 +203,12 @@ static __inline int64_t BINARY_INSERTION_FIND(SORT_TYPE *dst, const SORT_TYPE x,
 
 /* Binary insertion sort, but knowing that the first "start" entries are sorted.  Used in timsort. */
 static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, const size_t size) {
-  uint64_t i;
+  size_t i;
 
   for (i = start; i < size; i++) {
-    int64_t j;
+    size_t j;
     SORT_TYPE x;
-    int64_t location;
+    size_t location;
 
     /* If this entry is already correct, just move along */
     if (SORT_CMP(dst[i - 1], dst[i]) <= 0) {
@@ -221,6 +221,10 @@ static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, cons
 
     for (j = i - 1; j >= location; j--) {
       dst[j + 1] = dst[j];
+
+      if (j == 0) { /* check edge case because j is unsigned */
+        break;
+      }
     }
 
     dst[location] = x;
@@ -244,8 +248,8 @@ void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  uint64_t i;
-  uint64_t j;
+  size_t i;
+  size_t j;
 
   for (i = 0; i < size; i++) {
     for (j = i + 1; j < size; j++) {
@@ -475,10 +479,10 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 /* Standard merge sort */
 void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   SORT_TYPE *newdst;
-  const uint64_t middle = size / 2;
-  uint64_t out = 0;
-  uint64_t i = 0;
-  uint64_t j = middle;
+  const size_t middle = size / 2;
+  size_t out = 0;
+  size_t i = 0;
+  size_t j = middle;
 
   /* don't bother sorting an array of size <= 1 */
   if (size <= 1) {
@@ -634,7 +638,7 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* timsort implementation, based on timsort.txt */
 
-static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end) {
+static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, size_t start, size_t end) {
   while (1) {
     if (start >= end) {
       return;
@@ -646,8 +650,8 @@ static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, int64_t start, int64_t end
   }
 }
 
-static int64_t COUNT_RUN(SORT_TYPE *dst, const uint64_t start, const size_t size) {
-  uint64_t curr;
+static size_t COUNT_RUN(SORT_TYPE *dst, const size_t start, const size_t size) {
+  size_t curr;
 
   if (size - start == 1) {
     return 1;
@@ -699,15 +703,15 @@ static int64_t COUNT_RUN(SORT_TYPE *dst, const uint64_t start, const size_t size
 }
 
 static int CHECK_INVARIANT(TIM_SORT_RUN_T *stack, const int stack_curr) {
-  int64_t A, B, C;
+  size_t A, B, C;
 
   if (stack_curr < 2) {
     return 1;
   }
 
   if (stack_curr == 2) {
-    const int64_t A1 = stack[stack_curr - 2].length;
-    const int64_t B1 = stack[stack_curr - 1].length;
+    const size_t A1 = stack[stack_curr - 2].length;
+    const size_t B1 = stack[stack_curr - 1].length;
 
     if (A1 <= B1) {
       return 0;
@@ -801,7 +805,7 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
 static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr,
                              TEMP_STORAGE_T *store, const size_t size) {
   while (1) {
-    int64_t A, B, C, D;
+    size_t A, B, C, D;
     int ABC, BCD, CD;
 
     /* if the stack only has one thing on it, we are done with the collapse */
@@ -865,12 +869,12 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
 static __inline int PUSH_NEXT(SORT_TYPE *dst,
                               const size_t size,
                               TEMP_STORAGE_T *store,
-                              const uint64_t minrun,
+                              const size_t minrun,
                               TIM_SORT_RUN_T *run_stack,
-                              uint64_t *stack_curr,
-                              uint64_t *curr) {
-  uint64_t len = COUNT_RUN(dst, *curr, size);
-  uint64_t run = minrun;
+                              size_t *stack_curr,
+                              size_t *curr) {
+  size_t len = COUNT_RUN(dst, *curr, size);
+  size_t run = minrun;
 
   if (run > size - *curr) {
     run = size - *curr;
@@ -911,11 +915,11 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  uint64_t minrun;
+  size_t minrun;
   TEMP_STORAGE_T _store, *store;
   TIM_SORT_RUN_T run_stack[TIM_SORT_STACK_SIZE];
-  uint64_t stack_curr = 0;
-  uint64_t curr = 0;
+  size_t stack_curr = 0;
+  size_t curr = 0;
 
   if (size < 64) {
     BINARY_INSERTION_SORT(dst, size);
@@ -955,11 +959,11 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* heap sort: based on wikipedia */
 
-static __inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const int64_t start, const int64_t end) {
-  int64_t root = start;
+static __inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const size_t start, const size_t end) {
+  size_t root = start;
 
   while ((root << 1) <= end) {
-    int64_t child = root << 1;
+    size_t child = root << 1;
 
     if ((child < end) && (SORT_CMP(dst[child], dst[child + 1]) < 0)) {
       child++;
@@ -975,10 +979,15 @@ static __inline void HEAP_SIFT_DOWN(SORT_TYPE *dst, const int64_t start, const i
 }
 
 static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size) {
-  int64_t start = size >> 1;
+  size_t start = size >> 1;
 
-  while (start >= 0) {
+  while (1) {
     HEAP_SIFT_DOWN(dst, start, size - 1);
+
+    if (start == 0) {
+      break;
+    }
+
     start--;
   }
 }
@@ -989,7 +998,7 @@ void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  int64_t end = size - 1;
+  size_t end = size - 1;
   HEAPIFY(dst, size);
 
   while (end > 0) {
@@ -2244,4 +2253,3 @@ void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
 #undef SQRT_SORT_COMMON_SORT
 #undef SORT_CMP_A
 #undef BUBBLE_SORT
-
