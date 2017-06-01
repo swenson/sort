@@ -14,7 +14,7 @@ a standard library routine. This also gives us the power of higher-level
 language generics.
 
 In addition, you don't have to link in a library:
-the entirety of this sorting library is contained in the header files.
+the entirety of this sorting library is contained in the `sort.h` header file.
 
 You get the choice of many sorting routines, including:
 
