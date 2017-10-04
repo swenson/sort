@@ -836,7 +836,7 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
 
     if (tempstore == NULL) {
       fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes",
-              sizeof(SORT_TYPE) * new_size);
+              (unsigned long)(sizeof(SORT_TYPE) * new_size));
       exit(1);
     }
 
