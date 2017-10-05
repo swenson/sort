@@ -871,7 +871,7 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
       } else if (i < A) {
         dst[k] = storage[i++];
       } else {
-        dst[k] = dst[j++];
+        break;
       }
     }
   } else {
@@ -891,7 +891,7 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
       } else if (i > 0) {
         dst[k] = storage[--i];
       } else {
-        dst[k] = dst[--j];
+        break;
       }
     }
   }
