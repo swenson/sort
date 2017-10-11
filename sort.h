@@ -836,7 +836,7 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
 
     if (tempstore == NULL) {
       fprintf(stderr, "Error allocating temporary storage for tim sort: need %lu bytes",
-              sizeof(SORT_TYPE) * new_size);
+              (unsigned long)(sizeof(SORT_TYPE) * new_size));
       exit(1);
     }
 
@@ -847,11 +847,11 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
 
 static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr,
                            TEMP_STORAGE_T *store) {
-  const int64_t A = stack[stack_curr - 2].length;
-  const int64_t B = stack[stack_curr - 1].length;
-  const int64_t curr = stack[stack_curr - 2].start;
+  const size_t A = stack[stack_curr - 2].length;
+  const size_t B = stack[stack_curr - 1].length;
+  const size_t curr = stack[stack_curr - 2].start;
   SORT_TYPE *storage;
-  int64_t i, j, k;
+  size_t i, j, k;
   TIM_SORT_RESIZE(store, MIN(A, B));
   storage = store->storage;
 
@@ -871,26 +871,27 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
       } else if (i < A) {
         dst[k] = storage[i++];
       } else {
-        dst[k] = dst[j++];
+        break;
       }
     }
   } else {
     /* right merge */
     memcpy(storage, &dst[curr + A], B * sizeof(SORT_TYPE));
-    i = B - 1;
-    j = curr + A - 1;
+    i = B;
+    j = curr + A;
+    k = curr + A + B;
 
-    for (k = curr + A + B - 1; k >= curr; k--) {
-      if ((i >= 0) && (j >= curr)) {
-        if (SORT_CMP(dst[j], storage[i]) > 0) {
-          dst[k] = dst[j--];
+    while (k-- > curr) {
+      if ((i > 0) && (j > curr)) {
+        if (SORT_CMP(dst[j - 1], storage[i - 1]) > 0) {
+          dst[k] = dst[--j];
         } else {
-          dst[k] = storage[i--];
+          dst[k] = storage[--i];
         }
-      } else if (i >= 0) {
-        dst[k] = storage[i--];
+      } else if (i > 0) {
+        dst[k] = storage[--i];
       } else {
-        dst[k] = dst[j--];
+        break;
       }
     }
   }
