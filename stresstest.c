@@ -223,6 +223,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   }
 
   TEST_SORT_H(quick_sort);
+  TEST_SORT_H(wirth_quick_sort);
   TEST_SORT_H(merge_sort);
   TEST_SORT_H(heap_sort);
   TEST_SORT_H(shell_sort);

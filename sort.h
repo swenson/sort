@@ -139,6 +139,9 @@ static __inline size_t rbnd(size_t len) {
 #define HEAP_SORT                      SORT_MAKE_STR(heap_sort)
 #define MEDIAN                         SORT_MAKE_STR(median)
 #define QUICK_SORT                     SORT_MAKE_STR(quick_sort)
+#define WIRTH_QUICK_SORT               SORT_MAKE_STR(wirth_quick_sort)
+#define WIRTH_QUICK_SORT_RECURSIVE     SORT_MAKE_STR(wirth_quick_sort_recursive)
+#define SORTED     					   SORT_MAKE_STR(sorted)
 #define MERGE_SORT                     SORT_MAKE_STR(merge_sort)
 #define MERGE_SORT_IN_PLACE            SORT_MAKE_STR(merge_sort_in_place)
 #define MERGE_SORT_IN_PLACE_RMERGE     SORT_MAKE_STR(merge_sort_in_place_rmerge)
@@ -209,6 +212,7 @@ void SHELL_SORT(SORT_TYPE *dst, const size_t size);
 void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size);
 void HEAP_SORT(SORT_TYPE *dst, const size_t size);
 void QUICK_SORT(SORT_TYPE *dst, const size_t size);
+static __inline void WIRTH_QUICK_SORT(SORT_TYPE *dst, size_t size);
 void MERGE_SORT(SORT_TYPE *dst, const size_t size);
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
@@ -728,6 +732,86 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
 
   QUICK_SORT_RECURSIVE(dst, 0U, size - 1U);
 }
+
+/**
+    Macro to do insertion sort
+ */
+#define INSERT_SORT(x,n, SORT_TYPE) {                                 \
+    int i,j;                                                    \
+    for(i = 1; i < (n); i++){    /* x[0..i-1] is sorted */        \
+      SORT_TYPE tmp;                                                 \
+      j = i;                                                    \
+      tmp = (x)[j];                                               \
+      while(j > 0 && (x)[j-1] > tmp){              \
+        (x)[j] = (x)[j-1];                                          \
+        j--;                                                    \
+      }                                                         \
+      (x)[j] = tmp;                                               \
+    }                                                           \
+  }
+
+static __inline int SORTED(SORT_TYPE *a, int n) {
+  int i;
+  n--;
+
+  for (i = 0; i < n; i++)
+    if (a[i + 1] < a[i])
+    { return 0; }
+
+  return 1;
+}
+
+/* Slightly modified quicksort as described by Niklaus Wirth */
+static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, int left, int right) {
+  int	i;
+  int	j;
+  enum { QUICK_CUTOFF = 16 };
+  /* Don't bother with fancy pivot selection */
+  SORT_TYPE	pivot = a[(left + right) / 2];
+  SORT_TYPE tmp;
+
+  if (SORTED(a + left, right - left + 1))
+  { return; }
+
+  /* Insertion sort is faster for small arrays */
+  if (right - left < QUICK_CUTOFF ) {
+    INSERT_SORT(a + left, right - left + 1, SORT_TYPE);
+    return;
+  }
+
+  i = left;
+  j = right;
+
+  /* Move elements to correct side of pivot */
+  do {
+    while (a[i] < pivot)
+    { i++; }
+
+    while (pivot < a[j])
+    { j--; }
+
+    if (i <= j) {
+      tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+      i++;
+      j--;
+    }
+  } while (i <= j);
+
+  if (left < j)
+  { WIRTH_QUICK_SORT_RECURSIVE(a, left, j); }
+
+  if (i < right)
+  { WIRTH_QUICK_SORT_RECURSIVE(a, i, right); }
+}
+
+
+
+static __inline void WIRTH_QUICK_SORT(SORT_TYPE *a, size_t n) {
+  WIRTH_QUICK_SORT_RECURSIVE(a, 0, n - 1);
+}
+
 
 
 /* timsort implementation, based on timsort.txt */
@@ -2279,7 +2363,12 @@ void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
   }
 }
 
+#undef INSERT_SORT
 #undef QUICK_SORT
+#undef QUICK_SORT_RECURSIVE
+#undef WIRTH_QUICK_SORT
+#undef WIRTH_QUICK_SORT_RECURSIVE
+#undef SORTED
 #undef MEDIAN
 #undef SORT_CONCAT
 #undef SORT_MAKE_STR1

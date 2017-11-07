@@ -2,7 +2,7 @@
 # Copyright (c) 2012 Google Inc. All Rights Reserved.
 
 CC ?= gcc
-CFLAGS = -O3 -g -Wall -std=c89
+CFLAGS = -O3 -g -Wall -std=c89 -funroll-loops
 
 default: demo stresstest multidemo test
 
