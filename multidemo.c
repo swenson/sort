@@ -197,6 +197,20 @@ void run_tests(void) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
     start_time = utime();
+    sorter_wirth_quick_sort(dst, SIZE);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+
+  printf("wirth quick sort time:            %10.2f us per iteration\n", total_time / RUNS);
+  srand48(SEED);
+  total_time = 0.0;
+
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
     sorter_selection_sort(dst, SIZE);
     end_time = utime();
     total_time += end_time - start_time;
@@ -356,6 +370,19 @@ void run_tests2(void) {
   }
 
   printf("quick sort time:            %10.2f us per iteration\n", total_time / RUNS);
+  total_time = 0.0;
+
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+    sorter2_wirth_quick_sort(dst, SIZE);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify2(dst, SIZE);
+  }
+
+  printf("wirth quick sort time:            %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
 
