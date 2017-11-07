@@ -733,11 +733,12 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
   QUICK_SORT_RECURSIVE(dst, 0U, size - 1U);
 }
 
+
 /**
     Macro to do insertion sort
  */
 #define INSERT_SORT(x,n, SORT_TYPE) {                                 \
-    int i,j;                                                    \
+    size_t i,j;                                                    \
     for(i = 1; i < (n); i++){    /* x[0..i-1] is sorted */        \
       SORT_TYPE tmp;                                                 \
       j = i;                                                    \
@@ -750,8 +751,8 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
     }                                                           \
   }
 
-static __inline int SORTED(SORT_TYPE *a, int n) {
-  int i;
+static __inline size_t SORTED(SORT_TYPE *a, size_t n) {
+  size_t i;
   n--;
 
   for (i = 0; i < n; i++)
@@ -762,15 +763,15 @@ static __inline int SORTED(SORT_TYPE *a, int n) {
 }
 
 /* Slightly modified quicksort as described by Niklaus Wirth */
-static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, int left, int right) {
-  int	i;
-  int	j;
+static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left, size_t right) {
+  size_t	i;
+  size_t	j;
   enum { QUICK_CUTOFF = 16 };
   /* Don't bother with fancy pivot selection */
   SORT_TYPE	pivot = a[(left + right) / 2];
   SORT_TYPE tmp;
 
-  if (SORTED(a + left, right - left + 1))
+  if (SORTED(&(a[left]), right - left + 1))
   { return; }
 
   /* Insertion sort is faster for small arrays */
@@ -809,7 +810,9 @@ static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, int left, int righ
 
 
 static __inline void WIRTH_QUICK_SORT(SORT_TYPE *a, size_t n) {
-  WIRTH_QUICK_SORT_RECURSIVE(a, 0, n - 1);
+  if (n <= 1) { return; }
+
+  WIRTH_QUICK_SORT_RECURSIVE(a, 0u, n - 1);
 }
 
 

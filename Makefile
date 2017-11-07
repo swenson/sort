@@ -3,6 +3,8 @@
 
 CC ?= gcc
 CFLAGS = -O3 -g -Wall -std=c89 -funroll-loops
+#CFLAGS = -O3 -g -Wall -std=c89
+#CFLAGS = -g -Wall -std=c89
 
 default: demo stresstest multidemo test
 
