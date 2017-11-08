@@ -2,17 +2,18 @@
 # Copyright (c) 2012 Google Inc. All Rights Reserved.
 
 CC ?= gcc
-CFLAGS = -O3 -g -Wall -std=c89
+CFLAGS = -O3 -g -Wall -std=c89 -pedantic
 
 default: demo stresstest multidemo test
 
 .PHONY: default clean test format
 
-test: stresstest
+test: stresstest benchmark
 	./stresstest
+	./benchmark | tee benchmark.txt
 
 clean:
-	rm -f demo multidemo stresstest
+	rm -f demo multidemo stresstest benchmark
 
 demo: demo.c sort.h
 	$(CC) $(CFLAGS) demo.c -o demo
@@ -23,5 +24,8 @@ multidemo: multidemo.c sort.h
 stresstest: stresstest.c sort.h
 	$(CC) $(CFLAGS) stresstest.c -o stresstest
 
+benchmark: benchmark.c sort.h
+	$(CC) $(CFLAGS) benchmark.c -o benchmark
+
 format:
-	astyle --options=astyle.options sort.h demo.c multidemo.c stresstest.c
+	astyle --options=astyle.options sort.h demo.c multidemo.c stresstest.c benchmark.c
