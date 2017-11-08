@@ -733,7 +733,6 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
   QUICK_SORT_RECURSIVE(dst, 0U, size - 1U);
 }
 
-
 /**
     Macro to do insertion sort
  */
@@ -763,48 +762,58 @@ static __inline size_t SORTED(SORT_TYPE *a, size_t n) {
 }
 
 /* Slightly modified quicksort as described by Niklaus Wirth */
-static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left, size_t right) {
-  size_t	i;
-  size_t	j;
+static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left,
+    size_t right) {
+  size_t i;
+  size_t j;
   enum { QUICK_CUTOFF = 16 };
-  /* Don't bother with fancy pivot selection */
-  SORT_TYPE	pivot = a[(left + right) / 2];
+  SORT_TYPE pivot;
   SORT_TYPE tmp;
 
-  if (SORTED(&(a[left]), right - left + 1))
-  { return; }
+  if (SORTED(&(a[left]), right - left + 1)) {
+    return;
+  }
 
   /* Insertion sort is faster for small arrays */
-  if (right - left < QUICK_CUTOFF ) {
+  if (right - left < QUICK_CUTOFF) {
     INSERT_SORT(a + left, right - left + 1, SORT_TYPE);
     return;
   }
 
+  /* Don't bother with fancy pivot selection */
+  pivot = a[(left + right) / 2];
   i = left;
   j = right;
 
   /* Move elements to correct side of pivot */
   do {
-    while (a[i] < pivot)
-    { i++; }
+    while (a[i] < pivot) {
+      i++;
+    }
 
-    while (pivot < a[j])
-    { j--; }
+    while (pivot < a[j]) {
+      j--;
+    }
 
+    if (j == 0) { break; } /* Test for exit before decrementing j since it is unsigned and will wrap */
     if (i <= j) {
       tmp = a[i];
       a[i] = a[j];
       a[j] = tmp;
+
+
       i++;
       j--;
     }
   } while (i <= j);
 
-  if (left < j)
-  { WIRTH_QUICK_SORT_RECURSIVE(a, left, j); }
+  if (left < j) {
+    WIRTH_QUICK_SORT_RECURSIVE(a, left, j);
+  }
 
-  if (i < right)
-  { WIRTH_QUICK_SORT_RECURSIVE(a, i, right); }
+  if (i < right) {
+    WIRTH_QUICK_SORT_RECURSIVE(a, i, right);
+  }
 }
 
 
