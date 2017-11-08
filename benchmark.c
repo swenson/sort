@@ -137,6 +137,7 @@ int main(void) {
 #endif
   TEST_SORT_H(binary_insertion_sort);
   TEST_SORT_H(quick_sort);
+  TEST_SORT_H(wirth_quick_sort);
   TEST_SORT_H(merge_sort);
   TEST_SORT_H(heap_sort);
   TEST_SORT_H(shell_sort);

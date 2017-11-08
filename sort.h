@@ -733,21 +733,23 @@ void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
   QUICK_SORT_RECURSIVE(dst, 0U, size - 1U);
 }
 
+
 /**
     Macro to do insertion sort
  */
-#define INSERT_SORT(x,n, SORT_TYPE) {                                 \
-    size_t i,j;                                                    \
-    for(i = 1; i < (n); i++){    /* x[0..i-1] is sorted */        \
-      SORT_TYPE tmp;                                                 \
-      j = i;                                                    \
-      tmp = (x)[j];                                               \
-      while(j > 0 && (x)[j-1] > tmp){              \
-        (x)[j] = (x)[j-1];                                          \
-        j--;                                                    \
-      }                                                         \
-      (x)[j] = tmp;                                               \
-    }                                                           \
+#define INSERT_SORT(x, n, SORT_TYPE)                      \
+  {                                                       \
+    size_t i, j;                                          \
+    for (i = 1; i < (n); i++) { /* x[0..i-1] is sorted */ \
+      SORT_TYPE tmp;                                      \
+      j = i;                                              \
+      tmp = (x)[j];                                       \
+      while (j > 0 && (x)[j - 1] > tmp) {                 \
+        (x)[j] = (x)[j - 1];                              \
+        j--;                                              \
+      }                                                   \
+      (x)[j] = tmp;                                       \
+    }                                                     \
   }
 
 static __inline size_t SORTED(SORT_TYPE *a, size_t n) {
@@ -755,8 +757,9 @@ static __inline size_t SORTED(SORT_TYPE *a, size_t n) {
   n--;
 
   for (i = 0; i < n; i++)
-    if (a[i + 1] < a[i])
-    { return 0; }
+    if (a[i + 1] < a[i]) {
+      return 0;
+    }
 
   return 1;
 }
@@ -775,8 +778,12 @@ static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left,
   }
 
   /* Insertion sort is faster for small arrays */
-  if (right - left < QUICK_CUTOFF) {
-    INSERT_SORT(a + left, right - left + 1, SORT_TYPE);
+  if (right - left + 1u < QUICK_CUTOFF) {
+#if 1 /* Straight insertion sort is slightly faster for small arrays */
+    INSERT_SORT(a + left, right - left + 1u, SORT_TYPE);
+#else
+    BINARY_INSERTION_SORT(a + left, right - left + 1U);
+#endif
     return;
   }
 
@@ -795,13 +802,15 @@ static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left,
       j--;
     }
 
-    if (j == 0) { break; } /* Test for exit before decrementing j since it is unsigned and will wrap */
+    /* Test for exit before decrementing j since it is unsigned and will wrap */
+    if (j == 0) {
+      break;
+    }
+
     if (i <= j) {
       tmp = a[i];
       a[i] = a[j];
       a[j] = tmp;
-
-
       i++;
       j--;
     }
@@ -816,16 +825,13 @@ static __inline void WIRTH_QUICK_SORT_RECURSIVE(SORT_TYPE *a, size_t left,
   }
 }
 
-
-
 static __inline void WIRTH_QUICK_SORT(SORT_TYPE *a, size_t n) {
-  if (n <= 1) { return; }
+  if (n <= 1) {
+    return;
+  }
 
   WIRTH_QUICK_SORT_RECURSIVE(a, 0u, n - 1);
 }
-
-
-
 /* timsort implementation, based on timsort.txt */
 
 static __inline void REVERSE_ELEMENTS(SORT_TYPE *dst, size_t start, size_t end) {
