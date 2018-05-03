@@ -23,7 +23,9 @@
 #define TIM_SORT_STACK_SIZE 128
 #endif
 
+#ifndef SORT_SWAP
 #define SORT_SWAP(x,y) {SORT_TYPE __SORT_SWAP_t = (x); (x) = (y); (y) = __SORT_SWAP_t;}
+#endif
 
 
 /* Common, type-agnostic functions and constants that we don't want to declare twice. */
