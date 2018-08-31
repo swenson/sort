@@ -102,7 +102,7 @@ The speed of each routine is highly dependent on your computer and the
 structure of your data.
 
 If your data has a lot of partially sorted sequences, then Tim sort
-will beat the pants off of anything else.
+will beat the kilt off of anything else.
 
 Timsort is not as good if memory movement is many orders of magnitude more
 expensive than comparisons (like, many more than for normal int and double).
