@@ -16,8 +16,8 @@
 
 /* Used to control the stress test */
 #define SEED 123
-#define MAXSIZE 1600
-#define TESTS 1000
+#define MAXSIZE 1700
+#define TESTS 1100
 
 #define RAND_RANGE(__n, __min, __max) \
     (__n) = (__min) + (long) ((double) ( (double) (__max) - (__min) + 1.0) * ((__n) / (RAND_MAX + 1.0)))
