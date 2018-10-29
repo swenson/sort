@@ -136,6 +136,7 @@ static __inline size_t rbnd(size_t len) {
 #define CHECK_INVARIANT                SORT_MAKE_STR(check_invariant)
 #define TIM_SORT                       SORT_MAKE_STR(tim_sort)
 #define TIM_SORT_RESIZE                SORT_MAKE_STR(tim_sort_resize)
+#define TIM_SORT_GALLOP                SORT_MAKE_STR(tim_sort_gallop)
 #define TIM_SORT_MERGE                 SORT_MAKE_STR(tim_sort_merge)
 #define TIM_SORT_COLLAPSE              SORT_MAKE_STR(tim_sort_collapse)
 #define HEAP_SORT                      SORT_MAKE_STR(heap_sort)
@@ -847,24 +848,123 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
   }
 }
 
+static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const SORT_TYPE key, const size_t length,
+                              const size_t hint,
+                              const int left) {
+  size_t ofs, lastofs;
+  int cmp;
+  dst += hint;
+  lastofs = 0;
+  ofs = 1;
+  cmp = SORT_CMP(*dst, key);
+
+  if ((left && cmp < 0) || cmp <= 0) {
+    const size_t maxofs = length - hint;
+
+    while (ofs < maxofs) {
+      cmp = SORT_CMP(dst[ofs], key);
+
+      if ((left && cmp < 0) || cmp <= 0) {
+        lastofs = ofs;
+        ofs = (ofs << 1) + 1;
+
+        if (ofs <= 0) {
+          ofs = maxofs;   /* int overflow */
+        }
+      } else {
+        break;
+      }
+    }
+
+    if (maxofs < ofs) {
+      ofs = maxofs;
+    }
+
+    lastofs += hint;
+    ofs += hint;
+  } else {
+    const size_t maxofs = hint + 1;
+
+    while (ofs < maxofs) {
+      cmp = SORT_CMP(*(dst - ofs), key);
+
+      if ((left && cmp < 0) || cmp <= 0) {
+        break;
+      } else {
+        lastofs = ofs;
+        ofs = (ofs << 1 ) + 1;
+
+        if (ofs <= 0) {
+          ofs = maxofs;  /* int overflow */
+        }
+      }
+    }
+
+    if (maxofs < ofs) {
+      ofs = maxofs;
+    }
+
+    size_t tmp = ofs;
+    ofs = hint - lastofs;
+    lastofs = hint - tmp;
+  }
+
+  dst -= hint;
+  /* if left == true,  dst[lastofs] < key <= dst[ofs]
+   * else, dst[lastofs] <= key < dst[ofs] */
+  ++lastofs;
+
+  while (lastofs < ofs) {
+    size_t m = lastofs + ((ofs - lastofs) >> 1);
+    cmp = SORT_CMP(dst[m], key);
+
+    if ((left && cmp < 0) || cmp <= 0) {
+      lastofs = m + 1;
+    } else {
+      ofs = m;
+    }
+  }
+
+  return ofs;
+}
+
+/*static void TIM_SORT_LMERGE(SORT_TYPE *A, size_t na, SORT_TYPE *B, size_t nb)*/
+
+
 static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr,
                            TEMP_STORAGE_T *store) {
-  const size_t A = stack[stack_curr - 2].length;
-  const size_t B = stack[stack_curr - 1].length;
-  const size_t curr = stack[stack_curr - 2].start;
+  size_t A = stack[stack_curr - 2].length;
+  size_t B = stack[stack_curr - 1].length;
+  size_t A_start = stack[stack_curr - 2].start;
+  size_t B_start = stack[stack_curr - 1].start;
   SORT_TYPE *storage;
   size_t i, j, k;
+  k = TIM_SORT_GALLOP(dst + A_start, dst[B_start], A, 0, 0);
+  A -= k;
+  A_start += k;
+
+  if (A == 0) {
+    return;
+  }
+
+  B = TIM_SORT_GALLOP(dst + B_start, dst[B_start - 1], B, B - 1, 1);
+
+  if (B <= 0) {
+    return;
+  }
+
   TIM_SORT_RESIZE(store, MIN(A, B));
   storage = store->storage;
 
   /* left merge */
   if (A < B) {
-    memcpy(storage, &dst[curr], A * sizeof(SORT_TYPE));
+    /* TIM_SORT_LMERGE(); */
+    memcpy(storage, &dst[A_start], A * sizeof(SORT_TYPE));
     i = 0;
-    j = curr + A;
+    j = A_start + A;
 
-    for (k = curr; k < curr + A + B; k++) {
-      if ((i < A) && (j < curr + A + B)) {
+    for (k = A_start; k < A_start + A + B; k++) {
+      if ((i < A) && (j < A_start + A + B)) {
         if (SORT_CMP(storage[i], dst[j]) <= 0) {
           dst[k] = storage[i++];
         } else {
@@ -877,14 +977,15 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
       }
     }
   } else {
+    /*TIME_SORT_RMERGE(); */
     /* right merge */
-    memcpy(storage, &dst[curr + A], B * sizeof(SORT_TYPE));
+    memcpy(storage, &dst[A_start + A], B * sizeof(SORT_TYPE));
     i = B;
-    j = curr + A;
-    k = curr + A + B;
+    j = A_start + A;
+    k = A_start + A + B;
 
-    while (k-- > curr) {
-      if ((i > 0) && (j > curr)) {
+    while (k-- > A_start) {
+      if ((i > 0) && (j > A_start)) {
         if (SORT_CMP(dst[j - 1], storage[i - 1]) > 0) {
           dst[k] = dst[--j];
         } else {
@@ -900,7 +1001,7 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
 }
 
 static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_curr,
-                             TEMP_STORAGE_T *store, const size_t size) {
+                             TEMP_STORAGE_T *store, const size_t size, size_t *min_gallop) {
   while (1) {
     size_t A, B, C, D;
     int ABC, BCD, CD;
@@ -963,13 +1064,15 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
   return stack_curr;
 }
 
+
 static __inline int PUSH_NEXT(SORT_TYPE *dst,
                               const size_t size,
                               TEMP_STORAGE_T *store,
                               const size_t minrun,
                               TIM_SORT_RUN_T *run_stack,
                               size_t *stack_curr,
-                              size_t *curr) {
+                              size_t *curr,
+                              size_t *min_gallop) {
   size_t len = COUNT_RUN(dst, *curr, size);
   size_t run = minrun;
 
@@ -1012,6 +1115,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   TIM_SORT_RUN_T run_stack[TIM_SORT_STACK_SIZE];
   size_t stack_curr = 0;
   size_t curr = 0;
+  size_t min_gallop = 7;
 
   /* don't bother sorting an array of size 1 */
   if (size <= 1) {
@@ -1030,25 +1134,25 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   store->alloc = 0;
   store->storage = NULL;
 
-  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) {
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr, &min_gallop)) {
     return;
   }
 
-  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) {
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr, &min_gallop)) {
     return;
   }
 
-  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) {
+  if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr, &min_gallop)) {
     return;
   }
 
   while (1) {
     if (!CHECK_INVARIANT(run_stack, stack_curr)) {
-      stack_curr = TIM_SORT_COLLAPSE(dst, run_stack, stack_curr, store, size);
+      stack_curr = TIM_SORT_COLLAPSE(dst, run_stack, stack_curr, store, size, &min_gallop);
       continue;
     }
 
-    if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr)) {
+    if (!PUSH_NEXT(dst, size, store, minrun, run_stack, &stack_curr, &curr, &min_gallop)) {
       return;
     }
   }
