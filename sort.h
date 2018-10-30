@@ -23,6 +23,10 @@
 #define TIM_SORT_STACK_SIZE 128
 #endif
 
+#ifndef TIM_SORT_MIN_GALLOP
+#define TIM_SORT_MIN_GALLOP 7
+#endif
+
 #ifndef SORT_SWAP
 #define SORT_SWAP(x,y) {SORT_TYPE _sort_swap_temp = (x); (x) = (y); (y) = _sort_swap_temp;}
 #endif
@@ -137,6 +141,8 @@ static __inline size_t rbnd(size_t len) {
 #define TIM_SORT                       SORT_MAKE_STR(tim_sort)
 #define TIM_SORT_RESIZE                SORT_MAKE_STR(tim_sort_resize)
 #define TIM_SORT_GALLOP                SORT_MAKE_STR(tim_sort_gallop)
+#define TIM_SORT_LMERGE                SORT_MAKE_STR(tim_sort_lmerge)
+#define TIM_SORT_RMERGE                SORT_MAKE_STR(tim_sort_rmerge)
 #define TIM_SORT_MERGE                 SORT_MAKE_STR(tim_sort_merge)
 #define TIM_SORT_COLLAPSE              SORT_MAKE_STR(tim_sort_collapse)
 #define HEAP_SORT                      SORT_MAKE_STR(heap_sort)
@@ -928,11 +934,260 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const SORT_TYPE key, const size_t 
   return ofs;
 }
 
-/*static void TIM_SORT_LMERGE(SORT_TYPE *A, size_t na, SORT_TYPE *B, size_t nb)*/
+static void TIM_SORT_LMERGE(SORT_TYPE *A, size_t na, SORT_TYPE *B, size_t nb, SORT_TYPE *storage,
+                            size_t *min_gallop_p) {
+  size_t k;
+  size_t min_gallop = *min_gallop_p;
+  memcpy(storage, A, na * sizeof(SORT_TYPE));
+  /* first element must be in B, otherwise skipped in the caller */
+  *A++ = *B++;
+  --nb;
+
+  if (nb == 0) {
+    goto Succeed;
+  }
+
+  /* last element must be in A, otherwise skipped in the caller */
+  if (na == 1) {
+    goto CopyB;
+  }
+
+  for (;;) {
+    size_t acount = 0;
+    size_t bcount = 0;
+
+    for (;;) {
+      if (SORT_CMP(*storage, *B) <= 0) {
+        *A++ = *storage++;
+        ++acount;
+        bcount = 0;
+        --na;
+
+        if (na == 1) {
+          goto CopyB;
+        }
+
+        if (min_gallop < acount) {
+          break;
+        }
+      } else {
+        *A++ = *B++;
+        ++bcount;
+        acount = 0;
+        --nb;
+
+        if (nb == 0) {
+          goto Succeed;
+        }
+
+        if (min_gallop < bcount) {
+          break;
+        }
+      }
+    }
+
+    ++min_gallop;
+
+    do {
+      min_gallop -= 1 < min_gallop;
+      *min_gallop_p = min_gallop;
+      k = TIM_SORT_GALLOP(storage, *B, na, 0, 0);
+      acount = k;
+
+      if (k) {
+        memcpy(A, storage, k * sizeof(SORT_TYPE));
+        A += k;
+        storage += k;
+        na -= k;
+
+        if (na == 1) {
+          goto CopyB;
+        }
+
+        /* Not possible if SORT_CMP is consistent.
+         * Because last element must be in A */
+        if (na == 0) {
+          goto Succeed;
+        }
+      }
+
+      *A++ = *B++;
+      --nb;
+
+      if (nb == 0) {
+        goto Succeed;
+      }
+
+      k = TIM_SORT_GALLOP(B, *storage, nb, 0, 1);
+      bcount = k;
+
+      if (k) {
+        memmove(A, B, k * sizeof(SORT_TYPE));
+        A += k;
+        B += k;
+        nb -= k;
+
+        if (nb == 0) {
+          goto Succeed;
+        }
+      }
+
+      *A++ = *storage++;
+      --na;
+
+      if (na == 1) {
+        goto CopyB;
+      }
+    } while (TIM_SORT_MIN_GALLOP <= acount || TIM_SORT_MIN_GALLOP <= bcount);
+
+    ++min_gallop;
+    *min_gallop_p = min_gallop;
+  }
+
+Succeed:
+
+  if (na) {
+    memcpy(A, storage, na * sizeof(SORT_TYPE));
+  }
+
+  return;
+CopyB:
+  memmove(A, B, nb * sizeof(SORT_TYPE));
+  *(A + nb) = *storage;
+  return;
+}
+
+
+static void TIM_SORT_RMERGE(SORT_TYPE *A, size_t na, SORT_TYPE *B, size_t nb, SORT_TYPE *storage,
+                            size_t *min_gallop_p) {
+  size_t k;
+  SORT_TYPE *A_base = A;
+  SORT_TYPE *B_base = B;
+  SORT_TYPE *storage_base = storage;
+  size_t min_gallop = *min_gallop_p;
+  memcpy(storage, B, nb * sizeof(SORT_TYPE));
+  A += na - 1;
+  B += nb - 1;
+  storage += nb - 1;
+  /* The last element must be in A, otherwise skipped in the caller */
+  *B-- = *A--;
+  --na;
+
+  if (na == 0) {
+    goto Succeed;
+  }
+
+  /* The first element must be in B, otherwise skipped in the caller */
+  if (nb == 1) {
+    goto CopyA;
+  }
+
+  for (;;) {
+    size_t acount = 0;
+    size_t bcount = 0;
+
+    for (;;) {
+      if (SORT_CMP(*A, *storage) <= 0) {
+        *B-- = *storage--;
+        ++bcount;
+        acount = 0;
+        --nb;
+
+        if (nb == 1) {
+          goto CopyA;
+        }
+
+        if (min_gallop < acount) {
+          break;
+        }
+      } else {
+        *B-- = *A--;
+        ++acount;
+        bcount = 0;
+        --na;
+
+        if (na == 0) {
+          goto Succeed;
+        }
+
+        if (min_gallop < bcount) {
+          break;
+        }
+      }
+    }
+
+    ++min_gallop;
+
+    do {
+      min_gallop -= 1 < min_gallop;
+      *min_gallop_p = min_gallop;
+      k = TIM_SORT_GALLOP(storage_base, *A, nb, nb - 1, 1);
+      bcount = k;
+
+      if (k) {
+        memcpy(B - k, storage - k, k * sizeof(SORT_TYPE));
+        B -= k;
+        storage -= k;
+        nb -= k;
+
+        if (nb == 1) {
+          goto CopyA;
+        }
+
+        if (nb == 0) {
+          goto Succeed;
+        }
+      }
+
+      *B-- = *A--;
+      --na;
+
+      if (na == 0) {
+        goto Succeed;
+      }
+
+      k = TIM_SORT_GALLOP(A_base, *storage, na, na - 1, 0);
+      acount = k;
+
+      if (k) {
+        memmove(B - k, A - k, k * sizeof(SORT_TYPE));
+        A -= k;
+        B -= k;
+        na -= k;
+
+        if (na == 0) {
+          goto Succeed;
+        }
+      }
+
+      *B-- = *storage--;
+      --nb;
+
+      if (nb == 1) {
+        goto CopyA;
+      }
+    } while (TIM_SORT_MIN_GALLOP <= acount || TIM_SORT_MIN_GALLOP <= bcount);
+
+    ++min_gallop;
+    *min_gallop_p = min_gallop;
+  }
+
+Succeed:
+
+  if (nb) {
+    memcpy(A_base, storage_base, nb * sizeof(SORT_TYPE));
+  }
+
+  return;
+CopyA:
+  memmove(A_base + 1, A_base, na * sizeof(SORT_TYPE));
+  *A_base = *storage_base;
+  return;
+}
 
 
 static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const int stack_curr,
-                           TEMP_STORAGE_T *store) {
+                           TEMP_STORAGE_T *store, size_t *min_gallop) {
   size_t A = stack[stack_curr - 2].length;
   size_t B = stack[stack_curr - 1].length;
   size_t A_start = stack[stack_curr - 2].start;
@@ -956,47 +1211,12 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
   TIM_SORT_RESIZE(store, MIN(A, B));
   storage = store->storage;
 
-  /* left merge */
   if (A < B) {
-    /* TIM_SORT_LMERGE(); */
-    memcpy(storage, &dst[A_start], A * sizeof(SORT_TYPE));
-    i = 0;
-    j = A_start + A;
-
-    for (k = A_start; k < A_start + A + B; k++) {
-      if ((i < A) && (j < A_start + A + B)) {
-        if (SORT_CMP(storage[i], dst[j]) <= 0) {
-          dst[k] = storage[i++];
-        } else {
-          dst[k] = dst[j++];
-        }
-      } else if (i < A) {
-        dst[k] = storage[i++];
-      } else {
-        break;
-      }
-    }
+    /* left merge */
+    TIM_SORT_LMERGE(&dst[A_start], A, &dst[B_start], B, storage, min_gallop);
   } else {
-    /*TIME_SORT_RMERGE(); */
     /* right merge */
-    memcpy(storage, &dst[A_start + A], B * sizeof(SORT_TYPE));
-    i = B;
-    j = A_start + A;
-    k = A_start + A + B;
-
-    while (k-- > A_start) {
-      if ((i > 0) && (j > A_start)) {
-        if (SORT_CMP(dst[j - 1], storage[i - 1]) > 0) {
-          dst[k] = dst[--j];
-        } else {
-          dst[k] = storage[--i];
-        }
-      } else if (i > 0) {
-        dst[k] = storage[--i];
-      } else {
-        break;
-      }
-    }
+    TIM_SORT_RMERGE(&dst[A_start], A, &dst[B_start], B, storage, min_gallop);
   }
 }
 
@@ -1013,14 +1233,14 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
 
     /* if this is the last merge, just do it */
     if ((stack_curr == 2) && (stack[0].length + stack[1].length == size)) {
-      TIM_SORT_MERGE(dst, stack, stack_curr, store);
+      TIM_SORT_MERGE(dst, stack, stack_curr, store, min_gallop);
       stack[0].length += stack[1].length;
       stack_curr--;
       break;
     }
     /* check if the invariant is off for a stack of 2 elements */
     else if ((stack_curr == 2) && (stack[0].length <= stack[1].length)) {
-      TIM_SORT_MERGE(dst, stack, stack_curr, store);
+      TIM_SORT_MERGE(dst, stack, stack_curr, store, min_gallop);
       stack[0].length += stack[1].length;
       stack_curr--;
       break;
@@ -1049,13 +1269,13 @@ static int TIM_SORT_COLLAPSE(SORT_TYPE *dst, TIM_SORT_RUN_T *stack, int stack_cu
 
     /* left merge */
     if (BCD && !CD) {
-      TIM_SORT_MERGE(dst, stack, stack_curr - 1, store);
+      TIM_SORT_MERGE(dst, stack, stack_curr - 1, store, min_gallop);
       stack[stack_curr - 3].length += stack[stack_curr - 2].length;
       stack[stack_curr - 2] = stack[stack_curr - 1];
       stack_curr--;
     } else {
       /* right merge */
-      TIM_SORT_MERGE(dst, stack, stack_curr, store);
+      TIM_SORT_MERGE(dst, stack, stack_curr, store, min_gallop);
       stack[stack_curr - 2].length += stack[stack_curr - 1].length;
       stack_curr--;
     }
@@ -1093,7 +1313,7 @@ static __inline int PUSH_NEXT(SORT_TYPE *dst,
   if (*curr == size) {
     /* finish up */
     while (*stack_curr > 1) {
-      TIM_SORT_MERGE(dst, run_stack, *stack_curr, store);
+      TIM_SORT_MERGE(dst, run_stack, *stack_curr, store, min_gallop);
       run_stack[*stack_curr - 2].length += run_stack[*stack_curr - 1].length;
       (*stack_curr)--;
     }
@@ -1115,7 +1335,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   TIM_SORT_RUN_T run_stack[TIM_SORT_STACK_SIZE];
   size_t stack_curr = 0;
   size_t curr = 0;
-  size_t min_gallop = 7;
+  size_t min_gallop = TIM_SORT_MIN_GALLOP;
 
   /* don't bother sorting an array of size 1 */
   if (size <= 1) {
