@@ -883,6 +883,21 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     /* deal with overflow */
     if (max_ofs / ofs <= 1) {
       ofs = max_ofs;
+
+      if (ofs < 0) {
+        cmp = SORT_CMP(key, dst[0]);
+
+        if ((right && cmp < 0) || (!right && cmp <= 0)) {
+          return 0;
+        }
+      } else {
+        cmp = SORT_CMP(dst[size - 1], key);
+
+        if ((right && cmp <= 0) || (!right && cmp < 0)) {
+          return size;
+        }
+      }
+
       break;
     }
 
@@ -907,14 +922,13 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     ofs = ofs << 1 + 1;
   }
 
+  /* key in region (l, r) , both l and r have already been compared */
   if (ofs < 0) {
-    /* key in region (l, r] */
-    l = anchor + ofs - 1;
+    l = anchor + ofs;
     r = anchor + last_ofs;
   } else {
-    /* key in region [l, r) */
     l = anchor + last_ofs;
-    r = anchor + ofs + 1;
+    r = anchor + ofs;
   }
 
   while (1 < r - l) {
@@ -990,6 +1004,12 @@ static void TIM_SORT_MERGE_LEFT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_t
       memcpy(&dst[pdst], &A_src[pa], k * sizeof(SORT_TYPE));
       pdst += k;
       pa += k;
+      /* now we know the next must be in B */
+      dst[pdst++] = B_src[pb++];
+
+      if (pb == B) {
+        goto copyA;
+      }
 
       if (a_count && k < TIM_SORT_MIN_GALLOP) {
         ++min_gallop;
@@ -1004,6 +1024,8 @@ static void TIM_SORT_MERGE_LEFT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_t
       if (pb == B) {
         goto copyA;
       }
+
+      dst[pdst++] = A_src[pa++];
 
       if (b_count && k < TIM_SORT_MIN_GALLOP) {
         ++min_gallop;
@@ -1090,6 +1112,9 @@ static void TIM_SORT_MERGE_RIGHT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_
         goto copyB;
       }
 
+      /* now we know the next must be in B */
+      dst[pdst--] = B_src[pb--];
+
       if (a_count && pa + 1 - k < TIM_SORT_MIN_GALLOP) {
         ++min_gallop;
         break;
@@ -1099,6 +1124,11 @@ static void TIM_SORT_MERGE_RIGHT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_
       memcpy(&dst[pa + k + 1], &B_src[k], (pb + 1 - k) * sizeof(SORT_TYPE));
       pdst = pa + k;
       pb = k - 1;
+      dst[pdst--] = A_src[pa--];
+
+      if (pa == -1) {
+        goto copyB;
+      }
 
       if (b_count && pb + 1 - k < TIM_SORT_MIN_GALLOP) {
         ++min_gallop;
@@ -1129,13 +1159,13 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
   size_t i, j, k;
   /* A[k-1] <= B[0] < A[k] */
   k = TIM_SORT_GALLOP(&dst[A_start], A, dst[B_start], 0, 1);
-  /*
+
   if (k != 0)
   { assert(SORT_CMP(dst[A_start + k - 1], dst[B_start]) <= 0); }
 
   if (k != A)
   { assert(SORT_CMP(dst[B_start], dst[A_start + k]) < 0); }
-  */
+
   A_start += k;
   A -= k;
 
@@ -1146,13 +1176,13 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
 
   /* B[k-1] < A[A-1] <= B[k] */
   k = TIM_SORT_GALLOP(&dst[B_start], B, dst[B_start - 1], B - 1, 0);
-  /*
+
   if (k != 0)
   { assert(SORT_CMP(dst[B_start + k - 1], dst[B_start - 1]) < 0); }
 
   if (k != B)
   { assert(SORT_CMP(dst[B_start - 1], dst[B_start + k]) <= 0); }
-  */
+
   B = k;
   TIM_SORT_RESIZE(store, MIN(A, B));
   storage = store->storage;
