@@ -1036,11 +1036,6 @@ static void TIM_SORT_MERGE_LEFT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_t
 
 copyA:
   memcpy(&dst[pdst], &A_src[pa], (A - pa) * sizeof(SORT_TYPE));
-  /*
-  for (k=0;k<(A+B-1);++k){
-    assert(SORT_CMP(dst[k], dst[k+1]) <= 0);
-  }
-  */
   *min_gallop_p = min_gallop;
   return;
 }
@@ -1139,11 +1134,6 @@ static void TIM_SORT_MERGE_RIGHT(SORT_TYPE *A_src, SORT_TYPE *B_src, const size_
 
 copyB:
   memcpy(dst, B_src, (pb + 1) * sizeof(SORT_TYPE));
-  /*
-  for (k=0;k<(A+B-1);++k){
-    assert(SORT_CMP(dst[k], dst[k+1]) <= 0);
-  }
-  */
   *min_gallop_p = min_gallop;
   return;
 }
@@ -1159,13 +1149,6 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
   size_t i, j, k;
   /* A[k-1] <= B[0] < A[k] */
   k = TIM_SORT_GALLOP(&dst[A_start], A, dst[B_start], 0, 1);
-
-  if (k != 0)
-  { assert(SORT_CMP(dst[A_start + k - 1], dst[B_start]) <= 0); }
-
-  if (k != A)
-  { assert(SORT_CMP(dst[B_start], dst[A_start + k]) < 0); }
-
   A_start += k;
   A -= k;
 
@@ -1176,13 +1159,6 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
 
   /* B[k-1] < A[A-1] <= B[k] */
   k = TIM_SORT_GALLOP(&dst[B_start], B, dst[B_start - 1], B - 1, 0);
-
-  if (k != 0)
-  { assert(SORT_CMP(dst[B_start + k - 1], dst[B_start - 1]) < 0); }
-
-  if (k != B)
-  { assert(SORT_CMP(dst[B_start - 1], dst[B_start + k]) <= 0); }
-
   B = k;
   TIM_SORT_RESIZE(store, MIN(A, B));
   storage = store->storage;
