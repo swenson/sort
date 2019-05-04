@@ -858,7 +858,7 @@ static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
 static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE key, size_t anchor,
                               int right) {
   int last_ofs = 0;
-  int ofs, max_ofs, cmp;
+  int ofs, max_ofs, ofs_sign, cmp;
   size_t  l, c, r;
   cmp = SORT_CMP(key, dst[anchor]);
 
@@ -869,6 +869,7 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     }
 
     ofs = -1;
+    ofs_sign = -1;
     max_ofs = -anchor; /* ensure anchor+max_ofs is valid idx */
   } else {
     if (anchor == size - 1) {
@@ -876,6 +877,7 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     }
 
     ofs = 1;
+    ofs_sign = 1;
     max_ofs = size - anchor - 1;
   }
 
@@ -909,7 +911,7 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     cmp = SORT_CMP(key, dst[c]);
 
     if (0 < ofs) {
-      if ((right &&  cmp < 0) || (!right && cmp <= 0)) {
+      if ((right && cmp < 0) || (!right && cmp <= 0)) {
         break;
       }
     } else {
@@ -919,7 +921,7 @@ static size_t TIM_SORT_GALLOP(SORT_TYPE *dst, const size_t size, const SORT_TYPE
     }
 
     last_ofs = ofs;
-    ofs = ofs << 1 + 1;
+    ofs = (ofs << 1) + ofs_sign;
   }
 
   /* key in region (l, r) , both l and r have already been compared */
@@ -1146,7 +1148,7 @@ static void TIM_SORT_MERGE(SORT_TYPE *dst, const TIM_SORT_RUN_T *stack, const in
   size_t A_start = stack[stack_curr - 2].start;
   size_t B_start = stack[stack_curr - 1].start;
   SORT_TYPE *storage;
-  size_t i, j, k;
+  size_t k;
   /* A[k-1] <= B[0] < A[k] */
   k = TIM_SORT_GALLOP(&dst[A_start], A, dst[B_start], 0, 1);
   A_start += k;
