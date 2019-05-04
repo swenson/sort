@@ -33,8 +33,8 @@ static __inline double utime() {
 }
 
 static void fill_random(int64_t *dst, const int size) {
-  srand48(SEED);
   int i;
+  srand48(SEED);
 
   for (i = 0; i < size; i++) {
     dst[i] = lrand48();
