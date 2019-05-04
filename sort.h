@@ -230,14 +230,14 @@ void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
 */
 void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
   /* don't bother sorting an array of size 0 or 1 */
-  if (size <= 1) {
-    return;
-  }
-
   /* TODO: binary search to find first gap? */
   int inci = 47;
   size_t inc = shell_gaps[inci];
   size_t i;
+
+  if (size <= 1) {
+    return;
+  }
 
   while (inc > (size >> 1)) {
     inc = shell_gaps[--inci];
@@ -346,13 +346,12 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
 
 /* Selection sort */
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
+  size_t i, j;
+
   /* don't bother sorting an array of size <= 1 */
   if (size <= 1) {
     return;
   }
-
-  size_t i;
-  size_t j;
 
   for (i = 0; i < size; i++) {
     for (j = i + 1; j < size; j++) {
@@ -489,13 +488,14 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
 void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
   /* don't bother sorting an array of size <= 1 */
+  size_t r = rbnd(len);
+  size_t lr = (len / r - 1) * r;
+  SORT_TYPE *dst1 = dst - 1;
+  size_t p, m, q, q1, p0;
+
   if (len <= 1) {
     return;
   }
-
-  size_t r = rbnd(len);
-  size_t lr = (len / r - 1) * r, p, m, q, q1, p0;
-  SORT_TYPE *dst1 = dst - 1;
 
   if (len < 16) {
     BINARY_INSERTION_SORT(dst, len);
@@ -840,7 +840,7 @@ typedef struct {
 } TEMP_STORAGE_T;
 
 static void TIM_SORT_RESIZE(TEMP_STORAGE_T *store, const size_t new_size) {
-  if (store->alloc < new_size) {
+  if ((store->storage == NULL) || (store->alloc < new_size)) {
     SORT_TYPE *tempstore = (SORT_TYPE *)realloc(store->storage, new_size * sizeof(SORT_TYPE));
 
     if (tempstore == NULL) {
@@ -1365,12 +1365,13 @@ static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size) {
 }
 
 void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
+  size_t end = size - 1;
+
   /* don't bother sorting an array of size <= 1 */
   if (size <= 1) {
     return;
   }
 
-  size_t end = size - 1;
   HEAPIFY(dst, size);
 
   while (end > 0) {
@@ -1710,12 +1711,13 @@ static void SQRT_SORT(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
   int *Tags;
+  int NK;
 
   while (L * L < Len) {
     L *= 2;
   }
 
-  int NK = (Len - 1) / L + 2;
+  NK = (Len - 1) / L + 2;
   ExtBuf = (SORT_TYPE*)malloc(L * sizeof(SORT_TYPE));
 
   if (ExtBuf == NULL) {

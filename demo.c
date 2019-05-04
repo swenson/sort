@@ -42,7 +42,7 @@ void verify(int64_t *dst, const int size) {
       printf("Verify failed! at %d\n", i);
 
       for (i = i - 2; i < SIZE; i++) {
-        printf(" %lld", (long long int)dst[i]);
+        printf(" %lld", (long long) dst[i]);
       }
 
       printf("\n");
