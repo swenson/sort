@@ -1,6 +1,7 @@
 import requests
 
-max_small_sort = 32
+max_small_sort = 16
+small_sort_only = True 
 
 def generate_small_sort(n, rev=False):
     s = "http://jgamble.ripco.net/cgi-bin/nw.cgi?inputs=%d&algorithm=best&output=svg" % n
@@ -42,6 +43,26 @@ bitonic_sort_str = """
 #endif
 """
 bitonic_sort_str += "\n".join(generate_small_sort(i) for i in range(2,max_small_sort+1))
+
+if small_sort_only:
+    bitonic_sort_case = "\n".join("        case %d:\n            BITONIC_SORT_%d(dst);\n            break;" % (n, n) for n in range(2, max_small_sort+1))
+    bitonic_sort_str += """
+void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
+    switch(size) {
+        case 0:
+        case 1:
+            break;
+%s
+        default:
+            BINARY_INSERTION_SORT(dst, size);
+        }
+}
+    """ % (bitonic_sort_case)
+    print(bitonic_sort_str)
+    exit()
+    
+
+
 bitonic_sort_str += "\n".join(generate_small_sort(i, rev=True) for i in range(2,max_small_sort+1))
 
 bitonic_sort_case = "\n".join("        case %d:\n            BITONIC_SORT_%d(dst);\n            break;" % (n, n) for n in range(2, max_small_sort+1))
@@ -61,7 +82,7 @@ void BITONIC_MERGE(SORT_TYPE *dst, const size_t size) {
   if (size <= 1) {
       return;
   }
-  m = 1<<(63 - CLZ(size-1));
+  m = 1ULL<<(63 - CLZ(size-1));
   j = m;
   for (i = 0; i < size - m; ++i, ++j) {
       SORT_CSWAP(dst[i], dst[j]);
@@ -76,7 +97,7 @@ void BITONIC_MERGE_REVERSE(SORT_TYPE *dst, const size_t size) {
   if (size <= 1) {
       return;
   }
-  m = 1<<(63 - CLZ(size-1));
+  m = 1ULL<<(63 - CLZ(size-1));
   j = m;
   for (i = 0; i < size - m; ++i, ++j) {
       SORT_CSWAP(dst[j], dst[i]);
