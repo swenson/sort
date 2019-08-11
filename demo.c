@@ -12,6 +12,9 @@
    but the one below is often faster for integer types.
 */
 #define SORT_CMP(x, y) (x - y)
+#define MAX(x,y) (((x) > (y) ? (x) : (y)))
+#define MIN(x,y) (((x) < (y) ? (x) : (y)))
+#define SORT_CSWAP(x, y) {SORT_TYPE _sort_swap_temp = MAX((x), (y)); (x) = MIN((x),(y)); (y) = _sort_swap_temp;}
 #include "sort.h"
 
 /*
@@ -40,11 +43,11 @@ void verify(int64_t *dst, const int size) {
   for (i = 1; i < size; i++) {
     if (dst[i - 1] > dst[i]) {
       printf("Verify failed! at %d\n", i);
-
-      for (i = i - 2; i < SIZE; i++) {
-        printf(" %lld", (long long) dst[i]);
-      }
-
+      /*
+            for (i = i - 2; i < SIZE; i++) {
+              printf(" %lld", (long long) dst[i]);
+            }
+      */
       printf("\n");
       break;
     }
@@ -155,7 +158,7 @@ void run_tests(void) {
   printf("selection sort time:             %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
-  
+
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
     memcpy(dst, arr, sizeof(int64_t) * SIZE);
@@ -167,6 +170,20 @@ void run_tests(void) {
   }
 
   printf("bubble sort time:                %10.2f us per iteration\n", total_time / RUNS);
+  srand48(SEED);
+  total_time = 0.0;
+
+  for (i = 0; i < RUNS; i++) {
+    fill(arr, SIZE);
+    memcpy(dst, arr, sizeof(int64_t) * SIZE);
+    start_time = utime();
+    sorter_bitonic_sort(dst, SIZE);
+    end_time = utime();
+    total_time += end_time - start_time;
+    verify(dst, SIZE);
+  }
+
+  printf("bitonic sort time:               %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
 

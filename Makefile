@@ -2,7 +2,7 @@
 # Copyright (c) 2012 Google Inc. All Rights Reserved.
 
 CC ?= gcc
-CFLAGS ?= -O3 -g -Wall -std=c89 -pedantic -Wno-long-long
+CFLAGS ?= -O3 -g -Wall -std=c89 -pedantic -Wno-long-long -Wno-format
 
 default: demo stresstest multidemo test
 
@@ -15,17 +15,17 @@ test: stresstest benchmark
 clean:
 	rm -f demo multidemo stresstest benchmark
 
-demo: demo.c sort.h
+demo: demo.c sort.h bitonic_sort.h
 	$(CC) $(CFLAGS) demo.c -o demo
 
-multidemo: multidemo.c sort.h
+multidemo: multidemo.c sort.h bitonic_sort.h
 	$(CC) $(CFLAGS) multidemo.c -o multidemo
 
-stresstest: stresstest.c sort.h
+stresstest: stresstest.c sort.h bitonic_sort.h
 	$(CC) $(CFLAGS) stresstest.c -o stresstest
 
-benchmark: benchmark.c sort.h
+benchmark: benchmark.c sort.h bitonic_sort.h
 	$(CC) $(CFLAGS) benchmark.c -o benchmark
 
 format:
-	astyle --options=astyle.options sort.h demo.c multidemo.c stresstest.c benchmark.c
+	astyle --options=astyle.options sort.h bitonic_sort.h demo.c multidemo.c stresstest.c benchmark.c

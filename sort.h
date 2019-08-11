@@ -31,7 +31,6 @@
 #define SORT_SWAP(x,y) {SORT_TYPE _sort_swap_temp = (x); (x) = (y); (y) = _sort_swap_temp;}
 #endif
 
-
 /* Common, type-agnostic functions and constants that we don't want to declare twice. */
 #ifndef SORT_COMMON_H
 #define SORT_COMMON_H
@@ -136,6 +135,14 @@ static __inline size_t rbnd(size_t len) {
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
 #define SORT_MAKE_STR(x) SORT_MAKE_STR1(SORT_NAME,x)
 
+#ifndef SMALL_SORT_BND
+#define SMALL_SORT_BND 16
+#endif
+#ifndef SMALL_SORT
+#define SMALL_SORT BITONIC_SORT
+/*#define SMALL_SORT BINARY_INSERTION_SORT*/
+#endif
+
 #define BINARY_INSERTION_FIND          SORT_MAKE_STR(binary_insertion_find)
 #define BINARY_INSERTION_SORT_START    SORT_MAKE_STR(binary_insertion_sort_start)
 #define BINARY_INSERTION_SORT          SORT_MAKE_STR(binary_insertion_sort)
@@ -227,6 +234,8 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
 void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
+
+#include "bitonic_sort.h"
 
 
 /* Shell sort implementation based on Wikipedia article
@@ -501,8 +510,8 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
     return;
   }
 
-  if (len < 16) {
-    BINARY_INSERTION_SORT(dst, len);
+  if (len <= SMALL_SORT_BND) {
+    SMALL_SORT(dst, len);
     return;
   }
 
@@ -596,8 +605,8 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  if (size < 16) {
-    BINARY_INSERTION_SORT(dst, size);
+  if (size <= SMALL_SORT_BND) {
+    SMALL_SORT(dst, size);
     return;
   }
 
@@ -714,8 +723,8 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t left, const size_t
     return;
   }
 
-  if ((right - left + 1U) < 16U) {
-    BINARY_INSERTION_SORT(&dst[left], right - left + 1U);
+  if ((right - left + 1U) <= SMALL_SORT_BND) {
+    SMALL_SORT(&dst[left], right - left + 1U);
     return;
   }
 
@@ -1298,7 +1307,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   if (size < 64) {
-    BINARY_INSERTION_SORT(dst, size);
+    SMALL_SORT(dst, size);
     return;
   }
 
@@ -2316,7 +2325,7 @@ static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int L
 
     arr1 = arr + b * 2 * LL;
     NBlk = (b == M ? lrest : 2 * LL) / lblock;
-    BINARY_INSERTION_SORT(keys, NBlk + (b == M ? 1 : 0));
+    SMALL_SORT(keys, NBlk + (b == M ? 1 : 0));
     midkey = LL / lblock;
 
     for (u = 1; u < NBlk; u++) {
@@ -2376,8 +2385,8 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   int havebuf, chavebuf;
   long long s;
 
-  if (Len < 16) {
-    BINARY_INSERTION_SORT(arr, Len);
+  if (Len <= SMALL_SORT_BND) {
+    SMALL_SORT(arr, Len);
     return;
   }
 
@@ -2442,7 +2451,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
                          && lb <= LExtBuf ? extbuf : NULL);
   }
 
-  BINARY_INSERTION_SORT(arr, ptr);
+  SMALL_SORT(arr, ptr);
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
