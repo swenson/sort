@@ -15,16 +15,16 @@ test: stresstest benchmark
 clean:
 	rm -f demo multidemo stresstest benchmark
 
-demo: demo.c sort.h bitonic_sort.h
+demo: demo.c sort.h
 	$(CC) $(CFLAGS) demo.c -o demo
 
-multidemo: multidemo.c sort.h bitonic_sort.h
+multidemo: multidemo.c sort.h
 	$(CC) $(CFLAGS) multidemo.c -o multidemo
 
-stresstest: stresstest.c sort.h bitonic_sort.h
+stresstest: stresstest.c sort.h
 	$(CC) $(CFLAGS) stresstest.c -o stresstest
 
-benchmark: benchmark.c sort.h bitonic_sort.h
+benchmark: benchmark.c sort.h
 	$(CC) $(CFLAGS) benchmark.c -o benchmark
 
 format:
