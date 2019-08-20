@@ -8,7 +8,10 @@
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
+#define MAX(x,y) (((x) > (y) ? (x) : (y)))
+#define MIN(x,y) (((x) < (y) ? (x) : (y)))
 #define SORT_CMP(x, y) ((x) - (y))
+#define SORT_CSWAP(x, y) {SORT_TYPE _sort_swap_temp = MAX((x), (y)); (x) = MIN((x),(y)); (y) = _sort_swap_temp;}
 #include "sort.h"
 
 /* Used to control the stress test */
@@ -136,6 +139,7 @@ int main(void) {
   TEST_STDLIB(mergesort);
 #endif
   TEST_SORT_H(binary_insertion_sort);
+  TEST_SORT_H(bitonic_sort);
   TEST_SORT_H(quick_sort);
   TEST_SORT_H(merge_sort);
   TEST_SORT_H(heap_sort);

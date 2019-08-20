@@ -31,7 +31,6 @@
 #define SORT_SWAP(x,y) {SORT_TYPE _sort_swap_temp = (x); (x) = (y); (y) = _sort_swap_temp;}
 #endif
 
-
 /* Common, type-agnostic functions and constants that we don't want to declare twice. */
 #ifndef SORT_COMMON_H
 #define SORT_COMMON_H
@@ -136,6 +135,15 @@ static __inline size_t rbnd(size_t len) {
 #define SORT_MAKE_STR1(x, y) SORT_CONCAT(x,y)
 #define SORT_MAKE_STR(x) SORT_MAKE_STR1(SORT_NAME,x)
 
+#ifndef SMALL_SORT_BND
+#define SMALL_SORT_BND 16
+#endif
+#ifndef SMALL_SORT
+#define SMALL_SORT BITONIC_SORT
+/*#define SMALL_SORT BINARY_INSERTION_SORT*/
+#endif
+
+#define BITONIC_SORT                   SORT_MAKE_STR(bitonic_sort)
 #define BINARY_INSERTION_FIND          SORT_MAKE_STR(binary_insertion_find)
 #define BINARY_INSERTION_SORT_START    SORT_MAKE_STR(binary_insertion_sort_start)
 #define BINARY_INSERTION_SORT          SORT_MAKE_STR(binary_insertion_sort)
@@ -211,6 +219,9 @@ static __inline size_t rbnd(size_t len) {
 #ifndef MIN
 #define MIN(x,y) (((x) < (y) ? (x) : (y)))
 #endif
+#ifndef SORT_CSWAP
+#define SORT_CSWAP(x, y) { if(SORT_CMP((x),(y)) > 0) {SORT_SWAP((x),(y));}}
+#endif
 
 typedef struct {
   size_t start;
@@ -227,6 +238,563 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
 void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
 void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
+void BITONIC_SORT(SORT_TYPE *dst, const size_t size);
+
+/* The full implementation of a bitonic sort is not here. Since we only want to use
+   sorting networks for small length lists we create optimal sorting networks for
+   lists of length <= 16 and call out to BINARY_INSERTION_SORT for anything larger
+   than 16.
+   Optimal sorting networks for small length lists.
+   Taken from https://pages.ripco.net/~jgamble/nw.html */
+#define BITONIC_SORT_2          SORT_MAKE_STR(bitonic_sort_2)
+static __inline void BITONIC_SORT_2(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+}
+
+
+#define BITONIC_SORT_3          SORT_MAKE_STR(bitonic_sort_3)
+static __inline void BITONIC_SORT_3(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[0], dst[1]);
+}
+
+
+#define BITONIC_SORT_4          SORT_MAKE_STR(bitonic_sort_4)
+static __inline void BITONIC_SORT_4(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[1], dst[2]);
+}
+
+
+#define BITONIC_SORT_5          SORT_MAKE_STR(bitonic_sort_5)
+static __inline void BITONIC_SORT_5(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[1], dst[2]);
+}
+
+
+#define BITONIC_SORT_6          SORT_MAKE_STR(bitonic_sort_6)
+static __inline void BITONIC_SORT_6(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[2], dst[3]);
+}
+
+
+#define BITONIC_SORT_7          SORT_MAKE_STR(bitonic_sort_7)
+static __inline void BITONIC_SORT_7(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[2], dst[3]);
+}
+
+
+#define BITONIC_SORT_8          SORT_MAKE_STR(bitonic_sort_8)
+static __inline void BITONIC_SORT_8(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[3], dst[6]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[3], dst[4]);
+}
+
+
+#define BITONIC_SORT_9          SORT_MAKE_STR(bitonic_sort_9)
+static __inline void BITONIC_SORT_9(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[5], dst[8]);
+  SORT_CSWAP(dst[3], dst[6]);
+  SORT_CSWAP(dst[4], dst[7]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[2], dst[3]);
+}
+
+
+#define BITONIC_SORT_10          SORT_MAKE_STR(bitonic_sort_10)
+static __inline void BITONIC_SORT_10(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[4], dst[9]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[2], dst[7]);
+  SORT_CSWAP(dst[1], dst[6]);
+  SORT_CSWAP(dst[0], dst[5]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[6], dst[9]);
+  SORT_CSWAP(dst[0], dst[3]);
+  SORT_CSWAP(dst[5], dst[8]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[3], dst[6]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[4], dst[7]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[4], dst[5]);
+}
+
+
+#define BITONIC_SORT_11          SORT_MAKE_STR(bitonic_sort_11)
+static __inline void BITONIC_SORT_11(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[6], dst[10]);
+  SORT_CSWAP(dst[4], dst[8]);
+  SORT_CSWAP(dst[5], dst[9]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[6], dst[10]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[7], dst[10]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[7], dst[8]);
+}
+
+
+#define BITONIC_SORT_12          SORT_MAKE_STR(bitonic_sort_12)
+static __inline void BITONIC_SORT_12(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[7], dst[11]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[6], dst[10]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[4], dst[8]);
+  SORT_CSWAP(dst[5], dst[9]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[7], dst[11]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[6], dst[10]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[7], dst[10]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[7], dst[8]);
+}
+
+
+#define BITONIC_SORT_13          SORT_MAKE_STR(bitonic_sort_13)
+static __inline void BITONIC_SORT_13(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[1], dst[7]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[8]);
+  SORT_CSWAP(dst[0], dst[12]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[11]);
+  SORT_CSWAP(dst[7], dst[12]);
+  SORT_CSWAP(dst[5], dst[9]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[6], dst[12]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[11], dst[12]);
+  SORT_CSWAP(dst[4], dst[9]);
+  SORT_CSWAP(dst[6], dst[10]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[1], dst[7]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[4], dst[7]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[0], dst[5]);
+  SORT_CSWAP(dst[2], dst[5]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+}
+
+
+#define BITONIC_SORT_14          SORT_MAKE_STR(bitonic_sort_14)
+static __inline void BITONIC_SORT_14(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[12], dst[13]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[8], dst[12]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[9], dst[13]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[0], dst[8]);
+  SORT_CSWAP(dst[1], dst[9]);
+  SORT_CSWAP(dst[2], dst[10]);
+  SORT_CSWAP(dst[3], dst[11]);
+  SORT_CSWAP(dst[4], dst[12]);
+  SORT_CSWAP(dst[5], dst[13]);
+  SORT_CSWAP(dst[5], dst[10]);
+  SORT_CSWAP(dst[6], dst[9]);
+  SORT_CSWAP(dst[3], dst[12]);
+  SORT_CSWAP(dst[7], dst[11]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[8]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[7], dst[13]);
+  SORT_CSWAP(dst[2], dst[8]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[11], dst[13]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[7], dst[12]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[10], dst[12]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[11], dst[12]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+}
+
+
+#define BITONIC_SORT_15          SORT_MAKE_STR(bitonic_sort_15)
+static __inline void BITONIC_SORT_15(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[12], dst[13]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[12], dst[14]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[8], dst[12]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[9], dst[13]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[10], dst[14]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[0], dst[8]);
+  SORT_CSWAP(dst[1], dst[9]);
+  SORT_CSWAP(dst[2], dst[10]);
+  SORT_CSWAP(dst[3], dst[11]);
+  SORT_CSWAP(dst[4], dst[12]);
+  SORT_CSWAP(dst[5], dst[13]);
+  SORT_CSWAP(dst[6], dst[14]);
+  SORT_CSWAP(dst[5], dst[10]);
+  SORT_CSWAP(dst[6], dst[9]);
+  SORT_CSWAP(dst[3], dst[12]);
+  SORT_CSWAP(dst[13], dst[14]);
+  SORT_CSWAP(dst[7], dst[11]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[8]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[7], dst[13]);
+  SORT_CSWAP(dst[2], dst[8]);
+  SORT_CSWAP(dst[11], dst[14]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[11], dst[13]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[7], dst[12]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[10], dst[12]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[11], dst[12]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+}
+
+
+#define BITONIC_SORT_16          SORT_MAKE_STR(bitonic_sort_16)
+static __inline void BITONIC_SORT_16(SORT_TYPE *dst) {
+  SORT_CSWAP(dst[0], dst[1]);
+  SORT_CSWAP(dst[2], dst[3]);
+  SORT_CSWAP(dst[4], dst[5]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+  SORT_CSWAP(dst[10], dst[11]);
+  SORT_CSWAP(dst[12], dst[13]);
+  SORT_CSWAP(dst[14], dst[15]);
+  SORT_CSWAP(dst[0], dst[2]);
+  SORT_CSWAP(dst[4], dst[6]);
+  SORT_CSWAP(dst[8], dst[10]);
+  SORT_CSWAP(dst[12], dst[14]);
+  SORT_CSWAP(dst[1], dst[3]);
+  SORT_CSWAP(dst[5], dst[7]);
+  SORT_CSWAP(dst[9], dst[11]);
+  SORT_CSWAP(dst[13], dst[15]);
+  SORT_CSWAP(dst[0], dst[4]);
+  SORT_CSWAP(dst[8], dst[12]);
+  SORT_CSWAP(dst[1], dst[5]);
+  SORT_CSWAP(dst[9], dst[13]);
+  SORT_CSWAP(dst[2], dst[6]);
+  SORT_CSWAP(dst[10], dst[14]);
+  SORT_CSWAP(dst[3], dst[7]);
+  SORT_CSWAP(dst[11], dst[15]);
+  SORT_CSWAP(dst[0], dst[8]);
+  SORT_CSWAP(dst[1], dst[9]);
+  SORT_CSWAP(dst[2], dst[10]);
+  SORT_CSWAP(dst[3], dst[11]);
+  SORT_CSWAP(dst[4], dst[12]);
+  SORT_CSWAP(dst[5], dst[13]);
+  SORT_CSWAP(dst[6], dst[14]);
+  SORT_CSWAP(dst[7], dst[15]);
+  SORT_CSWAP(dst[5], dst[10]);
+  SORT_CSWAP(dst[6], dst[9]);
+  SORT_CSWAP(dst[3], dst[12]);
+  SORT_CSWAP(dst[13], dst[14]);
+  SORT_CSWAP(dst[7], dst[11]);
+  SORT_CSWAP(dst[1], dst[2]);
+  SORT_CSWAP(dst[4], dst[8]);
+  SORT_CSWAP(dst[1], dst[4]);
+  SORT_CSWAP(dst[7], dst[13]);
+  SORT_CSWAP(dst[2], dst[8]);
+  SORT_CSWAP(dst[11], dst[14]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[2], dst[4]);
+  SORT_CSWAP(dst[11], dst[13]);
+  SORT_CSWAP(dst[3], dst[8]);
+  SORT_CSWAP(dst[7], dst[12]);
+  SORT_CSWAP(dst[6], dst[8]);
+  SORT_CSWAP(dst[10], dst[12]);
+  SORT_CSWAP(dst[3], dst[5]);
+  SORT_CSWAP(dst[7], dst[9]);
+  SORT_CSWAP(dst[3], dst[4]);
+  SORT_CSWAP(dst[5], dst[6]);
+  SORT_CSWAP(dst[7], dst[8]);
+  SORT_CSWAP(dst[9], dst[10]);
+  SORT_CSWAP(dst[11], dst[12]);
+  SORT_CSWAP(dst[6], dst[7]);
+  SORT_CSWAP(dst[8], dst[9]);
+}
+
+void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
+  switch (size) {
+  case 0:
+  case 1:
+    break;
+
+  case 2:
+    BITONIC_SORT_2(dst);
+    break;
+
+  case 3:
+    BITONIC_SORT_3(dst);
+    break;
+
+  case 4:
+    BITONIC_SORT_4(dst);
+    break;
+
+  case 5:
+    BITONIC_SORT_5(dst);
+    break;
+
+  case 6:
+    BITONIC_SORT_6(dst);
+    break;
+
+  case 7:
+    BITONIC_SORT_7(dst);
+    break;
+
+  case 8:
+    BITONIC_SORT_8(dst);
+    break;
+
+  case 9:
+    BITONIC_SORT_9(dst);
+    break;
+
+  case 10:
+    BITONIC_SORT_10(dst);
+    break;
+
+  case 11:
+    BITONIC_SORT_11(dst);
+    break;
+
+  case 12:
+    BITONIC_SORT_12(dst);
+    break;
+
+  case 13:
+    BITONIC_SORT_13(dst);
+    break;
+
+  case 14:
+    BITONIC_SORT_14(dst);
+    break;
+
+  case 15:
+    BITONIC_SORT_15(dst);
+    break;
+
+  case 16:
+    BITONIC_SORT_16(dst);
+    break;
+
+  default:
+    BINARY_INSERTION_SORT(dst, size);
+  }
+}
 
 
 /* Shell sort implementation based on Wikipedia article
@@ -501,8 +1069,8 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
     return;
   }
 
-  if (len < 16) {
-    BINARY_INSERTION_SORT(dst, len);
+  if (len <= SMALL_SORT_BND) {
+    SMALL_SORT(dst, len);
     return;
   }
 
@@ -596,8 +1164,8 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  if (size < 16) {
-    BINARY_INSERTION_SORT(dst, size);
+  if (size <= SMALL_SORT_BND) {
+    SMALL_SORT(dst, size);
     return;
   }
 
@@ -714,8 +1282,8 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t left, const size_t
     return;
   }
 
-  if ((right - left + 1U) < 16U) {
-    BINARY_INSERTION_SORT(&dst[left], right - left + 1U);
+  if ((right - left + 1U) <= SMALL_SORT_BND) {
+    SMALL_SORT(&dst[left], right - left + 1U);
     return;
   }
 
@@ -1298,7 +1866,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   if (size < 64) {
-    BINARY_INSERTION_SORT(dst, size);
+    SMALL_SORT(dst, size);
     return;
   }
 
@@ -2316,7 +2884,7 @@ static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int L
 
     arr1 = arr + b * 2 * LL;
     NBlk = (b == M ? lrest : 2 * LL) / lblock;
-    BINARY_INSERTION_SORT(keys, NBlk + (b == M ? 1 : 0));
+    SMALL_SORT(keys, NBlk + (b == M ? 1 : 0));
     midkey = LL / lblock;
 
     for (u = 1; u < NBlk; u++) {
@@ -2376,8 +2944,8 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   int havebuf, chavebuf;
   long long s;
 
-  if (Len < 16) {
-    BINARY_INSERTION_SORT(arr, Len);
+  if (Len <= SMALL_SORT_BND) {
+    SMALL_SORT(arr, Len);
     return;
   }
 
@@ -2442,7 +3010,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
                          && lb <= LExtBuf ? extbuf : NULL);
   }
 
-  BINARY_INSERTION_SORT(arr, ptr);
+  SMALL_SORT(arr, ptr);
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 

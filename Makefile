@@ -2,7 +2,7 @@
 # Copyright (c) 2012 Google Inc. All Rights Reserved.
 
 CC ?= gcc
-CFLAGS ?= -O3 -g -Wall -std=c89 -pedantic -Wno-long-long
+CFLAGS ?= -O3 -g -Wall -std=c89 -pedantic -Wno-long-long -Wno-format
 
 default: demo stresstest multidemo test
 
@@ -28,4 +28,4 @@ benchmark: benchmark.c sort.h
 	$(CC) $(CFLAGS) benchmark.c -o benchmark
 
 format:
-	astyle --options=astyle.options sort.h demo.c multidemo.c stresstest.c benchmark.c
+	astyle --options=astyle.options sort.h bitonic_sort.h demo.c multidemo.c stresstest.c benchmark.c
