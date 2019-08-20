@@ -9,3 +9,4 @@ List of contributors, in alphabetical order:
  - Haneef Mubarak
  - Vojtech Fried
  - Matthieu Darbois
+ - [@DrMarkS](https://github.com/DrMarkS)
