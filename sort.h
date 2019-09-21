@@ -1226,6 +1226,38 @@ static __inline size_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const size_t left,
   return index;
 }
 
+/* Based on Knuth vol. 3
+static __inline size_t QUICK_SORT_HOARE_PARTITION(SORT_TYPE *dst, const size_t l,
+    const size_t r, const size_t pivot) {
+  SORT_TYPE value;
+  size_t i = l + 1;
+  size_t j = r;
+
+  if (pivot != l) {
+    SORT_SWAP(dst[pivot], dst[l]);
+  }
+  value = dst[l];
+
+  while (1) {
+    while (SORT_CMP(dst[i], value) < 0) {
+      i++;
+    }
+    while (SORT_CMP(value, dst[j]) < 0) {
+      j--;
+    }
+    if (j <= i) {
+      SORT_SWAP(dst[l], dst[j]);
+      return j;
+    }
+    SORT_SWAP(dst[i], dst[j]);
+    i++;
+    j--;
+  }
+  return 0;
+}
+*/
+
+
 /* Return the median index of the objects at the three indices. */
 static __inline size_t MEDIAN(const SORT_TYPE *dst, const size_t a, const size_t b,
                               const size_t c) {
@@ -1278,10 +1310,13 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t original_left,
   size_t right;
   size_t pivot;
   size_t new_pivot;
+  size_t middle;
+  int loop_count = 0;
+  const int max_loops = 64 - CLZ(original_right - original_left); /* ~lg N */
   left = original_left;
   right = original_right;
 
-  do {
+  while (1) {
     if (right <= left) {
       return;
     }
@@ -1291,9 +1326,17 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t original_left,
       return;
     }
 
-    pivot = left + ((right - left) >> 1);
-    /* this seems to perform worse by a small amount... ? */
-    pivot = MEDIAN(dst, left, pivot, right);
+    if (++loop_count >= max_loops) {
+      /* we have recursed / looped too many times; switch to heap sort */
+      HEAP_SORT(&dst[left], right - left + 1U);
+      return;
+    }
+
+    /* median of 5 */
+    middle = left + ((right - left) >> 1);
+    pivot = MEDIAN((const SORT_TYPE *) dst, left, middle, right);
+    pivot = MEDIAN((const SORT_TYPE *) dst, left + ((middle - left) >> 1), pivot,
+                   middle + ((right - middle) >> 1));
     new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
 
     /* check for partition all equal */
@@ -1314,7 +1357,7 @@ static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t original_left,
       /* tail call for right */
       left = new_pivot + 1U;
     }
-  } while (1);
+  }
 }
 
 void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
