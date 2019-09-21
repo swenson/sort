@@ -129,14 +129,11 @@ static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt) {
 }
 
 static void fill_evil(int64_t *dst, const int size) {
-  FILE *f = fopen("evil.txt", "r");
-  int i = 0;
+  int i;
 
-  while (!feof(f) && i < size) {
-    fscanf(f, "%lld\n", &dst[i++]);
+  for (i = 0; i < size; i++) {
+    dst[i] = i ^ 1;
   }
-
-  fclose(f);
 }
 
 static void fill(int64_t *dst, const int size, int type) {

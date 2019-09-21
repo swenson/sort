@@ -1196,8 +1196,6 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
 }
 
 
-/* Quick sort: based on wikipedia */
-
 static __inline size_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const size_t left,
     const size_t right, const size_t pivot) {
   SORT_TYPE value = dst[pivot];
