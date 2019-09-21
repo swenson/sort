@@ -16,7 +16,7 @@
 
 /* Used to control the stress test */
 #define SEED 123
-#define MAXSIZE 1600
+#define MAXSIZE 45000
 #define TESTS 1000
 
 #define RAND_RANGE(__n, __min, __max) \
@@ -31,6 +31,7 @@ enum {
   FILL_SORTED_10000,
   FILL_SWAPPED_N2,
   FILL_SWAPPED_N8,
+  FILL_EVIL,
   FILL_LAST_ELEMENT
 };
 
@@ -42,7 +43,8 @@ char *test_names[FILL_LAST_ELEMENT] = {
   "sorted blocks of length 100",
   "sorted blocks of length 10000",
   "swapped size/2 pairs",
-  "swapped size/8 pairs"
+  "swapped size/8 pairs",
+  "known evil data"
 };
 
 /* used for stdlib */
@@ -126,6 +128,17 @@ static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt) {
   dst[ind2] = tmp;
 }
 
+static void fill_evil(int64_t *dst, const int size) {
+  FILE *f = fopen("evil.txt", "r");
+  int i = 0;
+
+  while (!feof(f) && i < size) {
+    fscanf(f, "%lld\n", &dst[i++]);
+  }
+
+  fclose(f);
+}
+
 static void fill(int64_t *dst, const int size, int type) {
   switch (type) {
   case FILL_SORTED:
@@ -154,6 +167,10 @@ static void fill(int64_t *dst, const int size, int type) {
 
   case FILL_SAME:
     fill_same(dst, size);
+    break;
+
+  case FILL_EVIL:
+    fill_evil(dst, size);
     break;
 
   case FILL_RANDOM:
@@ -350,6 +367,8 @@ int main(void) {
   for (i = 0; i < TESTS; i++) {
     RAND_RANGE(sizes[i], 0, MAXSIZE);
   }
+
+  sizes[TESTS - 1] = 45000;
 
   for (i = 0; i < FILL_LAST_ELEMENT; i++) {
     int result = run_tests(sizes, TESTS, i);
