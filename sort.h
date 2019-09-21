@@ -1089,7 +1089,7 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
     q = 2;
 
     while ((p & q) == 0) {
-      if (SORT_CMP(dst1[1 - q], dst1[-q]) < 0) {
+      if (SORT_CMP(dst1[1 - q], dst1[-(int) q]) < 0) {
         break;
       }
 
@@ -1196,8 +1196,6 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
 }
 
 
-/* Quick sort: based on wikipedia */
-
 static __inline size_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const size_t left,
     const size_t right, const size_t pivot) {
   SORT_TYPE value = dst[pivot];
@@ -1227,6 +1225,38 @@ static __inline size_t QUICK_SORT_PARTITION(SORT_TYPE *dst, const size_t left,
 
   return index;
 }
+
+/* Based on Knuth vol. 3
+static __inline size_t QUICK_SORT_HOARE_PARTITION(SORT_TYPE *dst, const size_t l,
+    const size_t r, const size_t pivot) {
+  SORT_TYPE value;
+  size_t i = l + 1;
+  size_t j = r;
+
+  if (pivot != l) {
+    SORT_SWAP(dst[pivot], dst[l]);
+  }
+  value = dst[l];
+
+  while (1) {
+    while (SORT_CMP(dst[i], value) < 0) {
+      i++;
+    }
+    while (SORT_CMP(value, dst[j]) < 0) {
+      j--;
+    }
+    if (j <= i) {
+      SORT_SWAP(dst[l], dst[j]);
+      return j;
+    }
+    SORT_SWAP(dst[i], dst[j]);
+    i++;
+    j--;
+  }
+  return 0;
+}
+*/
+
 
 /* Return the median index of the objects at the three indices. */
 static __inline size_t MEDIAN(const SORT_TYPE *dst, const size_t a, const size_t b,
@@ -1274,31 +1304,60 @@ static __inline size_t MEDIAN(const SORT_TYPE *dst, const size_t a, const size_t
   }
 }
 
-static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t left, const size_t right) {
+static void QUICK_SORT_RECURSIVE(SORT_TYPE *dst, const size_t original_left,
+                                 const size_t original_right) {
+  size_t left;
+  size_t right;
   size_t pivot;
   size_t new_pivot;
+  size_t middle;
+  int loop_count = 0;
+  const int max_loops = 64 - CLZ(original_right - original_left); /* ~lg N */
+  left = original_left;
+  right = original_right;
 
-  if (right <= left) {
-    return;
+  while (1) {
+    if (right <= left) {
+      return;
+    }
+
+    if ((right - left + 1U) <= SMALL_SORT_BND) {
+      SMALL_SORT(&dst[left], right - left + 1U);
+      return;
+    }
+
+    if (++loop_count >= max_loops) {
+      /* we have recursed / looped too many times; switch to heap sort */
+      HEAP_SORT(&dst[left], right - left + 1U);
+      return;
+    }
+
+    /* median of 5 */
+    middle = left + ((right - left) >> 1);
+    pivot = MEDIAN((const SORT_TYPE *) dst, left, middle, right);
+    pivot = MEDIAN((const SORT_TYPE *) dst, left + ((middle - left) >> 1), pivot,
+                   middle + ((right - middle) >> 1));
+    new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
+
+    /* check for partition all equal */
+    if (new_pivot == SIZE_MAX) {
+      return;
+    }
+
+    /* recurse only on the small part to avoid degenerate stack sizes */
+    /* and manually do tail call on the large part */
+    if (new_pivot - 1U - left > right - new_pivot - 1U) {
+      /* left is bigger than right */
+      QUICK_SORT_RECURSIVE(dst, new_pivot + 1U, right);
+      /* tail call for left */
+      right = new_pivot - 1U;
+    } else {
+      /* right is bigger than left */
+      QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1U);
+      /* tail call for right */
+      left = new_pivot + 1U;
+    }
   }
-
-  if ((right - left + 1U) <= SMALL_SORT_BND) {
-    SMALL_SORT(&dst[left], right - left + 1U);
-    return;
-  }
-
-  pivot = left + ((right - left) >> 1);
-  /* this seems to perform worse by a small amount... ? */
-  /* pivot = MEDIAN(dst, left, pivot, right); */
-  new_pivot = QUICK_SORT_PARTITION(dst, left, right, pivot);
-
-  /* check for partition all equal */
-  if (new_pivot == SIZE_MAX) {
-    return;
-  }
-
-  QUICK_SORT_RECURSIVE(dst, left, new_pivot - 1U);
-  QUICK_SORT_RECURSIVE(dst, new_pivot + 1U, right);
 }
 
 void QUICK_SORT(SORT_TYPE *dst, const size_t size) {
