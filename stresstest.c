@@ -121,11 +121,10 @@ static void fill_swapped(int64_t *dst, const int size, const int swapped_cnt) {
     RAND_RANGE(ind1, 0, size);
     ind2 = lrand48();
     RAND_RANGE(ind2, 0, size);
+    tmp = dst[ind1];
+    dst[ind1] = dst[ind2];
+    dst[ind2] = tmp;
   }
-
-  tmp = dst[ind1];
-  dst[ind1] = dst[ind2];
-  dst[ind2] = tmp;
 }
 
 static void fill_evil(int64_t *dst, const int size) {
