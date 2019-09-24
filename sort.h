@@ -161,6 +161,7 @@ static __inline size_t rbnd(size_t len) {
 #define MEDIAN                         SORT_MAKE_STR(median)
 #define QUICK_SORT                     SORT_MAKE_STR(quick_sort)
 #define MERGE_SORT                     SORT_MAKE_STR(merge_sort)
+#define MERGE_SORT_RECURSIVE           SORT_MAKE_STR(merge_sort_recursive)
 #define MERGE_SORT_IN_PLACE            SORT_MAKE_STR(merge_sort_in_place)
 #define MERGE_SORT_IN_PLACE_RMERGE     SORT_MAKE_STR(merge_sort_in_place_rmerge)
 #define MERGE_SORT_IN_PLACE_BACKMERGE  SORT_MAKE_STR(merge_sort_in_place_backmerge)
@@ -1152,8 +1153,7 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 }
 
 /* Standard merge sort */
-void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
-  SORT_TYPE *newdst;
+void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) {
   const size_t middle = size / 2;
   size_t out = 0;
   size_t i = 0;
@@ -1165,13 +1165,12 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   if (size <= SMALL_SORT_BND) {
-    SMALL_SORT(dst, size);
+    BINARY_INSERTION_SORT(dst, size);
     return;
   }
 
-  MERGE_SORT(dst, middle);
-  MERGE_SORT(&dst[middle], size - middle);
-  newdst = (SORT_TYPE *) malloc(size * sizeof(SORT_TYPE));
+  MERGE_SORT_RECURSIVE(newdst, dst, middle);
+  MERGE_SORT_RECURSIVE(newdst, &dst[middle], size - middle);
 
   while (out != size) {
     if (i < middle) {
@@ -1192,6 +1191,24 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   memcpy(dst, newdst, size * sizeof(SORT_TYPE));
+}
+
+/* Standard merge sort */
+void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
+  SORT_TYPE *newdst;
+
+  /* don't bother sorting an array of size <= 1 */
+  if (size <= 1) {
+    return;
+  }
+
+  if (size <= SMALL_SORT_BND) {
+    BINARY_INSERTION_SORT(dst, size);
+    return;
+  }
+
+  newdst = (SORT_TYPE *) malloc(size * sizeof(SORT_TYPE));
+  MERGE_SORT_RECURSIVE(newdst, dst, size);
   free(newdst);
 }
 
