@@ -99,7 +99,9 @@ void platform_name(char *output) {
       } \
     } \
     free(dst); \
-    printf("Benchmark%s%lld_%s\t%d\t%.1f ns/op\n", capital_word, size, platform, iter, diff * 1000.0 / (double) iter); \
+    char name_buf[128]; \
+    sprintf(name_buf, "%s %lld %s", capital_word, size, platform); \
+    printf("%-40s %4d %16.1f ns/op\n", name_buf, iter, diff * 1000.0 / (double) iter); \
   } \
 } while (0)
 
@@ -122,7 +124,9 @@ void platform_name(char *output) {
       } \
     } \
     free(dst); \
-    printf("Benchmark%s%lld_%s\t%d\t%.1f ns/op\n", capital_word, size, platform, iter, diff * 1000.0 / (double) iter); \
+    char name_buf[128]; \
+    sprintf(name_buf, "%s %lld %s", capital_word, size, platform); \
+    printf("%-40s %4d %16.1f ns/op\n", name_buf, iter, diff * 1000.0 / (double) iter); \
   } \
 } while (0)
 
