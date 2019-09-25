@@ -1,12 +1,12 @@
 List of contributors, in alphabetical order:
 
-
- - Andrey Astrelin
  - Antony Dovgal
+ - Andrey Astrelin
+ - @[Baobaobear](https://github.com/Baobaobear)
  - Christopher Swenson
  - [@drfie](https://github.com/drfie)
+ - [@DrMarkS](https://github.com/DrMarkS)
  - Google Inc.
  - Haneef Mubarak
- - Vojtech Fried
  - Matthieu Darbois
- - [@DrMarkS](https://github.com/DrMarkS)
+ - Vojtech Fried

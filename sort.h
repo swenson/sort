@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2017 Christopher Swenson. */
+/* Copyright (c) 2010-2019 Christopher Swenson. */
 /* Copyright (c) 2012 Vojtech Fried. */
 /* Copyright (c) 2012 Google Inc. All Rights Reserved. */
 
