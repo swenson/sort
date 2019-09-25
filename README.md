@@ -78,10 +78,10 @@ If you are going to use your own custom type, you must redefine
 a value less than zero if `x < y`, equal to zero if `x == y`, and
 greater than 0 if `x > y`.
 
-The default just uses the builtin `<`, `==`, and `>` operators:
+The default just uses the builtin `<` operators:
 
 ```c
-#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((y) < (x) ? 1 : 0))
 ```
 
 It is often just fine to just subtract the arguments as well (though
