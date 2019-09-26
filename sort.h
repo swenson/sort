@@ -16,7 +16,7 @@
 #endif
 
 #ifndef SORT_CMP
-#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((x) == (y) ? 0 : 1))
+#define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((y) < (x) ? 1 : 0))
 #endif
 
 #ifndef TIM_SORT_STACK_SIZE
