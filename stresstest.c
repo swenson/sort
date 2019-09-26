@@ -182,7 +182,6 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "stdlib " #name ); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     name (dst, size, sizeof(int64_t), simple_cmp); \
@@ -204,7 +203,6 @@ static void fill(int64_t *dst, const int size, int type) {
   printf("%-29s", "sort.h " #name); \
   for (test = 0; test < sizes_cnt; test++) { \
     int64_t size = sizes[test]; \
-    int64_t dst[MAXSIZE]; \
     fill(dst, size, type); \
     usec1 = utime(); \
     sorter_ ## name (dst, size); \
@@ -222,6 +220,7 @@ static void fill(int64_t *dst, const int size, int type) {
 int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   int test, res;
   double usec1, usec2, diff;
+  int64_t * dst = (int64_t *)malloc(MAXSIZE * sizeof(int64_t));
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
   TEST_STDLIB(qsort);
 #if !defined(__linux__) && !defined(__CYGWIN__)
@@ -246,6 +245,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   TEST_SORT_H(sqrt_sort);
   TEST_SORT_H(rec_stable_sort);
   TEST_SORT_H(grail_sort_dyn_buffer);
+  free(dst);
   return 0;
 }
 
@@ -361,10 +361,10 @@ int main(void) {
   fill_random(sizes, TESTS);
 
   for (i = 0; i < TESTS; i++) {
-    RAND_RANGE(sizes[i], 0, MAXSIZE);
+    RAND_RANGE(sizes[i], 1, MAXSIZE);
   }
 
-  sizes[TESTS - 1] = 45000;
+  sizes[TESTS - 1] = MAXSIZE;
 
   for (i = 0; i < FILL_LAST_ELEMENT; i++) {
     int result = run_tests(sizes, TESTS, i);
