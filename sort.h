@@ -814,6 +814,7 @@ void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
 
 void SORT_TYPE_CPY(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
   size_t i = 0;
+
   for (; i < size; ++i) {
     dst[i] = src[i];
   }
@@ -821,12 +822,14 @@ void SORT_TYPE_CPY(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
 
 void SORT_TYPE_MOVE(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
   size_t i;
+
   if (dst < src) {
     SORT_TYPE_CPY(dst, src, size);
   } else if (dst != src && size > 0) {
     for (i = size - 1; i > 0; --i) {
       dst[i] = src[i];
     }
+
     *dst = *src;
   }
 }
@@ -840,21 +843,19 @@ void SORT_TYPE_MOVE(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
 
 #endif
 
-SORT_TYPE* SORT_NEW_BUFFER(size_t size)
-{
+SORT_TYPE* SORT_NEW_BUFFER(size_t size) {
 #if SORT_SAFE_CPY
-    return new SORT_TYPE[size];
+  return new SORT_TYPE[size];
 #else
-    return (SORT_TYPE*)malloc(size * sizeof(SORT_TYPE));
+  return (SORT_TYPE*)malloc(size * sizeof(SORT_TYPE));
 #endif
 }
 
-void SORT_DELETE_BUFFER(SORT_TYPE* pointer)
-{
+void SORT_DELETE_BUFFER(SORT_TYPE* pointer) {
 #if SORT_SAFE_CPY
-    delete[] pointer;
+  delete[] pointer;
 #else
-    free(pointer);
+  free(pointer);
 #endif
 }
 
@@ -3070,8 +3071,10 @@ static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int L
     }
 
     SORT_TYPE_CPY(arr - lblock, xbuf, lblock);
-  } else if (havebuf) while (--len >= 0) {
-    GRAIL_SWAP1(arr + len, arr + len - lblock);
+  } else if (havebuf) {
+    while (--len >= 0) {
+      GRAIL_SWAP1(arr + len, arr + len - lblock);
+    }
   }
 }
 
