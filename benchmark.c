@@ -99,7 +99,6 @@ void platform_name(char *output) {
       } \
     } \
     free(dst); \
-    char name_buf[128]; \
     sprintf(name_buf, "%s %lld %s", capital_word, size, platform); \
     printf("%-40s %4d %16.1f ns/op\n", name_buf, iter, diff * 1000.0 / (double) iter); \
   } \
@@ -124,7 +123,6 @@ void platform_name(char *output) {
       } \
     } \
     free(dst); \
-    char name_buf[128]; \
     sprintf(name_buf, "%s %lld %s", capital_word, size, platform); \
     printf("%-40s %4d %16.1f ns/op\n", name_buf, iter, diff * 1000.0 / (double) iter); \
   } \
@@ -136,6 +134,7 @@ int main(void) {
   double usec1, usec2, diff;
   char capital_word[128];
   char platform[128];
+  char name_buf[128];
   platform_name(platform);
   TEST_STDLIB(qsort);
 #if !defined(__linux__) && !defined(__CYGWIN__)
