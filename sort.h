@@ -240,6 +240,11 @@ void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
 void TIM_SORT(SORT_TYPE *dst, const size_t size);
 void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
 void BITONIC_SORT(SORT_TYPE *dst, const size_t size);
+void REC_STABLE_SORT(SORT_TYPE *dst, const size_t size);
+void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *dst, const size_t size);
+void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *dst, const size_t size);
+void GRAIL_SORT(SORT_TYPE *dst, const size_t size);
+void SQRT_SORT(SORT_TYPE *dst, const size_t size);
 
 /* The full implementation of a bitonic sort is not here. Since we only want to use
    sorting networks for small length lists we create optimal sorting networks for
@@ -2355,7 +2360,7 @@ static void SQRT_SORT_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, in
   SQRT_SORT_MERGE_DOWN(arr + lblock, extbuf, Len - lblock, lblock);
 }
 
-static void SQRT_SORT(SORT_TYPE *arr, size_t Len) {
+void SQRT_SORT(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
   int *Tags;
@@ -3090,16 +3095,16 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
-static void GRAIL_SORT(SORT_TYPE *arr, size_t Len) {
+void GRAIL_SORT(SORT_TYPE *arr, size_t Len) {
   GRAIL_COMMON_SORT(arr, Len, NULL, 0);
 }
 
-static void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, size_t Len) {
+void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, size_t Len) {
   SORT_TYPE ExtBuf[GRAIL_EXT_BUFFER_LENGTH];
   GRAIL_COMMON_SORT(arr, Len, ExtBuf, GRAIL_EXT_BUFFER_LENGTH);
 }
 
-static void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, size_t Len) {
+void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
 
@@ -3160,7 +3165,7 @@ static void GRAIL_REC_MERGE(SORT_TYPE *A, int L1, int L2) {
   GRAIL_REC_MERGE(A, k1, m1);
 }
 
-static void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
+void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
   int m, h, p0, p1, rest;
 
   for (m = 1; m < L; m += 2) {
