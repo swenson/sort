@@ -1239,22 +1239,23 @@ void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) 
   MERGE_SORT_RECURSIVE(newdst, dst, middle);
   MERGE_SORT_RECURSIVE(newdst, &dst[middle], size - middle);
 
-  while (out != size) {
-    if (i < middle) {
-      if (j < size) {
-        if (SORT_CMP(dst[i], dst[j]) <= 0) {
-          newdst[out] = dst[i++];
-        } else {
-          newdst[out] = dst[j++];
-        }
-      } else {
-        newdst[out] = dst[i++];
-      }
+  if (SORT_CMP(dst[middle - 1], dst[middle]) <= 0)
+  { return; }
+
+  for (; i < middle && j < size; ++out) {
+    if (SORT_CMP(dst[i], dst[j]) <= 0) {
+      newdst[out] = dst[i++];
     } else {
       newdst[out] = dst[j++];
     }
+  }
 
-    out++;
+  for (; i < middle; ++out) {
+    newdst[out] = dst[i++];
+  }
+
+  for (; j < size; ++out) {
+    newdst[out] = dst[j++];
   }
 
   SORT_TYPE_CPY(dst, newdst, size);
