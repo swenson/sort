@@ -1255,10 +1255,6 @@ void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) 
   for (; i < middle; ++out) {
     dst[out] = newdst[i++];
   }
-
-  for (; j < size; ++out) {
-    dst[out] = dst[j++];
-  }
 }
 
 /* Standard merge sort */
