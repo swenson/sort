@@ -134,7 +134,8 @@ int main(void) {
   double usec1, usec2, diff;
   char capital_word[128];
   char platform[128];
-  char name_buf[128]; \
+  char name_buf[128];
+  \
   platform_name(platform);
   TEST_STDLIB(qsort);
 #if !defined(__linux__) && !defined(__CYGWIN__)
