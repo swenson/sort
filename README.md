@@ -6,8 +6,8 @@ sort.h
 Overview
 --------
 
-`sort.h` is an implementation a ton of sorting algorithms in C with a
-user-defined type that is defined at include time.
+`sort.h` is an implementation of a ton of sorting algorithms in C with a
+user-defined type that is provided at include time.
 
 This means you don't have to pay the function call overhead of using
 a standard library routine. This also gives us the power of higher-level
@@ -18,14 +18,14 @@ the entirety of this sorting library is contained in the `sort.h` header file.
 
 You get the choice of many sorting routines, including:
 
-* Shellsort
-* Binary insertion sort
-* Heapsort
+* Timsort (stable)
 * Quicksort
 * Merge sort (stable)
 * In-place merge sort (*not* stable)
-* Selection sort (ugh -- this is really only here for comparison)
-* Timsort (stable)
+* Shellsort
+* Binary insertion sort
+* Heapsort
+* Selection sort (this is really only here for comparison)
 * Grail sort (stable)
   * Based on [`B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
   Constant Extra Space* (1989-1992)`](http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
