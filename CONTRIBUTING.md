@@ -45,7 +45,7 @@ such as inlining functions, using fast arithmetic, and avoiding pointers.
 
 ## __inline
 
-The proper, C89 way to do inlineing is to mark a function as `__inline` --
+The proper, C89 way to do inlining is to mark a function as `__inline` --
 this is useful for comparisons and other small functions that are used often.
 
 ## Make sure tests pass
