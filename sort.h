@@ -147,6 +147,9 @@ static __inline size_t rbnd(size_t len) {
 #define SMALL_SORT BITONIC_SORT
 /*#define SMALL_SORT BINARY_INSERTION_SORT*/
 #endif
+#ifndef SMALL_STABLE_SORT
+#define SMALL_STABLE_SORT BINARY_INSERTION_SORT
+#endif
 
 #define SORT_TYPE_CPY                  SORT_MAKE_STR(sort_type_cpy)
 #define SORT_TYPE_MOVE                 SORT_MAKE_STR(sort_type_move)
@@ -1225,7 +1228,7 @@ void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) 
   }
 
   if (size <= SMALL_SORT_BND) {
-    BINARY_INSERTION_SORT(dst, size);
+    SMALL_STABLE_SORT(dst, size);
     return;
   }
 
@@ -1263,7 +1266,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   if (size <= SMALL_SORT_BND) {
-    BINARY_INSERTION_SORT(dst, size);
+    SMALL_STABLE_SORT(dst, size);
     return;
   }
 
@@ -1734,7 +1737,7 @@ void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   }
 
   if (size < 64) {
-    SMALL_SORT(dst, size);
+    SMALL_STABLE_SORT(dst, size);
     return;
   }
 
@@ -2752,7 +2755,7 @@ static void GRAIL_COMBINE_BLOCKS(SORT_TYPE *keys, SORT_TYPE *arr, int len, int L
 
     arr1 = arr + b * 2 * LL;
     NBlk = (b == M ? lrest : 2 * LL) / lblock;
-    SMALL_SORT(keys, NBlk + (b == M ? 1 : 0));
+    SMALL_STABLE_SORT(keys, NBlk + (b == M ? 1 : 0));
     midkey = LL / lblock;
 
     for (u = 1; u < NBlk; u++) {
@@ -2815,7 +2818,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   long long s;
 
   if (Len <= SMALL_SORT_BND) {
-    SMALL_SORT(arr, Len);
+    SMALL_STABLE_SORT(arr, Len);
     return;
   }
 
@@ -2880,7 +2883,7 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
                          && lb <= LExtBuf ? extbuf : NULL);
   }
 
-  SMALL_SORT(arr, ptr);
+  SMALL_STABLE_SORT(arr, ptr);
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
