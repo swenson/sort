@@ -1,0 +1,38 @@
+name: Check on all platforms
+
+on:
+  push:
+  #   branches: [ $default-branch ]
+  # pull_request:
+  #   branches: [ $default-branch ]
+
+jobs:
+  test-windows-msvc:
+    runs-on: windows-latest
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     arch: [x86, x86_x64]
+    steps:
+    - uses: actions/checkout@v2
+    # - run: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat\" ${{ matrix.arch }}"
+    - run: CC=cl make test
+      shell: bash
+  test-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, gcc-9, gcc-10, gcc-11, clang, clang-10, clang-11, clang-12]
+    steps:
+    - uses: actions/checkout@v2
+    - run: make test
+  test-mac:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc-8, gcc-9, gcc-10, gcc-11, clang]
+    steps:
+    - uses: actions/checkout@v2
+    - run: CC=${{ matrix.cc }} make test
