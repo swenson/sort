@@ -1235,25 +1235,22 @@ void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) 
   MERGE_SORT_RECURSIVE(newdst, dst, middle);
   MERGE_SORT_RECURSIVE(newdst, &dst[middle], size - middle);
 
-  while (out != size) {
-    if (i < middle) {
-      if (j < size) {
-        if (SORT_CMP(dst[i], dst[j]) <= 0) {
-          newdst[out] = dst[i++];
-        } else {
-          newdst[out] = dst[j++];
-        }
-      } else {
-        newdst[out] = dst[i++];
-      }
-    } else {
-      newdst[out] = dst[j++];
-    }
+  if (SORT_CMP(dst[middle - 1], dst[middle]) <= 0)
+  { return; }
 
-    out++;
+  SORT_TYPE_CPY(newdst, dst, middle);
+
+  for (; i < middle && j < size; ++out) {
+    if (SORT_CMP(newdst[i], dst[j]) <= 0) {
+      dst[out] = newdst[i++];
+    } else {
+      dst[out] = dst[j++];
+    }
   }
 
-  SORT_TYPE_CPY(dst, newdst, size);
+  for (; i < middle; ++out) {
+    dst[out] = newdst[i++];
+  }
 }
 
 /* Standard merge sort */
@@ -1270,7 +1267,7 @@ void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
     return;
   }
 
-  newdst = SORT_NEW_BUFFER(size);
+  newdst = SORT_NEW_BUFFER(size / 2);
   MERGE_SORT_RECURSIVE(newdst, dst, size);
   SORT_DELETE_BUFFER(newdst);
 }
