@@ -95,6 +95,14 @@ You can also redefine `TIM_SORT_STACK_SIZE` (default 128) to control
 the size of the tim sort stack (which can be used to reduce memory).
 Reducing it too far can cause tim sort to overflow the stack though.
 
+You can specify definitions for all functions that are included in
+sort.h.  Making sort functions static increases the likelihood a 
+compiler will eliminate dead code.
+
+```c
+#define SORT_DEF static
+```
+
 Speed of routines
 -----------------
 
