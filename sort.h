@@ -19,6 +19,15 @@
 #define SORT_CMP(x, y)  ((x) < (y) ? -1 : ((y) < (x) ? 1 : 0))
 #endif
 
+#ifndef SORT_DEF
+#define SORT_DEF
+#else
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+#endif
+
 #ifdef __cplusplus
 #ifndef SORT_SAFE_CPY
 #define SORT_SAFE_CPY 0
@@ -239,21 +248,21 @@ typedef struct {
 } TIM_SORT_RUN_T;
 
 
-void SHELL_SORT(SORT_TYPE *dst, const size_t size);
-void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size);
-void HEAP_SORT(SORT_TYPE *dst, const size_t size);
-void QUICK_SORT(SORT_TYPE *dst, const size_t size);
-void MERGE_SORT(SORT_TYPE *dst, const size_t size);
-void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
-void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
-void TIM_SORT(SORT_TYPE *dst, const size_t size);
-void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
-void BITONIC_SORT(SORT_TYPE *dst, const size_t size);
-void REC_STABLE_SORT(SORT_TYPE *dst, const size_t size);
-void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *dst, const size_t size);
-void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *dst, const size_t size);
-void GRAIL_SORT(SORT_TYPE *dst, const size_t size);
-void SQRT_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void SHELL_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void HEAP_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void QUICK_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void MERGE_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t size);
+SORT_DEF void SELECTION_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void TIM_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void BUBBLE_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void BITONIC_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void REC_STABLE_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *dst, const size_t size);
+SORT_DEF void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *dst, const size_t size);
+SORT_DEF void GRAIL_SORT(SORT_TYPE *dst, const size_t size);
+SORT_DEF void SQRT_SORT(SORT_TYPE *dst, const size_t size);
 
 /* The full implementation of a bitonic sort is not here. Since we only want to use
    sorting networks for small length lists we create optimal sorting networks for
@@ -740,7 +749,7 @@ static __inline void BITONIC_SORT_16(SORT_TYPE *dst) {
   SORT_CSWAP(dst[8], dst[9]);
 }
 
-void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
   switch (size) {
   case 0:
   case 1:
@@ -813,7 +822,7 @@ void BITONIC_SORT(SORT_TYPE *dst, const size_t size) {
 
 #if SORT_SAFE_CPY
 
-void SORT_TYPE_CPY(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
+SORT_DEF void SORT_TYPE_CPY(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
   size_t i = 0;
 
   for (; i < size; ++i) {
@@ -821,7 +830,7 @@ void SORT_TYPE_CPY(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
   }
 }
 
-void SORT_TYPE_MOVE(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
+SORT_DEF void SORT_TYPE_MOVE(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
   size_t i;
 
   if (dst < src) {
@@ -844,7 +853,7 @@ void SORT_TYPE_MOVE(SORT_TYPE *dst, SORT_TYPE *src, const size_t size) {
 
 #endif
 
-SORT_TYPE* SORT_NEW_BUFFER(size_t size) {
+SORT_DEF SORT_TYPE* SORT_NEW_BUFFER(size_t size) {
 #if SORT_SAFE_CPY
   return new SORT_TYPE[size];
 #else
@@ -852,7 +861,7 @@ SORT_TYPE* SORT_NEW_BUFFER(size_t size) {
 #endif
 }
 
-void SORT_DELETE_BUFFER(SORT_TYPE* pointer) {
+SORT_DEF void SORT_DELETE_BUFFER(SORT_TYPE* pointer) {
 #if SORT_SAFE_CPY
   delete[] pointer;
 #else
@@ -864,7 +873,7 @@ void SORT_DELETE_BUFFER(SORT_TYPE* pointer) {
 /* Shell sort implementation based on Wikipedia article
    http://en.wikipedia.org/wiki/Shell_sort
 */
-void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void SHELL_SORT(SORT_TYPE *dst, const size_t size) {
   /* don't bother sorting an array of size 0 or 1 */
   /* TODO: binary search to find first gap? */
   int inci = 47;
@@ -971,7 +980,7 @@ static void BINARY_INSERTION_SORT_START(SORT_TYPE *dst, const size_t start, cons
 }
 
 /* Binary insertion sort */
-void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
   /* don't bother sorting an array of size <= 1 */
   if (size <= 1) {
     return;
@@ -981,7 +990,7 @@ void BINARY_INSERTION_SORT(SORT_TYPE *dst, const size_t size) {
 }
 
 /* Selection sort */
-void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
   size_t i, j;
 
   /* don't bother sorting an array of size <= 1 */
@@ -999,7 +1008,7 @@ void SELECTION_SORT(SORT_TYPE *dst, const size_t size) {
 }
 
 /* In-place mergesort */
-void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len) {
+SORT_DEF void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len) {
   do {
     SORT_SWAP(*dst1, *dst2);
     dst1++;
@@ -1007,7 +1016,8 @@ void MERGE_SORT_IN_PLACE_ASWAP(SORT_TYPE * dst1, SORT_TYPE * dst2, size_t len) {
   } while (--len);
 }
 
-void MERGE_SORT_IN_PLACE_FRONTMERGE(SORT_TYPE *dst1, size_t l1, SORT_TYPE *dst2, size_t l2) {
+SORT_DEF void MERGE_SORT_IN_PLACE_FRONTMERGE(SORT_TYPE *dst1, size_t l1, SORT_TYPE *dst2,
+    size_t l2) {
   SORT_TYPE *dst0 = dst2 - l1;
 
   if (SORT_CMP(dst1[l1 - 1], dst2[0]) <= 0) {
@@ -1038,7 +1048,8 @@ void MERGE_SORT_IN_PLACE_FRONTMERGE(SORT_TYPE *dst1, size_t l1, SORT_TYPE *dst2,
   } while (--l1);
 }
 
-size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * dst2, size_t l2) {
+SORT_DEF size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * dst2,
+    size_t l2) {
   size_t res;
   SORT_TYPE *dst0 = dst2 + l1;
 
@@ -1075,7 +1086,7 @@ size_t MERGE_SORT_IN_PLACE_BACKMERGE(SORT_TYPE * dst1, size_t l1, SORT_TYPE * ds
 }
 
 /* merge dst[p0..p1) by buffer dst[p1..p1+r) */
-void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r) {
+SORT_DEF void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r) {
   size_t i, lq;
   int cv;
 
@@ -1122,7 +1133,7 @@ void MERGE_SORT_IN_PLACE_RMERGE(SORT_TYPE *dst, size_t len, size_t lp, size_t r)
 }
 
 /* In-place Merge Sort implementation. (c)2012, Andrey Astrelin, astrelin@tochka.ru */
-void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
+SORT_DEF void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
   /* don't bother sorting an array of size <= 1 */
   size_t r = rbnd(len);
   size_t lr = (len / r - 1) * r;
@@ -1216,7 +1227,7 @@ void MERGE_SORT_IN_PLACE(SORT_TYPE *dst, const size_t len) {
 }
 
 /* Standard merge sort */
-void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) {
+SORT_DEF void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) {
   const size_t middle = size / 2;
   size_t out = 0;
   size_t i = 0;
@@ -1257,7 +1268,7 @@ void MERGE_SORT_RECURSIVE(SORT_TYPE *newdst, SORT_TYPE *dst, const size_t size) 
 }
 
 /* Standard merge sort */
-void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void MERGE_SORT(SORT_TYPE *dst, const size_t size) {
   SORT_TYPE *newdst;
 
   /* don't bother sorting an array of size <= 1 */
@@ -1724,7 +1735,7 @@ static __inline int PUSH_NEXT(SORT_TYPE *dst,
   return 1;
 }
 
-void TIM_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void TIM_SORT(SORT_TYPE *dst, const size_t size) {
   size_t minrun;
   TEMP_STORAGE_T _store, *store;
   TIM_SORT_RUN_T run_stack[TIM_SORT_STACK_SIZE];
@@ -1807,7 +1818,7 @@ static __inline void HEAPIFY(SORT_TYPE *dst, const size_t size) {
   }
 }
 
-void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void HEAP_SORT(SORT_TYPE *dst, const size_t size) {
   size_t end = size - 1;
 
   /* don't bother sorting an array of size <= 1 */
@@ -2887,16 +2898,16 @@ static void GRAIL_COMMON_SORT(SORT_TYPE *arr, int Len, SORT_TYPE *extbuf, int LE
   GRAIL_MERGE_WITHOUT_BUFFER(arr, ptr, Len - ptr);
 }
 
-void GRAIL_SORT(SORT_TYPE *arr, size_t Len) {
+SORT_DEF void GRAIL_SORT(SORT_TYPE *arr, size_t Len) {
   GRAIL_COMMON_SORT(arr, (int)Len, NULL, 0);
 }
 
-void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, size_t Len) {
+SORT_DEF void GRAIL_SORT_FIXED_BUFFER(SORT_TYPE *arr, size_t Len) {
   SORT_TYPE ExtBuf[GRAIL_EXT_BUFFER_LENGTH];
   GRAIL_COMMON_SORT(arr, (int)Len, ExtBuf, GRAIL_EXT_BUFFER_LENGTH);
 }
 
-void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, size_t Len) {
+SORT_DEF void GRAIL_SORT_DYN_BUFFER(SORT_TYPE *arr, size_t Len) {
   int L = 1;
   SORT_TYPE *ExtBuf;
 
@@ -2957,7 +2968,7 @@ static void GRAIL_REC_MERGE(SORT_TYPE *A, int L1, int L2) {
   GRAIL_REC_MERGE(A, k1, m1);
 }
 
-void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
+SORT_DEF void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
   int m, h, p0, p1, rest;
 
   for (m = 1; m < L; m += 2) {
@@ -2986,7 +2997,7 @@ void REC_STABLE_SORT(SORT_TYPE *arr, size_t L) {
 /* Bubble sort implementation based on Wikipedia article
    https://en.wikipedia.org/wiki/Bubble_sort
 */
-void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
+SORT_DEF void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
   size_t n = size;
 
   while (n) {
@@ -3078,3 +3089,9 @@ void BUBBLE_SORT(SORT_TYPE *dst, const size_t size) {
 #undef SQRT_SORT_COMMON_SORT
 #undef SORT_CMP_A
 #undef BUBBLE_SORT
+
+#ifdef SORT_DEF
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+#endif
