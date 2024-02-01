@@ -7,11 +7,17 @@
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
 #define SORT_CMP(x, y) ((x) - (y))
+#ifdef SET_SORT_EXTRA
+#define SORT_EXTRA
+#endif
 #include "sort.h"
 
 #define SORT_NAME stable
 #define SORT_TYPE int*
 #define SORT_CMP(x, y) (*(x) - *(y))
+#ifdef SET_SORT_EXTRA
+#define SORT_EXTRA
+#endif
 #include "sort.h"
 
 /* Used to control the stress test */
@@ -54,7 +60,7 @@ static __inline int simple_cmp(const void *a, const void *b) {
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
-static __inline double utime() {
+static __inline double utime(void) {
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1000000.0 * t.tv_sec + t.tv_usec);
@@ -229,8 +235,10 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
 #endif
 
   if (MAXSIZE < 10000) {
+#ifdef SET_SORT_EXTRA
     TEST_SORT_H(selection_sort);
     TEST_SORT_H(bubble_sort);
+#endif
     TEST_SORT_H(binary_insertion_sort);
     TEST_SORT_H(bitonic_sort);
   }
@@ -241,10 +249,12 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   TEST_SORT_H(shell_sort);
   TEST_SORT_H(tim_sort);
   TEST_SORT_H(merge_sort_in_place);
+#ifdef SET_SORT_EXTRA
   TEST_SORT_H(grail_sort);
   TEST_SORT_H(sqrt_sort);
   TEST_SORT_H(rec_stable_sort);
   TEST_SORT_H(grail_sort_dyn_buffer);
+#endif
   free(dst);
   return 0;
 }
@@ -335,22 +345,26 @@ void check_stable(char *name, void (*sort_fun)(int **arr, size_t size), int size
 }
 
 /* Check which sorts are stable. */
-void stable_tests() {
+void stable_tests(void) {
   int size = 100000;
   int num_values = 1000;
-  check_stable("selection sort", stable_selection_sort, size, num_values);
   check_stable("binary insertion sort", stable_binary_insertion_sort, size, num_values);
+#ifdef SET_SORT_EXTRA
+  check_stable("selection sort", stable_selection_sort, size, num_values);
   check_stable("bubble sort", stable_bubble_sort, size, num_values);
+#endif
   check_stable("quick sort", stable_quick_sort, size, num_values);
   check_stable("merge sort", stable_merge_sort, size, num_values);
   check_stable("heap sort", stable_heap_sort, size, num_values);
   check_stable("shell sort", stable_shell_sort, size, num_values);
   check_stable("tim sort", stable_tim_sort, size, num_values);
   check_stable("merge (in-place) sort", stable_merge_sort_in_place, size, num_values);
+#ifdef SET_SORT_EXTRA
   check_stable("grail sort", stable_grail_sort, size, num_values);
   check_stable("sqrt sort", stable_sqrt_sort, size, num_values);
   check_stable("rec stable sort", stable_rec_stable_sort, size, num_values);
   check_stable("grail sort dyn byffer", stable_grail_sort_dyn_buffer, size, num_values);
+#endif
 }
 
 int main(void) {

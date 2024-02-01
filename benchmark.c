@@ -12,6 +12,9 @@
 #define MIN(x,y) (((x) < (y) ? (x) : (y)))
 #define SORT_CMP(x, y) ((x) - (y))
 #define SORT_CSWAP(x, y) {SORT_TYPE _sort_swap_temp = MAX((x), (y)); (x) = MIN((x),(y)); (y) = _sort_swap_temp;}
+#ifdef SET_SORT_EXTRA
+#define SORT_EXTRA
+#endif
 #include "sort.h"
 
 /* Used to control the stress test */
@@ -29,7 +32,7 @@ static __inline int simple_cmp(const void *a, const void *b) {
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
-static __inline double utime() {
+static __inline double utime(void) {
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1000000.0 * t.tv_sec + t.tv_usec);
@@ -56,7 +59,7 @@ void capitalize(const char *word, char *new_word) {
   new_word[0] = toupper(new_word[0]);
 }
 
-int platform_bits() {
+int platform_bits(void) {
 #if defined (__amd64__) || defined (__x86_64__)
 
   if (1) { /* avoid two returns in a row */
@@ -150,9 +153,11 @@ int main(void) {
   TEST_SORT_H(shell_sort);
   TEST_SORT_H(tim_sort);
   TEST_SORT_H(merge_sort_in_place);
+#ifdef SET_SORT_EXTRA
   TEST_SORT_H(grail_sort);
   TEST_SORT_H(sqrt_sort);
   TEST_SORT_H(rec_stable_sort);
   TEST_SORT_H(grail_sort_dyn_buffer);
+#endif
   return 0;
 }

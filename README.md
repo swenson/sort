@@ -1,8 +1,6 @@
 sort.h
 ======
 
-<a href="https://travis-ci.org/swenson/sort"><img alt="build status" src="https://api.travis-ci.org/swenson/sort.png" /></a>
-
 Overview
 --------
 
@@ -25,7 +23,11 @@ You get the choice of many sorting routines, including:
 * Shellsort
 * Binary insertion sort
 * Heapsort
+
+If you set `SORT_EXTRA` and have `sort_extra.h` available in the path, there are some additional, specialized sorting routines available:
+
 * Selection sort (this is really only here for comparison)
+* Bubble sort
 * Grail sort (stable)
   * Based on [`B-C. Huang and M. A. Langston, *Fast Stable Merging and Sorting in
   Constant Extra Space* (1989-1992)`](http://comjnl.oxfordjournals.org/content/35/6/643.full.pdf).
@@ -96,7 +98,7 @@ the size of the tim sort stack (which can be used to reduce memory).
 Reducing it too far can cause tim sort to overflow the stack though.
 
 You can specify definitions for all functions that are included in
-sort.h.  Making sort functions static increases the likelihood a 
+sort.h.  Making sort functions static increases the likelihood a
 compiler will eliminate dead code.
 
 ```c

@@ -15,6 +15,9 @@
 #define MAX(x,y) (((x) > (y) ? (x) : (y)))
 #define MIN(x,y) (((x) < (y) ? (x) : (y)))
 #define SORT_CSWAP(x, y) {SORT_TYPE _sort_swap_temp = MAX((x), (y)); (x) = MIN((x),(y)); (y) = _sort_swap_temp;}
+#ifdef SET_SORT_EXTRA
+#define SORT_EXTRA
+#endif
 #include "sort.h"
 
 /*
@@ -54,7 +57,7 @@ void verify(int64_t *dst, const int size) {
   }
 }
 
-static __inline double utime() {
+static __inline double utime(void) {
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1000000.0 * t.tv_sec + t.tv_usec);
@@ -144,6 +147,7 @@ void run_tests(void) {
   printf("quick sort time:                 %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
+#ifdef SET_SORT_EXTRA
 
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
@@ -172,6 +176,7 @@ void run_tests(void) {
   printf("bubble sort time:                %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
+#endif
 
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
@@ -270,6 +275,7 @@ void run_tests(void) {
   printf("in-place merge sort time:        %10.2f us per iteration\n", total_time / RUNS);
   srand48(SEED);
   total_time = 0.0;
+#ifdef SET_SORT_EXTRA
 
   for (i = 0; i < RUNS; i++) {
     fill(arr, SIZE);
@@ -324,6 +330,7 @@ void run_tests(void) {
   }
 
   printf("grail sort dyn buffer sort time: %10.2f us per iteration\n", total_time / RUNS);
+#endif
 }
 
 int main(void) {
