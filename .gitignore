@@ -1,6 +1,10 @@
 benchmark
+benchmark_extra
 benchmark.txt
 demo
+demo_extra
 multidemo
+multidemo_extra
 stresstest
+stresstest_extra
 *.dSYM
