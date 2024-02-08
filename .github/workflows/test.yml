@@ -24,7 +24,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: test
+      - name: Setup cl
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Compile stresstest
         run: cl /O3 stresstest.c
       - name: stresstest
         run: stresstest.exe
