@@ -27,6 +27,6 @@ jobs:
       - name: Setup cl
         uses: ilammy/msvc-dev-cmd@v1
       - name: Compile stresstest
-        run: cl /O3 stresstest.c
+        run: cl /O2 stresstest.c
       - name: stresstest
         run: stresstest.exe

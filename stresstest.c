@@ -2,7 +2,6 @@
 /* Copyright (c) 2012 Google Inc. All Rights Reserved. */
 
 #define _XOPEN_SOURCE
-#include <sys/time.h>
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
@@ -60,11 +59,23 @@ static __inline int simple_cmp(const void *a, const void *b) {
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
+#ifdef _WIN32
+
+#include <time.h>
+static __inline double utime(void) {
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    return 1000000.0 * ts.tv_sec + ts.tv_nsec / 1000.0;
+}
+#else
+
+#include <sys/time.h>
 static __inline double utime(void) {
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1000000.0 * t.tv_sec + t.tv_usec);
 }
+#endif
 
 /* helper functions */
 int verify(int64_t *dst, const int size) {
