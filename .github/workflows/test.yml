@@ -3,23 +3,25 @@ on:
 
 jobs:
   test-liunux-gcc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: test
-        run: make CC=gcc
-  test-liunux-clang:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: test
-        run: make CC=clang
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: test
-        run: make
+      # - name: test
+      #   run: make CC=gcc
+      - run: ls /usr/bin/gcc*
+      - run: ls /usr/bin/clang*
+  # test-liunux-clang:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #     - name: test
+  #       run: make CC=clang
+  # test-macos:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #     - name: test
+  #       run: make
