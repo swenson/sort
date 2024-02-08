@@ -1,0 +1,27 @@
+on:
+  push:
+
+jobs:
+  test-liunux-gcc:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: test
+        run: make CC=gcc
+  test-liunux-clang:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: test
+        run: make CC=clang
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: test
+        run: make
