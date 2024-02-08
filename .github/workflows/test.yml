@@ -3,7 +3,6 @@ on:
 
 jobs:
   test-liunux-gcc:
-    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -11,7 +10,6 @@ jobs:
       - name: test
         run: make CC=gcc
   test-liunux-clang:
-    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
