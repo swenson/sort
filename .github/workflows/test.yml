@@ -28,5 +28,8 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
       - name: Compile stresstest
         run: cl /O2 stresstest.c
-      - name: stresstest
-        run: .\stresstest.exe
+      - shell: bash
+        run: ls
+      - shell: bash
+        name: stresstest
+        run: ./stresstest.exe
