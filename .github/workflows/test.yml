@@ -29,4 +29,4 @@ jobs:
       - name: Compile stresstest
         run: cl /O2 stresstest.c
       - name: stresstest
-        run: stresstest.exe
+        run: .\stresstest.exe
