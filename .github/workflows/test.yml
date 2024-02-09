@@ -32,4 +32,4 @@ jobs:
         run: ls
       - shell: bash
         name: stresstest
-        run: ./stresstest.exe
+        run: gdb -batch -ex "run" -ex "bt" ./stresstest.ext 2>&1 | grep -v ^"No stack."$
