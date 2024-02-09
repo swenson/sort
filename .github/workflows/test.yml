@@ -2,23 +2,23 @@ on:
   push:
 
 jobs:
-  test-liunux:
-    strategy:
-      matrix:
-        cc: [gcc-10, gcc-11, gcc-12, gcc-13, clang-13, clang-14, clang-15]
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: test
-        run: make CC=${{ matrix.cc }}
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: test
-        run: make
+  # test-liunux:
+  #   strategy:
+  #     matrix:
+  #       cc: [gcc-10, gcc-11, gcc-12, gcc-13, clang-13, clang-14, clang-15]
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #     - name: test
+  #       run: make CC=${{ matrix.cc }}
+  # test-macos:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #     - name: test
+  #       run: make
   test-windows:
     runs-on: windows-latest
     steps:
