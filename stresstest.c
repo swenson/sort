@@ -2,7 +2,6 @@
 /* Copyright (c) 2012 Google Inc. All Rights Reserved. */
 
 #define _XOPEN_SOURCE
-#include <sys/time.h>
 
 #define SORT_NAME sorter
 #define SORT_TYPE int64_t
@@ -26,7 +25,7 @@
 #define TESTS 1000
 
 #define RAND_RANGE(__n, __min, __max) \
-    (__n) = (__min) + (long) ((double) ( (double) (__max) - (__min) + 1.0) * ((__n) / (RAND_MAX + 1.0)))
+    (__n) = (__min) + (long) ((double) ( (double) (__max) - (__min) + 1.0) * ((__n) / (0x7fffffff + 1.0)))
 
 enum {
   FILL_RANDOM,
@@ -60,11 +59,33 @@ static __inline int simple_cmp(const void *a, const void *b) {
   return (da < db) ? -1 : (da == db) ? 0 : 1;
 }
 
+#ifdef _WIN32
+
+#include <time.h>
+static __inline void srand48(long seed) {
+  srand(seed);
+}
+
+static __inline long lrand48(void) {
+  int x;
+  rand_s(&x);
+  return x & 0x7fffffff;
+}
+
+static __inline double utime(void) {
+  struct timespec ts;
+  timespec_get(&ts, TIME_UTC);
+  return 1000000.0 * ts.tv_sec + ts.tv_nsec / 1000.0;
+}
+#else
+
+#include <sys/time.h>
 static __inline double utime(void) {
   struct timeval t;
   gettimeofday(&t, NULL);
   return (1000000.0 * t.tv_sec + t.tv_usec);
 }
+#endif
 
 /* helper functions */
 int verify(int64_t *dst, const int size) {
@@ -229,7 +250,7 @@ int run_tests(int64_t *sizes, int sizes_cnt, int type) {
   int64_t * dst = (int64_t *)malloc(MAXSIZE * sizeof(int64_t));
   printf("-------\nRunning tests with %s:\n-------\n", test_names[type]);
   TEST_STDLIB(qsort);
-#if !defined(__linux__) && !defined(__CYGWIN__)
+#if !defined(__linux__) && !defined(__CYGWIN__) && !defined(_WIN32)
   TEST_STDLIB(heapsort);
   TEST_STDLIB(mergesort);
 #endif
