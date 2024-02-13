@@ -25,7 +25,7 @@
 #define TESTS 1000
 
 #define RAND_RANGE(__n, __min, __max) \
-    (__n) = (__min) + (long) ((double) ( (double) (__max) - (__min) + 1.0) * ((__n) / (RAND_MAX + 1.0)))
+    (__n) = (__min) + (long) ((double) ( (double) (__max) - (__min) + 1.0) * ((__n) / (0x7fffffff + 1.0)))
 
 enum {
   FILL_RANDOM,
